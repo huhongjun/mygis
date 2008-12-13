@@ -1,0 +1,42 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+     "http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+<head>
+<title>XTree 2 Demo</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script type="text/javascript" src="xloadtree/xtree.js"></script>
+<script type="text/javascript" src="xloadtree/xmlextras.js"></script>
+<script type="text/javascript" src="xloadtree/xloadtree.js"></script>
+<script type="text/javascript" src="scripts/globals.js"></script>
+
+<link type="text/css" rel="stylesheet" href="xloadtree/xtree.css" />
+
+</head>
+<body>
+
+<script type="text/javascript">
+webFXTreeConfig.rootIcon		= "xloadtree/images/xp/folder.png";
+webFXTreeConfig.openRootIcon	= "xloadtree/images/xp/openfolder.png";
+webFXTreeConfig.folderIcon		= "xloadtree/images/xp/folder.png";
+webFXTreeConfig.openFolderIcon	= "xloadtree/images/xp/openfolder.png";
+webFXTreeConfig.fileIcon		= "xloadtree/images/xp/file.png";
+webFXTreeConfig.lMinusIcon		= "xloadtree/images/xp/Lminus.png";
+webFXTreeConfig.lPlusIcon		= "xloadtree/images/xp/Lplus.png";
+webFXTreeConfig.tMinusIcon		= "xloadtree/images/xp/Tminus.png";
+webFXTreeConfig.tPlusIcon		= "xloadtree/images/xp/Tplus.png";
+webFXTreeConfig.iIcon			= "xloadtree/images/xp/I.png";
+webFXTreeConfig.lIcon			= "xloadtree/images/xp/L.png";
+webFXTreeConfig.tIcon			= "xloadtree/images/xp/T.png";
+webFXTreeConfig.blankIcon	= "xloadtree/images//blank.png";
+
+var tree = new WebFXTree("设备导航");
+tree.add(new WebFXLoadTreeItem("北京电力", "xlTree.do?method=getTreeRoot"));
+document.write(tree);
+//var tree = new WebFXLoadTree("线路树", "xlTree.do?method=getTreeDydj&amp;dwmc=大兴" );
+//tree.write();
+
+</script>
+
+</body>
+</html>

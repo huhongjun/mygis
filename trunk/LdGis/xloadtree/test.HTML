@@ -1,0 +1,59 @@
+<html> 
+<head> 
+<title>|CL50521|</title> 
+<style type="text/css"> 
+body{font: 9pt "宋体"; margintop: 0px ; color: #ffffff; background: #000000} 
+a.{ font: 9pt "宋体"; cursor: hand; font-size: 9pt ; color: #ffffff; text-decoration: none } 
+a:active{ font: 9pt "宋体"; cursor: hand; color: #FF0033 } 
+a.cc:hover{ font: 9pt "宋体"; cursor: hand; color: #FF0033} 
+.box{ font: 9pt "宋体"; position: absolute; background: #000000 } 
+</style> 
+</head> 
+<body>
+
+
+<table id="itemopen" class="box" style="display:none"> 
+<tr> 
+<td>弹出菜单</td> 
+</tr> 
+<tr> 
+<td><a href="#" class="cc" id="a1" name="a1" onclick="popUp">test1</a></td> 
+</tr> 
+<tr> 
+<td><a href="http://www.oso.com.cn" class="cc" id="a2" name="a2" onmouseover="popUp">test2</a></td> 
+</tr> 
+<tr> 
+<td><a href="http://www.oso.come.cn" class="cc">奥索</a></td> 
+</tr> 
+<tr> 
+<td><a href="http://www.oso.com.cn" class="cc">oso</a></td> 
+</tr> 
+<tr> 
+<td><a href="xxx.htm" class="cc">更多连接</a></td> 
+</tr> 
+<tr> 
+<td><a href="xxx.htm" class="cc">更多连接</a></td> 
+</tr> 
+<tr> 
+<td><a href="xxx.htm" class="cc" onclick="popUp">更多连接</a></td> 
+</tr> 
+</table> 
+</center></div><!-- End of Popup Menu --> 
+<script language="JavaScript"> 
+document.onclick = popUp 
+
+//document.itemopen.a2.onclick= popUp
+function popUp() { 
+newX = window.event.x + document.body.scrollLeft 
+newY = window.event.y + document.body.scrollTop 
+menu = document.all.itemopen 
+if ( menu.style.display == ""){ 
+menu.style.display = "none" } 
+else { 
+menu.style.display = ""} 
+menu.style.pixelLeft = newX 
+menu.style.pixelTop = newY 
+} 
+</script> 
+</body> 
+</html> 

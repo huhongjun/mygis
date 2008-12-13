@@ -1,0 +1,124 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+    "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+   <bean id="webGisService" class="org.appfuse.Resource">
+	   <property name="publish_address">
+	          <value>http://122.122.109.108:9080/webgis/services/Publish</value>
+	   </property>
+	   <!-- 程序中解析url用 -->
+	   <property name="webServiceAddress">
+	          <value>http://122.122.109.108:9080/webgis/</value>
+	   </property> 
+	   
+	    <property name="publishWSDDServiceName">
+	          <value>Publish</value>
+	   </property>
+	    <property name="webGisServiceName">
+	          <value>leidian</value>
+	   </property>
+	    <property name="webGisuserName">
+	          <value>hujq</value>
+	   </property>
+	    <property name="webgisPassword">
+	          <value>webgis</value>
+	   </property>
+	   
+	   <!-- 线路 -->
+	   <property name="xlURI">
+	          <value>-1,1,2,3,4</value>
+	   </property>
+
+	   <!-- 变电站 -->
+	   <property name="bdzURI">
+	          <value>11,12,13,14</value>
+	   </property>
+	   
+	   <!-- 行政区 -->
+	   <property name="bjxzqURI">
+   			<map> 
+   				<entry key="朝阳">
+					<value>63,106</value>
+				</entry>
+				
+ 				<entry key="海淀">
+					<value>63,109</value>
+				</entry>
+ 				<entry key="丰台">
+					<value>63,111</value>
+				</entry>
+				
+  				<entry key="城区">
+					<value>63,118</value>
+				</entry>
+				
+ 				<entry key="东城">
+					<value>63,117</value>
+				</entry>
+  				<entry key="西城">
+					<value>63,116</value>
+				</entry>
+				
+ 				<entry key="崇文">
+					<value>63,118</value>
+				</entry>
+  				<entry key="宣武">
+					<value>63,108</value>
+				</entry>
+
+  				<entry key="石景山">
+					<value>63,104</value>
+				</entry>
+  				<entry key="亦庄">
+					<value>63,105</value>
+				</entry>
+  				<entry key="通州">
+					<value>63,110</value>
+				</entry>
+  				<entry key="昌平">
+					<value>63,114</value>
+				</entry>
+ 				<entry key="门头沟">
+					<value>63,103</value>
+				</entry>
+
+ 				<entry key="房山">
+					<value>63,101</value>
+				</entry>
+  				<entry key="大兴">
+					<value>63,105</value>
+				</entry>
+  				<entry key="平谷">
+					<value>63,113</value>
+				</entry>
+				
+				<entry key="怀柔">
+					<value>63,102</value>
+				</entry>
+ 
+ 				<entry key="密云">
+					<value>63,112</value>
+				</entry>
+ 				
+ 				<entry key="顺义">
+					<value>63,115</value>
+				</entry>
+  				<entry key="延庆">
+					<value>63,107</value>
+				</entry>
+				
+  				<entry key="输电">
+					<value>63</value>
+				</entry>
+	  		</map>
+   		</property>
+    
+	   <!--  0: deBug,1:release -->
+ 	    <property name="isDebug">
+	          <value>1</value>
+	   </property>  
+	   
+	</bean>
+
+</beans>
