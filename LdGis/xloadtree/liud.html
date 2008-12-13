@@ -1,0 +1,223 @@
+﻿ <html>
+<head>
+<title>XLoadTree Demo (WebFX)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script type="text/javascript" src="xtree.js"></script>
+<script type="text/javascript" src="xmlextras.js"></script>
+<script type="text/javascript" src="xloadtree.js"></script>
+<link type="text/css" rel="stylesheet" href="xtree.css" />
+
+<style type="text/css">
+
+body {
+	background:	white;
+	color:		black;
+}
+.flyoutMenu {
+	background-color: #F1F1F1;
+	border-color: #999999;
+	border-width: 0 1px 1px 0;
+	border-style: solid;
+}
+.flyoutMenu TD.flyoutLink  {
+	border-color: #F1F1F1;
+	border-width: 1px;
+	border-style: solid;
+	font-family: Verdana,Arial;
+	font-size: 70%;
+	padding: 1px 25px 3px 6px;
+	cursor: hand;
+}
+.flyoutLink a {
+	color: black;
+	text-decoration: none;
+}
+.flyoutLink a:hover {
+	color: black;
+	text-decoration: none;
+}
+.flyoutLink a:visited {
+	color: black;
+	text-decoration: none;
+}
+.flyoutLink a:active {
+	color: black;
+	text-decoration: none;
+}
+	
+</style>
+
+<script type="text/javascript">
+function over(){
+  
+	if(obj=event.srcElement)
+		if(obj.className=="flyoutLink"){
+			obj.style.backgroundColor='#cccccc'
+			obj.style.borderColor = '#999999'
+		}
+}
+function out(){
+	if(obj=event.srcElement)
+		if(obj.className=="flyoutLink"){
+			obj.style.backgroundColor='#f1f1f1'
+			obj.style.borderColor = '#f1f1f1'
+		}
+}
+function show(d){
+
+	if(obj=document.all(d))	
+	{ 
+			if (obj.style.display=="none")
+				{
+					
+					newx = window.event.x
+					newy = window.event.y
+					obj.style.left = newx + document.body.scrollLeft 
+					obj.style.top = newy + document.body.scrollTop 
+					obj.style.display = "";
+				}
+	}
+	//alert("window.event.x="+ window.event.x)
+}
+function show1(d){
+ // alert("hide"+window.event.srcElement.className+ d)
+	if(obj=document.all(d))	obj.style.display="block"
+}
+function hide(d){
+ 
+	if(obj=document.all(d))	obj.style.display="none"
+}
+
+document.onmouseover=over
+document.onmouseout=out
+
+
+
+</script>
+
+</head>
+<body>
+<!-- <div id=div1 style="position:relative;display:none;" onmouseover=show("div1") onmouseout=hide("div1")> -->
+	
+<!-- </div>  -->
+
+<form>
+<select id="region_area">
+<option> 江北局 </option>
+<option> 江北变 </option>
+<option> 正大</option>
+<option> 正大</option>
+</select>
+</form>
+
+<script type="text/javascript">
+
+/// XP Look
+webFXTreeConfig.rootIcon		= "images/xp/folder.png";
+webFXTreeConfig.openRootIcon	= "images/xp/openfolder.png";
+webFXTreeConfig.folderIcon		= "images/xp/folder.png";
+webFXTreeConfig.openFolderIcon	= "images/xp/openfolder.png";
+webFXTreeConfig.fileIcon		= "images/xp/file.png";
+webFXTreeConfig.lMinusIcon		= "images/xp/Lminus.png";
+webFXTreeConfig.lPlusIcon		= "images/xp/Lplus.png";
+webFXTreeConfig.tMinusIcon		= "images/xp/Tminus.png";
+webFXTreeConfig.tPlusIcon		= "images/xp/Tplus.png";
+webFXTreeConfig.iIcon			= "images/xp/I.png";
+webFXTreeConfig.lIcon			= "images/xp/L.png";
+webFXTreeConfig.tIcon			= "images/xp/T.png";
+webFXTreeConfig.blankIcon	= "images//blank.png";
+//var tree = new WebFXLoadTree("WebFXLoadTree", "tree1.xml");
+//tree.setBehavior("classic");
+
+var rti;
+var tree = new WebFXTree("设备导航");
+tree.add(new WebFXLoadTreeItem("襄樊电力系统公司", "gis_tree_ok.xml"));
+
+//tree.add(new WebFXLoadTreeItem("宁波电业局", "#"));
+document.write(tree);
+
+//function gotoGG(str)
+//{
+// alert(tree.text+str);
+//if (tree.getSelected()) {
+//alert(tree.getSelected().src);
+//window.open (tree.getSelected().src,'_blank','width=300,height=300');
+//}
+
+var num=0;
+var obj =document.getElementById("region_area")
+var tr,timeout;
+var op =obj.options
+alert(op.length)
+if(obj!=null)
+{ 
+  tr=tree.childNodes[0]
+  tr.expand()
+  timeout=setTimeout("tr=locate(tr)",1000);
+	
+}
+
+
+function locate(tr1){
+ //展开tr1节点下包含str的字节点。
+ 
+ alert("##"+tr1.text+"loaded?:"+tr1.loaded+"open?:"+tr1.open)
+ if (!tr1.loaded )
+ {
+ 	   timeout=setTimeout("tr=locate(tr)",1000)
+ 	   return tr1
+ }
+ 
+ if (num>=op.length)
+ {
+ 	clearTimeout(timeout);
+ 	return ;
+ }
+ if (!tr1.open)
+ {
+ 		tr1.expand()
+ }
+ alert("num:"+num)
+ str = op[num].text
+ num++;
+ 
+ var i;
+ for(i=0; i< tr1.childNodes.length;i++) 
+ {
+     
+ 	  t=tr1.childNodes[i]
+ 	  //alert("i:"+i+t.text)
+ 	  if ( t.action.indexOf(str) != -1 || t.text.indexOf(str)!=-1 )
+ 	  {
+ 			  	tr1 = t;
+ 			  	tr1.expand();
+ 			  	timeout=setTimeout("tr=locate(tr)",1000)
+ 			  	return tr1;		  
+ 			   
+ 	  }
+ }
+ clearTimeout(timeout);
+} 
+
+
+
+</script>
+
+<p><button onclick="javascript:locate('江北')">Reload</button></p> 
+
+<div id=div1 style="position:absolute;display:none" onmouseover=show1('div1') onmouseout=hide('div1') >
+<table  class="flyoutMenu" width="180" cellpadding="2" cellspacing="0" border="0" >
+		<tr><td>
+		<table width="175" cellpadding="0" cellspacing="0" border="0" >
+			<tr><td class="flyoutLink">美国菜单</td></tr>
+			<tr><td class="flyoutLink">纽约</td></tr>
+			<tr><td class="flyoutLink">芝加哥</td></tr>
+			<tr><td class="flyoutLink">三藩市</td></tr>
+			<tr><td class="flyoutLink">华盛顿</td></tr>
+			<tr><td class="flyoutLink">费城</td></tr>
+		</table>
+	</table>
+</div> 	
+
+</body>
+</html>

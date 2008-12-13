@@ -1,0 +1,166 @@
+<?xml version = "1.0" encoding = "UTF-8" ?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+    "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+  <bean id="valueListHandler" singleton="true" class="net.mlw.vlh.DefaultValueListHandlerImpl">
+    <property name="config.adapters">
+      <map>
+ 
+        <!--t_funcalloc-->
+        <entry key="funcalloclist">
+          <bean class="net.mlw.vlh.adapter.jdbc.dynabean.DefaultDynaBeanAdapter">
+            <property name="dataSource"><ref bean="dataSource"/></property>
+            <property name="defaultNumberPerPage"><value>30</value></property>
+            <property name="defaultSortColumn"><value>id</value></property>
+            <property name="defaultSortDirection"><value>asc</value></property>
+            <property name="sql">
+              <value>
+                SELECT a.*
+                FROM t_funcalloc a                 
+                WHERE 1=1
+                /~id: AND a.id = {id} ~/
+                /~username: AND a.username LIKE {username} ~/
+                /~location: AND a.location LIKE {location} ~/
+                /~xgr: AND a.xgr LIKE {xgr} ~/
+                /~xgsj: AND a.xgsj LIKE {xgsj} ~/
+                /~xgsjks: AND SUBSTR(a.xgsj,1,10) &gt;= {xgsjks} ~/
+                /~xgsjjs: AND SUBSTR(a.xgsj,1,10) &lt;= {xgsjjs} ~/
+               				  
+               /~sortColumn: ORDER BY [sortColumn] [sortDirection]~/
+              </value>
+            </property>
+          </bean>
+        </entry>
+
+        <!--t_sysuser-->
+        <entry key="sysuserslist">
+          <bean class="net.mlw.vlh.adapter.jdbc.dynabean.DefaultDynaBeanAdapter">
+            <property name="dataSource"><ref bean="dataSource"/></property>
+            <property name="defaultNumberPerPage"><value>30</value></property>
+            <property name="defaultSortColumn"><value>username</value></property>
+            <property name="defaultSortDirection"><value>asc</value></property>
+            <property name="sql">
+              <value>
+                SELECT a.*,b.dwmc AS sydwmc
+                FROM t_sysuser a                
+                LEFT JOIN t_sydw b ON b.id = a.pid
+                WHERE 1=1 and a.username !='admin'
+                /~sydwid: AND a.pid = {sydwid} ~/
+                /~username: AND a.username LIKE {username} ~/
+                /~name: AND a.name LIKE {name} ~/
+                /~sydwmc: AND b.dwmc LIKE {sydwmc} ~/
+                /~yhfl: AND a.yhfl LIKE {yhfl} ~/
+          		
+                /~sortColumn: ORDER BY [sortColumn] [sortDirection]~/
+              </value>
+            </property>
+          </bean>
+        </entry>
+  <!--tbl_thunder-->
+        <entry key="ldDataList">
+          <bean class="net.mlw.vlh.adapter.jdbc.dynabean.DefaultDynaBeanAdapter">
+            <property name="dataSource"><ref bean="dataSource"/></property>
+            <property name="defaultNumberPerPage"><value>30</value></property>
+            <property name="defaultSortColumn"><value>FLASHTIME</value></property>
+            <property name="defaultSortDirection"><value>desc</value></property>
+            <property name="sql">
+              <value>
+                SELECT a.objectid,a.flashid,a.intension,a.longitude,
+				       a.latitude,to_char(a.flashtime,'yyyy-mm-dd hh24-mi-ss') flashtime,
+				       a.flashmsec,a.detectordt,
+				       a.sectionid,a.diqu,a.xian,a.x,a.y,
+				       b.name as xianmc
+                FROM tbl_thunder a         
+                left join    TBL_AREA b    on A.XIAN=B.ID          
+                
+                WHERE 1=1 
+                /~OBJECTID: AND a.OBJECTID = {OBJECTID} ~/
+                /~FLASHID: AND a.FLASHID = {FLASHID} ~/
+                
+                /~LJQSSJ: AND a.flashtime &gt;= to_date({LJQSSJ},'yyyy-mm-dd hh24-mi-ss') ~/
+                /~LJZZSJ:  AND a.flashtime &lt;=to_date({LJZZSJ},'yyyy-mm-dd hh24-mi-ss') ~/
+                /~INTENSIONMIN: AND a.INTENSION  &gt;= {INTENSIONMIN} ~/
+                /~INTENSIONMAX: AND a.INTENSION  &lt;= {INTENSIONMAX} ~/
+                
+                /~LONGITUDEMIN: AND a.LONGITUDE  &gt;= {LONGITUDEMIN} ~/
+                /~LONGITUDEMAX: AND a.LONGITUDE  &lt;= {LONGITUDEMAX} ~/  
+                             
+                /~LATITUDEMIN: AND a.LATITUDE  &gt;= {LATITUDEMIN} ~/
+                /~LATITUDEMAX: AND a.LATITUDE  &lt;= {LATITUDEMAX} ~/  
+
+                
+                /~xMIN: AND a.x  &gt;= {xMIN} ~/
+                /~xMAX: AND a.x  &lt;= {xMAX} ~/ 
+                
+                /~yMIN: AND a.y  &gt;= {yMIN} ~/
+                /~yMAX: AND a.y  &lt;= {yMAX} ~/ 
+
+ 				/~DIQU: AND a.DIQU LIKE {DIQU} ~/  
+ 				/~XIAN: AND b.name LIKE {XIAN} ~/
+ 				
+ 				/~XPOINTS: AND contains(floor(x),floor(y), {XPOINTS})>0 ~/
+ 				        		
+                /~sortColumn: ORDER BY [sortColumn] [sortDirection]~/
+              </value>
+            </property>
+          </bean>
+        </entry>
+        
+   
+        <!--tbl_thunder-->
+        <entry key="ldList">
+          <bean class="net.mlw.vlh.adapter.jdbc.dynabean.DefaultDynaBeanAdapter">
+            <property name="dataSource"><ref bean="dataSource"/></property>
+            <property name="defaultNumberPerPage"><value>30</value></property>
+            <property name="defaultSortColumn"><value>FLASHTIME</value></property>
+            <property name="defaultSortDirection"><value>desc</value></property>
+            <property name="sql">
+              <value>
+                SELECT a.objectid,a.flashid,a.intension,a.longitude,
+				       a.latitude,to_char(a.flashtime,'yyyy-mm-dd hh24-mi-ss') flashtime,
+				       a.flashmsec,a.detectordt,
+				       a.sectionid,a.diqu,a.xian,a.x,a.y,
+				       b.name as xianmc
+                FROM tbl_thunder a         
+                left join    TBL_AREA b    on A.XIAN=B.ID           
+                WHERE 1=1 
+                 
+                /~OBJECTID: AND a.OBJECTID = {OBJECTID} ~/
+                /~FLASHID: AND a.FLASHID = {FLASHID} ~/
+                
+                /~LJQSSJ: AND a.flashtime &gt;= to_date({LJQSSJ},'yyyy-mm-dd hh24-mi-ss') ~/
+                /~LJZZSJ:  AND a.flashtime &lt;=to_date({LJZZSJ},'yyyy-mm-dd hh24-mi-ss') ~/
+                /~INTENSIONMIN: AND a.INTENSION  &gt;= {INTENSIONMIN} ~/
+                /~INTENSIONMAX: AND a.INTENSION  &lt;= {INTENSIONMAX} ~/
+                
+                /~LONGITUDEMIN: AND a.LONGITUDE  &gt;= {LONGITUDEMIN} ~/
+                /~LONGITUDEMAX: AND a.LONGITUDE  &lt;= {LONGITUDEMAX} ~/  
+                             
+                /~LATITUDEMIN: AND a.LATITUDE  &gt;= {LATITUDEMIN} ~/
+                /~LATITUDEMAX: AND a.LATITUDE  &lt;= {LATITUDEMAX} ~/  
+
+                /~FLASHTIMEMIN: AND a.FLASHTIME  &gt;= {FLASHTIMEMIN} ~/
+                /~FLASHTIMEMAX: AND a.FLASHTIME  &lt;= {FLASHTIMEMAX} ~/ 
+                
+                /~xMIN: AND a.x  &gt;= {xMIN} ~/
+                /~xMAX: AND a.x  &lt;= {xMAX} ~/ 
+                
+                /~yMIN: AND a.y  &gt;= {yMIN} ~/
+                /~yMAX: AND a.y  &lt;= {yMAX} ~/ 
+
+ 				/~DIQU: AND a.DIQU LIKE {DIQU} ~/  
+ 				/~XIAN: AND b.name LIKE {XIAN} ~/
+ 				        		
+  				/~XPOINTS: AND contains(floor(x),floor(y), {XPOINTS})>0 ~/
+ 
+                /~sortColumn: ORDER BY [sortColumn] [sortDirection]~/
+              </value>
+            </property>
+          </bean>
+        </entry>
+        
+        </map>
+    </property>
+  </bean>
+</beans>
