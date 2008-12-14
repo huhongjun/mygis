@@ -1,0 +1,5 @@
+Create TABLE `test`.`table` (
+`id` 		INT( 10 ) 		NOT NULL AUTO_INCREMENT PRIMARY KEY,
+`name` 	VARCHAR( 255 ) NOT NULL ,
+`age` 	VARCHAR( 255 ) NOT NULL
+) ENGINE = InnoDB DEFAULT CHARSET=utf8;

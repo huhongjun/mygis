@@ -1,0 +1,31 @@
+<?xml version="1.0" ?>
+<worldkitconf>
+	<width>800</width>
+	<height>400</height>
+	<displaytype>daynight</displaytype>
+	<dayimg>day.jpg</dayimg>
+	<nightimg>night.jpg</nightimg>
+	<dataurl>http://localhost/geowiki/rss.php</dataurl>
+	<update>1</update>
+	<showonlynew>false</showonlynew>
+	<plotshape>triangle</plotshape>
+	<plotsize>10</plotsize>
+	<textsize> 7</textsize>
+	<singletextfield>true</singletextfield>
+	<zoomselect>true</zoomselect>
+	<toolbar>true</toolbar>
+	<controlscale>60</controlscale>
+	<controlalpha> 70 </controlalpha>
+	<zoomto>1</zoomto>
+	<plotinterval>0</plotinterval>
+	<fade>1</fade>
+	<showload> true </showload>
+	<icon>icon.png</icon>
+	<trackcats>true</trackcats>
+	<annotateurl>http://localhost/geowiki/annotate.rss.php?</annotateurl>
+	<track>true</track>
+	<timenav>true</timenav>
+	<startdate>Sat, 07 Sep 2008 00:00:00 +00:00</startdate>
+	<enddate>Sat, 07 Sep 2009 00:00:00 +00:00</enddate>
+	<ascomponent>true</ascomponent>
+</worldkitconf>

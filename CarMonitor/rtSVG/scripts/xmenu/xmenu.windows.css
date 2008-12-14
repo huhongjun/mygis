@@ -1,0 +1,146 @@
+.webfx-menu, .webfx-menu * {
+	/*
+	Set the box sizing to content box
+	in the future when IE6 supports box-sizing
+	there will be an issue to fix the sizes
+
+	There is probably an issue with IE5 mac now
+	because IE5 uses content-box but the script
+	assumes all versions of IE uses border-box.
+
+	At the time of this writing mozilla did not support
+	box-sizing for absolute positioned element.
+
+	Opera only supports content-box
+	*/
+	box-sizing:			content-box;
+	-moz-box-sizing:	content-box;
+}
+
+.webfx-menu {
+	position:			absolute;
+	z-index:			100;
+	visibility:			hidden;
+	width:				100px;
+	background:			buttonface;
+	border:				2px outset white;
+	padding:			1px;
+}
+
+.webfx-menu-empty {
+	display:			block;
+	font-size:			11px;
+	font-family:		Tahoma, Verdan, Helvetica, Sans-Serif;
+	color:				buttontext;
+	height:				16px;
+	padding-left:		5px;
+	padding-right:		5px;
+}
+
+.webfx-menu a {
+	display:			block;
+	width:				expression("100%");	/* should be ignored by mz and op */
+	text-decoration:	none;
+	color:				buttontext;
+	height:				18px;
+	vertical-align:		center;
+	padding-left:		5px;
+	padding-right:		0px;
+	cursor:				default;
+	font:				menu;
+	border:				0;
+	overflow:			hidden;
+}	
+
+.webfx-menu a:visited {
+	color:	buttontext;
+	border:			0;
+}
+
+.webfx-menu a:hover,
+.webfx-menu a:visited:hover {
+	color:			highlighttext;
+	background:		highlight;
+	border:			0;
+}	
+
+.webfx-menu a .arrow {
+	float:			right;
+	border:			0;
+	width:			3px;
+	height:			16px;
+	margin-right:	2px;
+}
+
+/* separtor */
+.webfx-menu div {
+	height:			0;
+	height:			expression(2);
+	border-top:		1px solid buttonshadow;
+	border-bottom:	1px solid buttonhighlight;
+	overflow:		hidden;
+	margin:			0;
+	margin-top:		2px;
+	margin-bottom:	2px;
+	font-size:		0mm;
+}
+
+.webfx-menu-bar {
+	background:		buttonface;
+
+	padding:		2px;
+	
+	font-family:	Verdana, Helvetica, Sans-Serif;
+	font-size:		11px;
+	
+	/* IE5.0 has the wierdest box model for inline elements */
+	padding:		expression(/MSIE 5\.0/.test(navigator.userAgent) ? "0px" : "2px");
+}
+
+.webfx-menu-bar a,
+.webfx-menu-bar a:visited,
+.webfx-menu-bar a:visited:hover {
+	color:				buttontext;
+	border:				1px solid buttonface;
+	
+	text-decoration:	none;
+	padding:			1px;
+	padding-left:		5px;
+	padding-right:		5px;
+
+	/* IE5.0 Does not paint borders and padding on inline elements without a hieght/width */
+	height:		expression(/MSIE 5\.0/.test(navigator.userAgent) ? "17px" : "auto");
+}
+
+.webfx-menu-bar a:hover {
+	color:			buttontext;
+	background:		buttonface;
+	border-left:	1px solid buttonhighlight;
+	border-right:	1px solid buttonshadow;
+	border-top:		1px solid buttonhighlight;
+	border-bottom:	1px solid buttonshadow;
+}
+
+.webfx-menu-bar a .arrow {
+	border:			0;
+	float:			none;
+
+/*
+	float:			right;
+	width:			6px;
+	height:			16px;
+
+	margin-right:	2px;
+	background: red;
+*/
+}
+
+.webfx-menu-bar a:active, .webfx-menu-bar a:focus {
+	-moz-outline:	none;
+	outline:		none;
+	/*
+		ie does not support outline but ie55 can hide the outline using
+		a proprietary property on HTMLElement. Did I say that IE sucks at CSS?
+	*/
+	ie-dummy:		expression(this.hideFocus=true);
+}

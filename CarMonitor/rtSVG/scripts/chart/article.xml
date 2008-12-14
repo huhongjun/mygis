@@ -1,0 +1,274 @@
+<?xml version="1.0"?>
+<articles>
+	<article identifier="chart" type="widget" name="Chart" version="1.02" template="standard-article.wal">
+		<licenses>
+			<license identifier="mit">MIT License</license>
+		</licenses>
+		<compatibility>
+			<compatible browser="any" />
+		</compatibility>
+		<description>
+			Client side chart painter, supports line, area and bar charts and stacking,
+			uses Canvas (mozilla,  safari,  opera) or SVG (mozilla, opera) for drawing.
+			Can be used with IECanvas to allow the canvas painter to be used in IE.
+		</description>
+		<authors>
+			<author identifier="emil">Emil A Eklund</author>
+		</authors>
+		<sections>
+
+<section filename="chart.html" title="Introduction" output="standard"><![CDATA[
+<p>
+	<span class="date">2006-01-08</span>: First public version released.<br />
+	<span class="date">2006-01-10</span>: Fixed bug in automatic range calculation. <br />
+	Also added explicit cast to float for stacked series.<br />
+	<span class="date">2006-04-16</span>: Updated CanvasChartPainter to use
+	the <a href="http://sourceforge.net/projects/excanvas">ExplorerCanvas</a>
+	ie emulation layer instead of the, now deprecated,
+	<a href="http://me.eae.net/archive/2005/12/29/canvas-in-ie/">IECanvas</a>
+	one.<br />
+	Added <a href="http://www.walterzorn.com/jsgraphics/jsgraphics_e.htm">jsgraphics</a>
+	painter by <a href="http://www.coolcode.cn/?p=123">Ma Bingyao</a>.
+</p>
+<h2>Introduction</h2>
+<p>
+	In web applications developed now days a lot of the logic that previously
+	resided on the server side is now being implemented on the client side.
+	This is especially true for information presentation, components such as
+	trees and columnlist makes it possible for users to interact with the
+	application, or web site if you wish, without contacting the server.
+	However the ability to present data in a graphic rather than textual
+	format has been quite limited, unless a plugin is used or an image is
+	requested from the server.
+</p>
+<p>
+	That's where this component comes in to place, it allows various forms
+	of charts to be created, without any additional plugin, and without
+	using images.
+</p>
+<h3>Chart Types</h3>
+<p>
+	A few different chart types are supported and they can be combined in
+	a variety of configurations even in the same chart. The following types
+	are supported:
+</p>
+<ul>
+	<li>Area</li>
+	<li>Line</li>
+	<li>Stacked Area</li>
+	<li>Stacked Line</li>
+	<li>Vertical Bars</li>
+</ul>
+]]></section>
+
+<section filename="implementation.html" title="Implementation" output="standard"><![CDATA[
+<h2>Implementation</h2>
+<p>
+	As HTML in itself doesn't include any functionality for drawing the only
+	kind of chart that can easily be made is the bar chart. Stretching an
+	image, or a block container (such as a div), to a certain width will
+	accomplish that. Creating line, area and pie charts though is a bit
+	trickier.
+</p>
+<h3>Drawing</h3>
+<p>
+	With the release of Internet Explorer 5 Microsoft introduced an API for
+	drawing vector graphics, called VML. Erik wrote the
+	<a href="http://webfx.eae.net/dhtml/VMLClock/clock.html">VML Clock</a>
+	article shortly after it's release to showcase it, however it's seen
+	little coverage and hardly any deployment.
+	(<a href="http://www.bindows.net/">Bindows</a>™, the company where
+	Erik used to work, actually does use VML in a few of their components,
+	such as charts and gauges).
+</p>
+<p>
+	One of the reasons VML has hardly seen any use is because it's IE only
+	and most people have been waiting for SVG. Which has been under way for
+	several years now but only recently where added to the  default Mozilla
+	builds and Opera. To make matters worse it seems IE will not be getting
+	native SVG support anytime soon.
+</p>
+<h3>Canvas</h3>
+<p>
+	Early last year Apple introduced
+	<a href="http://developer.mozilla.org/en/docs/Drawing_Graphics_with_Canvas">Canvas</a>,
+	yet another technology for drawing, in their Safari web browser.
+	Unlike SVG and VML it's based on pixels rather than vectors. While this
+	might seems inferior it's actually very suitable for drawing fixed size
+	2D graphics, such as charts and graphs.
+</p>
+<p>
+	Since being introduced by Apple support for it has been added both to
+	Mozilla and Opera, making it available in all major web browser but IE.
+</p>
+<p>
+	My original plan was to create the Chart component to use different
+	painters depending on the browser, that way VML could be used in IE and
+	Canvas or SVG in all other browsers. That's also how I built it, but at
+	the time the API and the Canvas painter implementation where complete the
+	<a href="http://me.eae.net/archive/2005/12/29/canvas-in-ie/">IECanvas</a>
+	emulation project I've been working on had come far enough to allow the
+	Canvas implementation to be used in IE as well.
+</p>
+]]></section>
+
+
+<section filename="usage.html" title="Usage" output="standard"><![CDATA[
+<h2>Usage</h2>
+<p>
+	To use the Chart widget the <i>chart.js</i>, <i>canvaschartpainter.js</i>
+	and <i>canvaschart.css</i> files needs to be included. Furthermore for
+	IE support the <i>iecanvas.js</i> files needs to be included as well and
+	the <i>iecanvas.htc</i> file placed in the same directory.
+	<pre>&lt;script type="text/javascript" src="includes/<a href="includes/iecanvas.js">iecanvas.js</a>"&gt;&lt;/script&gt;
+&lt;script type="text/javascript" src="includes/<a href="includes/chart.js">chart.js</a>"&gt;&lt;/script&gt;
+&lt;script type="text/javascript" src="includes/<a href="includes/canvaschartpainter.js">canvaschartpainter.js</a>"&gt;&lt;/script&gt;
+&lt;link rel="stylesheet" type="text/css" media="screen" href="includes/<a href="includes/canvaschart.css">canvaschart.css</a>" /&gt;</pre>
+</p>
+<p>
+	Once the includes are in place a container for the chart needs to be
+	added to the document. This is where the chart will be drawn and the
+	size and location of the container determines these properites of the
+	chart as well.
+</p>
+<p>
+	To create a chart thats 400 by 200 insert the following HTML code where
+	the chart should appear. Memorize the id of the container as we'll be
+	using that later to draw the chart.
+	<pre>&lt;div id="chart" class="chart" style="width: 400px; height: 200px;"&gt;&lt;/div&gt;</pre>
+</p>
+<h3>Chart Definition</h3>
+<p>
+	The first thing one has to do to draw a chart is to create an instance
+	of the Chart class. The constructor takes a single parameter, a
+	reference to the container element. So to create a Chart object from the
+	container we just created the following JavaScript code is used;
+	<code>var c = new Chart(document.getElementById('chart'));</code>
+</p>
+<p>
+	Once that's done, let's set a few parameters.
+</p>
+<pre>c.setDefaultType(CHART_AREA | CHART_STACKED);
+c.setGridDensity(5, 5);
+c.setVerticalRange(0, 200);
+c.setHorizontalLabels(['mon', 'tue', 'wed', 'thu', 'fri']);</pre>
+<p>
+	The first line will set the default chart type to stacked area.
+	The second sets the The x and y-axis density to 10, which
+	controls the number of grid lines and labels.
+	The third and fourth sets the range and the labels for the horizontal axis.
+</p>
+<p>
+	Now the series can be added to the chart.
+</p>
+<pre>c.add('Spam',            '#4040FF', [ 5, 10, 20, 10, 40, 52, 68, 70, 70, 60]);
+c.add('Innocent',        '#8080FF', [ 8,  7, 12, 20, 24, 16, 36, 28, 28, 45]);
+c.add('Missed Spam',     '#A5A5FF', [ 8,  7, 12, 20, 24, 16, 36, 36, 18,  5]);
+c.add('False Positives', '#DEDEFF', [ 1,  2,  3,  2,  1,  4, 18, 12,  8,  7]);</pre>
+<p>
+	The first argument is the label, which will be shown in the legend. The
+	second is the color that will be used to draw the series and the third
+	is an array with the values that makes up the series.
+</p>
+<p>
+	At this time we're almost done. A component object has been created, the
+	options set and the series added. All that remains is to call the draw
+	method, <code>c.draw();</code>. This will draw the chart onto the
+	container. 
+</p>
+<p>
+	For it to work properly in IE with IECanvas the canvas emulation must
+	be initialized prior to calling the draw method. It's therefore
+	recommended to include an onload handler that does that, either by
+	including the following in the body tag <code>onload="ieCanvasInit('includes/iecanvas.htc');"</code>
+	or this in a script block <code>window.onload = function() { ieCanvasInit('includes/iecanvas.htc'); };</code>.
+	You might also want to call the chart creation code from there.
+</p>
+<p>
+	Putting it all together:
+</p>
+<pre>function draw() {
+var c = new Chart(document.getElementById('chart'));
+c.setDefaultType(CHART_AREA | CHART_STACKED);
+c.setGridDensity(5, 5);
+c.setVerticalRange(0, 100);
+c.setHorizontalLabels(['mon', 'tue', 'wed', 'thu', 'fri']);
+c.add('Spam',            '#4040FF', [ 5, 10, 20, 10, 40, 52, 68, 70, 70, 60]);
+c.add('Innocent',        '#8080FF', [ 8,  7, 12, 20, 24, 16, 36, 28, 28, 45]);
+c.add('Missed Spam',     '#A5A5FF', [ 8,  7, 12, 20, 24, 16, 36, 36, 18,  5]);
+c.add('False Positives', '#DEDEFF', [ 1,  2,  3,  2,  1,  4, 18, 12,  8,  7]);
+c.draw();
+}
+
+window.onload = function() {
+ieCanvasInit('includes/iecanvas.htc');
+draw(); 
+};
+</pre>
+<h3>Result</h3>
+<p>
+	<iframe src="demo2.html" style="width: 420px; height: 220px; border: none;"></iframe>
+</p>
+]]></section>
+
+
+<section filename="api.html" title="API" output="standard" source="api.xml" stylesheet="api.xsl" />
+
+
+<section filename="demo.html" title="Usage" output="standard"><![CDATA[
+<script type="text/javascript" src="includes/excanvas.js"></script>
+<script type="text/javascript" src="includes/wz_jsgraphics.js"></script>
+<script type="text/javascript" src="includes/chart.js"></script>
+<script type="text/javascript" src="includes/canvaschartpainter.js"></script>
+<script type="text/javascript" src="includes/jgchartpainter.js.js"></script>
+<script type="text/javascript" src="includes/demo.js"></script>
+<link rel="stylesheet" type="text/css" media="screen" href="includes/canvaschart.css" />
+<h2>Demo</h2>
+<p>
+	A few demonstrations of the chart competent, using the
+	<code>CanvasChartPainter</code> painter implementation.
+</p>
+<p>
+	Tested in Mozilla Firefox 1.5, Opera 9 and Internet Explorer 6 however
+	any browser with JS, DOM and Canvas support should be able to handle it.
+	Internet Explorer requires a canvas implementation, such as the
+	<a href="http://developer.novell.com/xforms/">Novell XForms plugin</a> or
+	the <a href="http://me.eae.net/archive/2005/12/29/canvas-in-ie/">IECanvas</a>
+	emulation script (used here).
+</p>
+<h3>Stacked Area, Line and Bar</h3>
+<p>
+	A stacked area chart, complete with labels and a legend. Also includes a
+	line and two bars.
+	<div id="chart"  class="chart" style="width: 800px; height: 400px;"></div>
+</p>
+<h3>Stacked Area, Line, Smaller</h3>
+<p>
+	Smaller version of the above chart, without the bars and with reduced
+	grid density.
+	<div id="chart2" class="chart" style="width: 400px; height: 200px;"></div>
+</p>
+<h3>Lines</h3>
+<p>
+	Line chart, without the legend.
+	<div id="chart3" class="chart" style="width: 400px; height: 200px;"></div>
+</p>
+<h3>Bars</h3>
+<p>
+	Bar chart, without legend and labels.
+	<div id="chart4" class="chart" style="width: 200px; height: 100px;"></div>
+</p>
+]]></section>
+
+<section filename="svgdemo.xhtml" title="SVG Demo (mozilla/opera only)" output="link" />
+
+<section filename="jsgdemo.html" title="JsGraphics Demo" output="link" />
+
+	</sections>
+		<files>
+			<file type="archive" version="1.02" filename="/download/chart102.zip" />
+			<file type="archive" version="1.01" filename="/download/chart101.zip" />
+			<file type="archive" version="1.0" filename="/download/chart100.zip" />
+		</files>
+	</article>
+</articles>

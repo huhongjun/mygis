@@ -1,0 +1,167 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+	"http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+<head>
+<title>XMenu (WebFX)</title>
+<script type="text/javascript" src="webfxlayout.local.js"></script>
+</head>
+<body>
+
+<!-- WebFX Layout Include -->
+<script type="text/javascript">
+var articleMenu= new WebFXMenu;
+articleMenu.left  = 384;
+articleMenu.top   = 86;
+articleMenu.width = 140;
+articleMenu.add(new WebFXMenuItem("Cross browser Issues", "xmenu.html"));
+articleMenu.add(new WebFXMenuItem("Using the Menu tool kit", "xmenu.usage.html"));
+articleMenu.add(new WebFXMenuItem("Implementation", "xmenu2.html"));
+articleMenu.add(new WebFXMenuItem("Menu tool kit API", "xmenu3.html"));
+articleMenu.add(new WebFXMenuItem("Customizing look and feel", "xmenu4.html"));
+articleMenu.add(new WebFXMenuItem("Hover Menu", "hover.html"));
+articleMenu.add(new WebFXMenuSeparator);
+articleMenu.add(new WebFXMenuItem("Download", "xmenu.zip"));
+webfxMenuBar.add(new WebFXMenuButton("Article Menu", null, null, articleMenu));
+
+webfxLayout.writeTitle("XMenu");
+webfxLayout.writeMenu();
+webfxLayout.writeDesignedByEdger();
+</script>
+<div class="webfx-main-body">
+<!-- end WebFX Layout Includes -->
+
+
+<p>This is a simple menu system designed to work in Internet Explorer, Mozilla and Opera.
+This does however lead to some limitations and I'm going to cover some these and see what
+can be done and how. If you are not interested in these you can go directly to the
+<a href="">implementation description</a>.</p>
+
+<h2>Static Content Model</h2>
+
+<p>Opera has a serious limitation when it comes to DHTML and that is that you cannot change
+the content at runtime. This means that you cannot add or remove nodes. It also means that
+you cannot modify a text node (no way to change the text). This means that we cannot add
+and remove menus at runtime. Everything needs to be created at load, therefore we use the
+old classical <code>document.write</code> to generate our content.</p>
+
+<h2>Element boundaries</h2>
+
+<p>Opera does not have any way to find position and size of an element. This forces us to
+hard code the sizes and positions of the menus. This might seem like a big issue and yes it
+can be. However this limitation is not a big problem for menus used as navigation tools
+becasue navigation tools should always be placed at the same position. (Basic user interface
+design principles.)</p>
+
+<p>All three browser do allow you to get the size of the document. This has not been used in
+the implementation but an improved version of the menu system can be created to prevent menus
+from being displayed outside of the document. The needed properties for this are listed in
+the table below:</p>
+
+<table cellspacing="0">
+<thead><tr>
+	<td>Description</td>
+	<td>Internet Explorer</td>
+	<td>Mozilla</td>
+	<td>Opera</td>
+	<td>W3C DOM</td>
+</tr></thead>
+<tbody>
+<tr>
+	<td>Document width</td>
+	<td>document.body.offsetWidth</td>
+	<td>window.innerWidth</td>
+	<td>window.innerWidth</td>
+	<td>document.defaultView.getComputedStyle(document.documentElement, null).getPropertyValue("width")</td>
+</tr>
+<tr>
+	<td>Document height</td>
+	<td>document.body.offsetHeight</td>
+	<td>window.innerHeight</td>
+	<td>window.innerHeight</td>
+	<td>document.defaultView.getComputedStyle(document.documentElement, null).getPropertyValue("height")</td>
+</tr>
+<tr>
+	<td>Document scroll left</td>
+	<td>document.body.scrollLeft</td>
+	<td>window.pageXOffset</td>
+	<td>window.pageXOffset</td>
+	<td>Not available</td>
+</tr>
+<tr>
+	<td>Document scroll top</td>
+	<td>document.body.scrollTop</td>
+	<td>window.pageYOffset</td>
+	<td>window.pageYOffset</td>
+	<td>Not available</td>
+</tr>
+</tbody>
+</table>
+
+<h2>Event Model</h2>
+
+<p>Only Mozilla supports the W3C standard way of hooking up events correctly but all three
+browsers almost support the event attributes on html identical. The big difference
+is that IE incorrectly binds the event <code>object</code> to the <code>window</code> object.
+The menu system does not need the event object because all elements pass all the desired
+arguments in the event attributes.</p>
+
+<pre>
+&lt;a href="myuri" onmouseover="webFXMenuHandler.overMenuItem(this)"&gt;...&lt;/a&gt;
+</pre>
+
+<h2>Box Model</h2>
+
+<p>This is the biggest problem today when trying to create cross browser DHTML applications because
+Internet Explorer does not support the correct box model. CSS3 has a proposed property called
+<code>box-sizing</code> which currently have two possible values, <code>border-box</code> and
+<code>content-box</code>. Border box is what IE is using and content box is what CSS1 uses.
+Border box means that the width is calculated including the border and padding. Content box
+does not include the borders nor the padding. This gives Mozilla and Opera a wider box and
+therefore som extra properties are needed to make the layout identical in the different
+browsers.</p>
+
+<p>There is a trick that can be used when defining the CSS for cross browser applications.
+IE5 added a proprietary value called <code>expression</code> which evaluates an expression
+and uses that value as the value for the property. All browsers with correct CSS support
+should ignore invalid CSS declarations so declarations done using expression are ignored.
+The following CSS declarations give the same look and feel in all three browsers.</p>
+
+<pre>
+.selector {
+   border:  10px solid black;
+   padding: 10px;
+   width:   60px;
+   width:   expression(100);
+}
+</pre>
+
+<h3>Opera Focus Bug</h3>
+
+<p>The menu system uses the events <code>onfocus</code> and <code>onfocus</code> to show
+and hide the menus. This allows an easy way to make sure the menus are hidden with almost
+no code.</p>
+
+<p>Opera does however not support focus on anchors but this is being emulated so that it
+at least works with the menu system. To do this we listen for mousedown on the document and
+and store the target. If the target is an anchor then this is checked if it is the focused
+anchor. If the focused anchor changes the values of the <code>onfocus</code> and
+<code>onblur</code> attributes are evalutad. This might however conflict with other scripts
+using <code>onmousedown</code> on the document.</p>
+
+
+<p><a href="xmenu.html">Introduction &amp; Browser Issues</a><br />
+<a href="xmenu.usage.html">Usage</a><br />
+<a href="xmenu2.html">Implementation</a><br />
+<a href="xmenu3.html">API</a><br />
+<a href="xmenu4.html">Look &amp; Feel</a><br />
+<a href="hover.html">Hover Menu</a>
+</p>
+
+<p class="author">Author: Erik Arvidsson</p>
+
+<!-- end webfx-main-body -->
+</div>
+
+</body>
+</html>
