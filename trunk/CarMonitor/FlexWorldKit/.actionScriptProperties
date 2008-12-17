@@ -10,6 +10,7 @@
 </compiler>
 <applications>
 <application path="FlexWorldKit.mxml"/>
+<application path="FlexLab.mxml"/>
 </applications>
 <modules/>
 <buildCSSFiles/>
