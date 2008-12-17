@@ -60,7 +60,15 @@ table {
 }
 
 </style>
-
+<style type="text/css" media="screen">
+	#panels {
+	position: absolute;
+	width: 90;
+	visibility: visible;
+	z-index: 20;
+}
+-->
+</style>
 
 
 <script type="text/javascript">
@@ -144,9 +152,10 @@ table {
 	}
 //-->
 </script>
+
 </head>
 
-<body >
+<body>
 
 <script>
 	document.write(myBar);	//显示菜单
@@ -219,13 +228,86 @@ table {
 	}
 
 </script>
+<script LANGUAGE="JavaScript">
+	self.onError=null;
+	currentX = currentY = 0;
+	whichIt = null;
+	lastScrollX = 0; lastScrollY = 0;
+	NS = (document.layers) ? 1 : 0;
+	IE = (document.all) ? 1: 0;
+	<!-- 这个函数根据不同的浏览器设置初始值-->
+	function heartBeat() {
+	if(IE) { diffY = document.body.scrollTop; diffX = document.body.scrollLeft; }
+	if(NS) { diffY = self.pageYOffset; diffX = self.pageXOffset; }
+	if(diffY != lastScrollY) {
+		percent = .1 * (diffY - lastScrollY);
+		if(percent > 0) percent = Math.ceil(percent);
+		else percent = Math.floor(percent);
+	if(IE) document.all.panels.style.pixelTop += percent;
+	if(NS) document.panels.top += percent;
+	lastScrollY = lastScrollY + percent;
+	}
+if(diffX != lastScrollX) {
+percent = .1 * (diffX - lastScrollX);
+if(percent > 0) percent = Math.ceil(percent);
+else percent = Math.floor(percent);
+if(IE) document.all.panels.style.pixelLeft += percent;
+if(NS) document.panels.left += percent;
+lastScrollX = lastScrollX + percent;
+}
+}
+<!-- 初始值设置结束-->
+<!-- 计算坐标并移动到新位置-->
+function checkFocus(x,y) {
+stalkerx = document.panels.pageX;
+stalkery = document.panels.pageY;
+stalkerwidth = document.panels.clip.width;
+stalkerheight = document.panels.clip.height;
+if( (x > stalkerx && x < (stalkerx+stalkerwidth)) && (y > stalkery && y < (stalkery+stalkerheight))) return true;
+else return false;
+}
+function grabIt(e) {
+if(IE) {
+whichIt = event.srcElement;
+while (whichIt.id.indexOf("panels") == -1) {
+whichIt = whichIt.parentElement; if (whichIt == null) { return true; }
+}
+whichIt.style.pixelLeft = whichIt.offsetLeft;
+whichIt.style.pixelTop = whichIt.offsetTop;
+currentX = (event.clientX + document.body.scrollLeft);
+currentY = (event.clientY + document.body.scrollTop);
+} else {
+window.captureEvents(Event.MOUSEMOVE);
+if(checkFocus (e.pageX,e.pageY)) {
+whichIt = document.panels;
+StalkerTouchedX = e.pageX-document.panels.pageX;
+StalkerTouchedY = e.pageY-document.panels.pageY;
+}
+}
+return true;
+}
+
+<!-- 自动移动或拖动-->
+if(NS) {
+window.captureEvents(Event.MOUSEUP|Event.MOUSEDOWN);
+window.onmousedown = grabIt;
+}
+if(IE) {
+document.onmousedown = grabIt;
+}
+if(NS || IE) action = window.setInterval("heartBeat()",1);
+</script>
 	<table width="100%"  height="100%"  border="1" cellpadding="0" cellspacing="0">
   		<tr>
  			<td id="map_panles" align="center"  valign="top" border="1" height="500" width="600">
 				
 			</td>
 			<td id="toolset_panels"  valign="top" border="1">
-<div id="panels">
+
+			</td>
+  		</tr>
+	</table>
+<div id="panels" style="padding:6px;width:100%;height:450px;overflow:auto;overflow-x:hidden;display:float">
 				<div id="p4" class="panel1" >
 					<div id="pt4" style="background-color:#123ECC;"class="titlediv" >
 						<span style="float:right;">
@@ -321,9 +403,5 @@ table {
 					</div>
 				</div>					
 </div>
-			</td>
-  		</tr>
-	</table>
-
 </body>
 </html>
