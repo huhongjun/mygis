@@ -4,7 +4,6 @@
 
 <Workspace>
 	<Local Expanded="Yes">
-		<Model Expanded="Yes" ID="{D563E16B-719A-46B0-B16A-2D8D44236A2C}" Loaded="No" Name="worldKit" Type="{18112060-1A4B-11D1-83D9-444553540000}" URL="worldKit.OOM"/>
-		<Model ID="{26512475-964E-4D92-B29C-1662E0BCC324}" Name="PureMVC-Site" Selected="Yes" Type="{18112060-1A4B-11D1-83D9-444553540000}" URL="file:///C|/Documents and Settings/huhj/Local Settings/Temp/PureMVC-Site0.oom"/>
+		<Model Expanded="Yes" ID="{D563E16B-719A-46B0-B16A-2D8D44236A2C}" Name="worldKit" Type="{18112060-1A4B-11D1-83D9-444553540000}" URL="worldKit.OOM"/>
 	</Local>
 </Workspace>
