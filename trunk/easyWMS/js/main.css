@@ -1,0 +1,164 @@
+body 
+{
+    background-color:#ffffff;
+    font-family:Tahoma,Arial,Helvetica,sans-serif;
+    font-size:95%;
+    margin-left:0%;
+    margin-right:0%;
+    border:0px groove #006600;
+    padding:10px
+}
+body,tr,td {
+	font-size : 95%;
+	}
+table {
+        border-color: #3366cc;
+	border : 1px solid #5575B7;
+        cellspacing: 0 ;
+        cellpadding: 0
+}
+table.tableContent {
+	border : 1px dashed #99FF66;
+        width: 100%; 
+        align: center;
+
+}
+table.tableBlock {
+	border : 1px dashed #eeddaa;
+        width: 100%; 
+        align: center;
+}
+table.tableError {
+	border : 1px dashed #FF3300;
+        width: 100%; 
+        align: center;
+        cellspacing: 1px;
+        cellpadding: 4px;
+}
+h1, h2, h3, p { margin : 0; padding : 0; }
+h1{
+	padding : 8px;
+	color : #1E4376;
+	font : arial, verdana, sans-serif;
+        font-size :  110%;
+}
+/*used in table.tableContent */
+h2 {
+	font-size :  100%;
+        padding : 2px;
+        font : arial, verdana, sans-serif;
+	color : #336600;
+        background : #CCFF99;/*dcdcdc*/
+}
+/*used in table.tableBlock */
+h3 {
+	padding : 1px;
+        font : arial, verdana, sans-serif;
+	font-size :  98%;
+        color : #FF8C00;
+	border-bottom : 1px solid #eeddaa;
+        background : #eeddaa;
+}
+/*used in table.tableError */
+h4 {
+	font-size :  100%;
+        padding : 2px;
+        font : arial, verdana, sans-serif;
+	color : #FF3300;
+        background : #FFFF99;
+}
+
+/*For checkbox and radio input*/
+.checkboxstyle
+  {
+        background-color:#fed;
+  	border:1px solid;
+   	border-top-color:#696;
+   	border-left-color:#696;
+   	border-right-color:#363;
+   	border-bottom-color:#363;
+    	cursor:pointer;
+}
+.dropdownlist {
+        color:#1E4376;
+   	font-family: helvetica,sans-serif;
+   	font-size:95%;
+  	background-color:#fed;
+	border: 0px dashed gray;
+}
+textarea.editbox {
+        COLOR: #1E4376;
+        FONT-FAMILY: verdana;
+        FONT-SIZE: 9pt;
+        solid: #3A5C86;
+	border: 1px dashed gray;
+	width: 90%;
+	height: 150px;
+	background-color: #EFEFEF;
+	margin-top: 1em;
+	clear: left;
+	padding-left: 5px;
+}
+
+#content {
+	BORDER-RIGHT: rgb(221,217,215) 1px solid; 
+	BORDER-TOP: rgb(221,217,215) 1px solid; 
+	FONT-SIZE: 1.2em; 
+	BORDER-LEFT: rgb(221,217,215) 1px solid; 
+	LINE-HEIGHT: 1.8em; 
+	BORDER-BOTTOM: rgb(221,217,215) 1px solid
+}
+
+.getmapurl{
+    word-wrap: break-word;
+    word-break:break-all;
+    overflow:hidden;
+}
+
+.debugMessage{
+        position: relative; 
+	BORDER-RIGHT: rgb(240,240,240) 1px solid; 
+	BORDER-TOP: rgb(240,240,240) 1px solid; 
+	FLOAT: left; 
+	OVERFLOW: hidden; 
+        word-wrap: break-word;
+        word-break:break-all;
+	BORDER-LEFT: rgb(240,240,240) 1px solid; 
+	WIDTH: 100%; 
+	MARGIN-RIGHT: 10px; 
+	BORDER-BOTTOM: rgb(240,240,240) 1px solid;
+        text-align : left; 
+	/*HEIGHT: 100px*/
+}
+
+.makeScroll{
+	BORDER-RIGHT: rgb(240,240,240) 1px solid; 
+	BORDER-TOP: rgb(240,240,240) 1px solid; 
+	FLOAT: left; 
+	OVERFLOW: hidden; 
+	BORDER-LEFT: rgb(240,240,240) 1px solid; 
+	WIDTH: 200px; 
+	MARGIN-RIGHT: 10px; 
+	BORDER-BOTTOM: rgb(240,240,240) 1px solid; 
+	HEIGHT: 100px
+}
+.scroll-handle {
+	/*BACKGROUND: url(/assets/BlueVFill.png) ;*/
+	BACKGROUND: #D7E7D7 ;
+	rgb(240,240,240); 
+	WIDTH: 10px; 
+	CURSOR: pointer; 
+	HEIGHT: 10px
+}
+.splitpane-divider {
+	BORDER-RIGHT: black 1px solid; 
+	BORDER-TOP: black 1px solid; 
+	BACKGROUND: #5b207b; 
+	FILTER: alpha(opacity=50); 
+	BORDER-LEFT: black 1px solid; 
+	BORDER-BOTTOM: black 1px solid; 
+	opacity: .5
+}
+
+/* used in toogle.htm*/
+

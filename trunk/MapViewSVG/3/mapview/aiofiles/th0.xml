@@ -1,0 +1,84 @@
+<map id="tabth0" xmlns:dt="urn:schemas-microsoft-com:datatypes" xmlns="http://www.w3.org/2000/svg">
+<titel id="titth0">&#22352;&#26631;</titel>
+<tabelle>
+<fields id="fieth0">
+<field0 datatype="text">Name</field0>
+<field1 datatype="number">X</field1>
+<field2 datatype="number">Y</field2>
+</fields>
+<records id="recordsth0">
+<rec id="tabth0rec0">
+<tiles>
+</tiles>
+<custom>
+<field0>One</field0>
+<field1 dt:dt="float">100</field1>
+<field2 dt:dt="float">100</field2>
+</custom>
+</rec>
+<rec id="tabth0rec1">
+<tiles>
+</tiles>
+<custom>
+<field0>Two</field0>
+<field1 dt:dt="float">100</field1>
+<field2 dt:dt="float">200</field2>
+</custom>
+</rec>
+<rec id="tabth0rec2">
+<tiles>
+</tiles>
+<custom>
+<field0>Three</field0>
+<field1 dt:dt="float">200</field1>
+<field2 dt:dt="float">100</field2>
+</custom>
+</rec>
+<rec id="tabth0rec3">
+<tiles>
+</tiles>
+<custom>
+<field0>Four</field0>
+<field1 dt:dt="float">200</field1>
+<field2 dt:dt="float">200</field2>
+</custom>
+</rec>
+<rec id="tabth0rec4">
+<tiles>
+</tiles>
+<custom>
+<field0>Five</field0>
+<field1 dt:dt="float">300</field1>
+<field2 dt:dt="float">300</field2>
+</custom>
+</rec>
+<rec id="tabth0rec5">
+<tiles>
+</tiles>
+<custom>
+<field0>Six</field0>
+<field1 dt:dt="float">400</field1>
+<field2 dt:dt="float">400</field2>
+</custom>
+</rec>
+<rec id="tabth0rec6">
+<tiles>
+</tiles>
+<custom>
+<field0>Seven</field0>
+<field1 dt:dt="float">200</field1>
+<field2 dt:dt="float">300</field2>
+</custom>
+</rec>
+<rec id="tabth0rec7">
+<tiles>
+</tiles>
+<custom>
+<field0>Eight</field0>
+<field1 dt:dt="float">1000</field1>
+<field2 dt:dt="float">1000</field2>
+</custom>
+</rec>
+</records>
+</tabelle>
+</map>

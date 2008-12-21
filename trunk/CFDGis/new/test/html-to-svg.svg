@@ -1,0 +1,26 @@
+<svg height="200" width="200" onload="Initialize(evt)" xmlns="http://www.w3.org/2000/svg">
+  <script type="text/ecmascript">
+  <![CDATA[
+    SVGDocument = null;
+    top.changeStrokeColor = ChangeStrokeColor; // this is what makes them accessible by the HTML
+    top.changeFillColor = ChangeFillColor;     // and by bookmarklets (also when SVG is not embedded)
+    
+   function Initialize(LoadEvent)
+   {
+      SVGDocument = LoadEvent.target.ownerDocument
+   }
+
+   function ChangeStrokeColor(color)
+   {
+      SVGDocument.getElementById("colorCircle").setAttribute("stroke", color);
+   }
+
+   function ChangeFillColor(color)
+   {
+      SVGDocument.getElementById("colorCircle").setAttribute("fill", color);
+   }
+  ]]>
+  </script>
+
+  <circle id="colorCircle" cx="100" cy="100" r="50" fill="yellow" stroke="green" stroke-width="10"/>
+</svg>
