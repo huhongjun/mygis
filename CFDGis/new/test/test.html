@@ -1,0 +1,54 @@
+<html>
+<body >
+<object data="test.svg" type="image/svg+xml" name="SVGEmbed" height="400" width="800" id="mapctrl">
+    <embed src="test.svg" type="image/svg+xml" width="800" height="400" id="mapctrl" name="SVGEmbed" />
+</object>
+
+<script type="text/javascript">
+var svgdoc = null;
+
+function zoomIn()
+{
+
+        //svgdoc = window.mapctrl.getSVGDocument();
+		
+		mainview = svgdoc.getElementById("mainview");
+
+       mainview.setAttribute("viewBox","100 50 200 100");
+ 
+}
+
+function addCircle()
+{
+		//a();
+		
+		svgdoc = window.mapctrl.getSVGDocument();
+		//svgwin = window.mapctrl.getWindow();
+		
+		var node1;
+		node1 = svgdoc.createElement("rect");
+		
+		node1.setAttribute("id","rect50");
+		node1.setAttribute("x","50");
+		node1.setAttribute("y","50");
+		node1.setAttribute("height","50");
+		node1.setAttribute("width","50");
+		node1.setAttribute("style","fill:red");
+
+		str = "<circle id='cir112'  cx='2' cy='3' r='19' fill='#FFFFFF' stroke='#000000'/>";
+		//node2 = parseXML(str, svgdoc);
+		node2 = svgdoc.createElement("circle");
+		node2.setAttribute("id", "cir112");
+		svgdoc.rootElement.appendChild(node2);
+		svgdoc.getElementById("cir112").content = str;
+		
+		svgdoc.rootElement.appendChild(node1);
+		alert(svgdoc.getElementById("rect50").x);
+
+}
+</script> 
+	<button onclick="javascript:addCircle()">添加矩形</button>
+	<button onclick="javascript:zoomIn()">放大</button>
+	<button onclick="javascript:addCircle()">缩小</button>
+</body>
+</html>

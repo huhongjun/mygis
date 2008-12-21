@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="iso-8859-1" standalone="no"?>
+<!DOCTYPE svg
+[
+<!ATTLIST svg
+xmlns:mvns CDATA #FIXED "http://www.mapviewsvg.com">
+<!ATTLIST g
+mvns:scaleEle CDATA #IMPLIED
+mvns:minscale CDATA #IMPLIED
+mvns:maxscale CDATA #IMPLIED
+mvns:styleprop CDATA #IMPLIED>
+]>
+<!-- Author: Unregistered Demo Version/Creator: MapViewSVG Professional 6.2.11 for ArcGIS by uismedia (http://www.mapviewsvg.com); 2007-8-9 9:45:52 -->
+<svg zoomAndPan="disable" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mvns="http://www.mapviewsvg.com">
+<svg id="map" width="898" height="898" viewBox="0 0 922.5 922.5" preserveAspectRatio="xMinYMin">
+<title>Layers - Map</title>
+<defs>
+<menu id="MapViewMenu" xmlns="http://newnamespace.com/">
+<header>Custom Menu</header>
+<item id="menuzoomin" checked="no" onactivate="clickEvents('zoomin');">Activate Zoom In</item>
+<item id="menuzoomout" checked="no" onactivate="clickEvents('zoomout');">Activate Zoom Out</item>
+<item id="menupan" checked="no" onactivate="clickEvents('pan');">Activate Pan</item>
+<item onactivate="clickEvents('fullextent');">Original View</item>
+<separator />
+<item id="menuidentify" checked="yes" onactivate="clickEvents('identify');">Show Object Information</item>
+<separator />
+<item action="Quality">Higher Quality</item>
+<separator />
+<item action="Help">Help</item>
+<item action="About">About Adobe SVG Viewer...</item>
+<separator />
+<item onactivate="showAbout();">About MapViewSVG...</item>
+</menu>
+</defs>
+<style type="text/css"><![CDATA[
+.LTxt { font-family:Arial,Helvetica,sans-serif; baseline-shift:20%; pointer-events:none }
+.th0leg0MAP { stroke-width:1.025;stroke:rgb(0,0,0) }
+.th0leg1MAP { pointer-events:fill }
+]]></style>
+<script type="text/javascript">
+<![CDATA[
+menuUpdate2();
+function menuUpdate2() {
+try {
+  var ASVstate = getSVGViewerVersion().indexOf("Adobe");
+} catch (error) {
+  var ASVstate = -1;
+}
+if (ASVstate >= 0) {
+  var menuRoot = parseXML(printNode(document.getElementById("MapViewMenu")),contextMenu);
+  contextMenu.replaceChild(menuRoot.firstChild,contextMenu.firstChild);
+}
+}
+var mapAktScale = document.documentElement.currentScale;
+function onZoomInit() {
+  parent.onSVGZoom(mapAktScale);
+  mapAktScale = document.documentElement.currentScale;
+}
+function showWindow(filePath,captionText,layoutSettings) {
+  parent.showWindow(filePath,captionText,layoutSettings);
+}
+]]>
+</script>
+<rect x="-12800%" y="-12800%" width="25600%" height="25600%" style="fill:white"/>
+<g id="mapContent" mvns:minscale="1" mvns:maxscale="100000000000000">
+<desc>&#22352;&#26631;</desc>
+<a><g id="th0" mvns:minscale="1" mvns:maxscale="1000000000000" mvns:scaleEle="" mvns:styleprop="fill" onclick="parent.identify(evt,'list','xml');" cursor="pointer" display="inline">
+<circle id="th0rec0" class="th0leg0MAP" fill="rgb(171,0,85)" cx="11.25" cy="911.25" r="2.05" />
+<circle id="th0rec1" class="th0leg0MAP" fill="rgb(171,0,85)" cx="11.25" cy="811.25" r="2.05" />
+<circle id="th0rec2" class="th0leg0MAP" fill="rgb(171,0,85)" cx="111.25" cy="911.25" r="2.05" />
+<circle id="th0rec3" class="th0leg0MAP" fill="rgb(171,0,85)" cx="111.25" cy="811.25" r="2.05" />
+<circle id="th0rec4" class="th0leg0MAP" fill="rgb(171,0,85)" cx="211.25" cy="711.25" r="2.05" />
+<circle id="th0rec5" class="th0leg0MAP" fill="rgb(171,0,85)" cx="311.25" cy="611.25" r="2.05" />
+<circle id="th0rec6" class="th0leg0MAP" fill="rgb(171,0,85)" cx="111.25" cy="711.25" r="2.05" />
+<circle id="th0rec7" class="th0leg0MAP" fill="rgb(171,0,85)" cx="911.25" cy="11.25" r="2.05" />
+</g></a>
+<g id="th0txt0" mvns:minscale="1" mvns:maxscale="1000000000000" mvns:scaleEle="" display="inline">
+<text class="LTxt" font-size="8.2px" fill="rgb(0,0,0)" x="115.802" y="906.698">Three</text>
+<text class="LTxt" font-size="8.2px" fill="rgb(0,0,0)" x="115.802" y="706.698">Seven</text>
+<text class="LTxt" font-size="8.2px" fill="rgb(0,0,0)" x="910.733" y="6.698">Eight</text>
+<text class="LTxt" font-size="8.2px" fill="rgb(0,0,0)" x="115.802" y="806.698">Four</text>
+<text class="LTxt" font-size="8.2px" fill="rgb(0,0,0)" x="215.802" y="706.698">Five</text>
+<text class="LTxt" font-size="8.2px" fill="rgb(0,0,0)" x="15.802" y="906.698">One</text>
+<text class="LTxt" font-size="8.2px" fill="rgb(0,0,0)" x="15.802" y="806.698">Two</text>
+<text class="LTxt" font-size="8.2px" fill="rgb(0,0,0)" x="315.802" y="606.698">Six</text>
+</g>
+</g>
+<text id="ASVText" x="5.125" y="15.375" class="LTxt" display="none" style="fill:rgb(0,0,0);font-size:13.325px">For correct functionality this site needs the Adobe SVG Viewer 3.0.</text>
+<rect id="koordrect" fill="none" pointer-events="none" x="0" y="0" width="922.5" height="922.5" onmousemove="parent.doKoordMeasure(evt);" onmouseout="parent.endKoord();" onclick="parent.doMeasure(evt,1,'Length: ',' m');" />
+<path id="measurePath" stroke="red" stroke-width="1.025" fill="none" pointer-events="none" d="M 0 0 L 0 0" />
+<circle id="measureCircle" fill="none" stroke="red" stroke-width="1.025" visibility="hidden" pointer-events="none" cx="0" cy="0" r="2.05" />
+<line id="measureLine" stroke="red" stroke-width="1.025" visibility="hidden" pointer-events="none" x1="0" y1="0" x2="0" y2="0" />
+<rect id="panAndZoomRect" x="0" y="0" width="922.5" height="922.5" fill="none" pointer-events="none" />
+<defs>
+</defs>
+</svg>
+<g id="cursorBut">
+<image id="curpan" xlink:href="../pictures/pancur.png" x="-100" y="-100" width="16" height="16" visibility="hidden" pointer-events="none" />
+<image id="curzoomin" xlink:href="../pictures/zoomincur.png" x="-100" y="-100" width="16" height="16" visibility="hidden" pointer-events="none" />
+<image id="curzoomout" xlink:href="../pictures/zoomoutcur.png" x="-100" y="-100" width="16" height="16" visibility="hidden" pointer-events="none" />
+</g>
+</svg>

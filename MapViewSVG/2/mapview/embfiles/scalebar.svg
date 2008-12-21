@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="iso-8859-1" standalone="no"?>
+<!DOCTYPE svg>
+<!-- Author: Unregistered Demo Version/Creator: MapViewSVG Professional 6.2.11 for ArcGIS by uismedia (http://www.mapviewsvg.com); 2007-8-9 9:24:59 -->
+<svg id="scalebar" width="305" height="35" zoomAndPan="disable" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<style type="text/css"><![CDATA[
+.normal { font-family:Arial,Helvetica,sans-serif;font-size:10px;pointer-events:none }
+.massOn { fill:silver;stroke-width:1; stroke:black;shape-rendering:optimizeSpeed }
+.massOff { fill:white;stroke-width:1; stroke:black;shape-rendering:optimizeSpeed }
+]]></style>
+<defs>
+<menu id="MapViewMenu" xmlns="http://newnamespace.com/">
+<header>Custom Menu</header>
+<item action="Help">Help</item>
+<item action="About">About Adobe SVG Viewer...</item>
+</menu>
+</defs>
+<script type="text/javascript">
+<![CDATA[
+try {
+  var ASVstate = getSVGViewerVersion().indexOf("Adobe");
+} catch (error) {
+  var ASVstate = -1;
+}
+if (ASVstate >= 0) {
+  var menuRoot = parseXML(printNode(document.getElementById("MapViewMenu")),contextMenu);
+  contextMenu.replaceChild(menuRoot.firstChild,contextMenu.firstChild);
+}
+]]>
+</script>
+<rect x="0" y="0" width="100%" height="100%" style="fill:white; stroke:none" />
+<text x="12.487" y="10" class="normal">0</text>
+<text x="12.487" y="31" class="normal">m</text>
+<rect id="massrect1" x="12.487" y="12" height="7" width="97.171" class="massOn" />
+<text id="masstext1" x="109.658" y="10" class="normal" style="text-anchor:middle">20</text>
+<rect id="massrect2" x="109.658" y="12" height="7" width="97.171" class="massOff" />
+<text id="masstext2" x="206.829" y="10" class="normal" style="text-anchor:middle">40</text>
+<rect id="massrect3" x="206.829" y="12" height="7" width="97.171" class="massOn" />
+<text id="masstext3" x="304" y="10" class="normal" style="text-anchor:end">60</text>
+</svg>

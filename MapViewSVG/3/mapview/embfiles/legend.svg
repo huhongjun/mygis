@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="iso-8859-1" standalone="no"?>
+<!DOCTYPE svg
+[
+<!ATTLIST svg
+xmlns:mvns CDATA #FIXED "http://www.mapviewsvg.com">
+<!ATTLIST g
+mvns:height CDATA #IMPLIED
+mvns:group CDATA #IMPLIED>
+]>
+<!-- Author: Unregistered Demo Version/Creator: MapViewSVG Professional 6.2.11 for ArcGIS by uismedia (http://www.mapviewsvg.com); 2007-8-9 9:44:22 -->
+<svg width="40" height="33" zoomAndPan="disable" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mvns="http://www.mapviewsvg.com">
+<title>Layers - Legend</title>
+<defs>
+<symbol id="Table" style="shape-rendering:optimizeSpeed;pointer-events:all;stroke:black">
+<rect x="0" y="0" width="12" height="12" style="fill:none;stroke-width:2" />
+<path d="M 0 3 H 12" style="stroke-width:1" />
+<path d="M 0 6 H 12" style="stroke-width:1" />
+<path d="M 0 9 H 12" style="stroke-width:1" />
+<path d="M 3 0 V 12" style="stroke-width:1" />
+<path d="M 7 0 V 12" style="stroke-width:1" />
+</symbol>
+<symbol id="Query" style="shape-rendering:optimizeSpeed;pointer-events:all;stroke:black">
+<rect x="0" y="0" width="12" height="12" style="fill:none;stroke-width:2" />
+<rect x="0" y="3" width="11" height="6" style="fill:red;stroke-width:1" />
+<path d="M 0 3 H 12" style="stroke-width:1" />
+<path d="M 0 6 H 12" style="stroke-width:1" />
+<path d="M 0 9 H 12" style="stroke-width:1" />
+<path d="M 3 0 V 12" style="stroke-width:1" />
+<path d="M 7 0 V 12" style="stroke-width:1" />
+</symbol>
+<menu id="MapViewMenu" xmlns="http://newnamespace.com/">
+<header>Custom Menu</header>
+<item action="Help">Help</item>
+<item action="About">About Adobe SVG Viewer...</item>
+</menu>
+</defs>
+<style type="text/css"><![CDATA[
+.normal { font-family:Arial,Helvetica,sans-serif;font-size:10px;pointer-events:none }
+.legHeading { font-family:Arial,Helvetica,sans-serif;font-size:13px;font-weight:bold;pointer-events:none }
+.sliderBack { fill:white;stroke:black;stroke-width:1 }
+.slider { fill:silver;stroke:black;stroke-width:1 }
+.th0leg0LEG { fill:rgb(171,0,85);stroke-width:1;stroke:rgb(0,0,0) }
+]]></style>
+<script type="text/javascript">
+<![CDATA[
+try {
+  var ASVstate = getSVGViewerVersion().indexOf("Adobe");
+} catch (error) {
+  var ASVstate = -1;
+}
+if (ASVstate >= 0) {
+  var menuRoot = parseXML(printNode(document.getElementById("MapViewMenu")),contextMenu);
+  contextMenu.replaceChild(menuRoot.firstChild,contextMenu.firstChild);
+}
+]]>
+</script>
+<rect id="legRect" x="0" y="0" width="100%" height="100%" style="fill:white;stroke:none" pointer-events="none" />
+<svg id="legend0" x="0" y="0" width="40" height="33">
+<g id="gesamtLeg0" transform="translate(0,0)" pointer-events="all">
+<g id="leg0" transform="translate(0,0)" mvns:height="16" mvns:group="">
+<rect id="NotVis0" x="0" y="0" width="12" height="12" fill="none" stroke-width="2" shape-rendering="optimizeSpeed" pointer-events="all" stroke="black" onclick="parent.makeInVisLeg('0','legend0');" />
+<g id="Vis0" fill="none" shape-rendering="optimizeSpeed" pointer-events="all" display="inline" stroke="black" onclick="parent.makeInVisLeg('0','legend0');">
+<rect x="0" y="0" width="12" height="12" style="stroke-width:2" />
+<line x1="0" y1="0" x2="12" y2="12" style="stroke-width:1" />
+<line x1="0" y1="12" x2="12" y2="0" style="stroke-width:1" />
+</g>
+<text x="20" y="12" class="legHeading">&#22352;&#26631;</text>
+<g id="legth0" transform="translate(0,20)" display="inline">
+<circle cx="14" cy="6" class="th0leg0LEG" r="2" />
+<text x="36" y="11" class="normal"></text>
+</g>
+</g>
+</g>
+</svg>
+</svg>

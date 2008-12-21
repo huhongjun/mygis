@@ -1,0 +1,124 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en">
+  <head>
+    <title>Scripting Across the 'object' Element</title>
+    <script type="text/javascript">
+      <!--
+
+var svgdoc = null;
+var svgwin = null;
+
+function init()
+{
+  // FIRST WE TRY TO OBTAIN A REFERENCE TO THE SVG DOCUMENT.
+  //
+  // The (general) W3C way to access a document embedded into HTML using an
+  // <object> tag is to use the contentDocument attribute of the
+  // HTMLObjectElement interface.
+  //
+  //   http://www.w3.org/TR/DOM-Level-2-HTML/html.html#ID-9893177
+  //
+  // In Mozilla with native SVG support, this interface is the only way to
+  // obtain a reference to an SVG document embedded into an HTML document using
+  // the <object> tag. Unfortunately IE doesn't (yet) implement this interface.
+  // In principle you should also be able to access the embedded SVG document
+  // using the GetSVGDocument interface.
+  //
+  //   http://w3.org/TR/SVG11/struct.html#InterfaceGetSVGDocument
+  //
+  // However, ASV (no longer) implements this interface for <object> in IE due
+  // to a security issue. Thus without support for the HTMLObjectElement and
+  // GetSVGDocument interfaces you can't script from HTML to embedded SVG in
+  // IE+ASV when you use the <object> tag to do the embedding. (As it happens,
+  // Mozilla with native SVG support also doesn't (yet) implement the
+  // GetSVGDocument interface for the <object> object.) Nevertheless we will
+  // try to use the GetSVGDocument interface as well, as it may see better
+  // support for <object> in the future.
+  //
+  // Unfortunately ASV in IE previously didn't allow us to check if the method
+  // getSVGDocument() exists without calling it. Since calling a function that
+  // doesn't exist will cause an error we must be prepared to catch an
+  // exception.
+
+  var object = document.getElementById('object');
+  if (object && object.contentDocument)
+    svgdoc = object.contentDocument;
+  else try {
+    svgdoc = object.getSVGDocument();
+  }
+  catch(exception) {
+    alert('Neither the HTMLObjectElement nor the GetSVGDocument interface are implemented');
+  }
+
+  // If the HTMLObjectElement or GetSVGDocument interface is supported then the
+  // global variable svgdoc will now contain a reference to the SVG document.
+  // Otherwise it will be null.
+  //
+  // NOW WE TRY TO OBTAIN A REFERENCE TO THE SVG DOCUMENT'S "window" OBJECT.
+  //
+  // The W3C does not provide a direct way to obtain the "window" object for
+  // the SVG document from the <object> element (and of course <embed> is not a
+  // W3C tag). Instead, the W3C provides a way to access it from the SVG
+  // document itself using the defaultView attribute of the DocumentView
+  // interface.
+  //
+  //   http://www.w3.org/TR/DOM-Level-2-Views/views.html#Views-DocumentView
+  //
+  // The way to obtain the SVG document's "window" object in a Mozilla based
+  // browser that has native SVG support is to obtain the SVG document first,
+  // then access its defaultView property.
+  //
+  // ASV in IE doesn't implement the W3C's DocumentView interface (yet), and it
+  // (no longer) implements the non-W3C standard property 'window' and non-W3C
+  // standard function getWindow() on the <object> object (again because of the
+  // security issue mentioned above, not because they are non-standard).
+  // However, in case these are added back in future, we will again try to use
+  // them. Again ASV doesn't allow us to check whether getWindow() is
+  // supported, so we need to be ready to catch an exception if calling it
+  // causes an error.
+
+  if (svgdoc && svgdoc.defaultView)
+    svgwin = svgdoc.defaultView;
+  else if (object.window)
+    svgwin = object.window;
+  else try {
+    svgwin = object.getWindow();
+  }
+  catch(exception) {
+    alert('The DocumentView interface is not supported\r\n' +
+          'Non-W3C methods of obtaining "window" also failed');
+  }
+
+  // If we failed to get a reference to the SVG document's "window" then svgwin
+  // will still be null.
+}
+
+      // -->
+    </script>
+  </head>
+  <body onload="init()">
+
+    <h1>Scripting Across the 'object' Element</h1>
+
+    <p>
+      This document demonstrates how to script across the 'object' element to an
+      embedded SVG document and it's scripts in a cross-browser way. View the
+      document's (heavily commented) source to see how.
+    </p>
+
+    <p>
+      To test JavaScript access from the HTML document to the SVG document
+      <a href="javascript:alert('found: ' + svgdoc)">click here</a>.
+      To test JavaScript access from the HTML document to the SVG document's "window"
+      <a href="javascript:alert('found: ' + svgwin)">click here</a>
+      (accessing the SVG document's "window" allows you to access variables and
+      functions defined in scripts in the SVG document).
+    </p>
+
+    <object id="object" data="test.svg" type="image/svg+xml"
+            width="450" height="300">
+      <!-- put some alternative content here -->
+    </object>
+
+  </body>
+</html>
