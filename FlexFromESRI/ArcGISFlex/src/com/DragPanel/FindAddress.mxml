@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<c:MaxRestorePanel  
+	xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical"
+	xmlns:samples="com.esri.ags.samples.*"
+	xmlns:esri="http://www.esri.com/2008/ags"
+	xmlns:c="com.DragPanel.*"
+	horizontalCenter="0"
+	x="{(mx.core.Application.application.width / 2) - (this.width / 2)}" y="25"
+	title="Find Address"
+	backgroundColor="#000000">
+	
+	<mx:Script>
+		<![CDATA[
+			import mx.core.Application;
+			import com.esri.ags.symbol.SimpleMarkerSymbol;
+			import com.esri.ags.layers.GraphicsLayer;
+			import com.esri.ags.Map;
+			import com.esri.ags.Graphic;            
+			import com.esri.ags.tasks.AddressCandidate;            
+			import mx.controls.Alert;            
+			import mx.rpc.AsyncResponder;
+			import mx.managers.PopUpManager;
+			import mx.controls.ComboBox;
+			[Bindable] public var MainMap:Map;
+			[Bindable] public var  myGraphicsLayer:GraphicsLayer;
+			[Bindable] public var sms:SimpleMarkerSymbol;
+			
+			// ActionScript file
+
+  private function doLocateAddress() : void
+  {
+	var addy:Object = {
+	Address: address.text,
+	City: city.text,
+	State: state.selectedLabel,
+	Zip: zip.text,
+	outFields: ""  // required by server, even if empty
+	};
+	
+    locateTask.addressToLocations(addy, null, new AsyncResponder(onResult, onFault));
+    
+    function onResult( candidates : Array, token : Object = null ) : void
+    {
+	  if (candidates.length > 0)
+	  {
+		var addressCandidate : AddressCandidate = candidates[0];
+    	var myGraphic : Graphic = new Graphic();
+        myGraphic.geometry = addressCandidate.location;
+        myGraphic.symbol = sms;
+        myGraphic.toolTip = addressCandidate.address.toString();
+        myGraphic.id = "graphic";
+        myGraphicsLayer.add( myGraphic );
+        MainMap.extent.update(addressCandidate.location.x + 100, 
+                              addressCandidate.location.y + 100,
+                              addressCandidate.location.x - 100,
+                              addressCandidate.location.y - 100,
+                              null)
+        MainMap.centerAt( addressCandidate.location );
+        myInfo.htmlText = "<b>Found:</b><br/>" + addressCandidate.address.toString();  // formated address
+        }
+        else
+        {
+            myInfo.htmlText = "<b><font color='#FF0000'>Found nothing :(</b></font>";
+            Alert.show("Sorry, couldn't find a location for this address"
+                + "\nAddress: " + address.text
+                + "\nCity: " + city.text
+                + "\nZIP Code: " + zip.text
+                + "\nState: " + state.selectedLabel);
+        }
+    }
+    function onFault( info : Object, token : Object = null ) : void
+    {
+      myInfo.htmlText = "<b>Failure</b>" + info.toString();
+      Alert.show("Failure: \n" + info.toString());
+    }
+  }
+
+		]]>
+	</mx:Script>
+	 <esri:Locator id="locateTask" url="http://sampleserver1.arcgisonline.com/ArcGIS/rest/services/Locators/ESRI_Geocode_USA/GeocodeServer"/>
+		<mx:Form backgroundColor="#000000">
+	            <mx:FormItem label="Street">
+	                <mx:TextInput width="100%" id="address" text="380 New York St"/>
+	            </mx:FormItem>
+	            <mx:FormItem label="City">
+	                <mx:TextInput width="100%" id="city" text="Redlands"/>
+	            </mx:FormItem>
+	            <mx:FormItem label="Zip Code">
+	                <mx:TextInput width="100" id="zip" text="92373"/>
+	            </mx:FormItem>
+	            <mx:FormItem label="State">
+	                  <mx:ComboBox id="state" selectedIndex="5">
+	                    <mx:ArrayCollection>
+	                        <mx:String>AK</mx:String>
+	                        <mx:String>AL</mx:String>
+	                        <mx:String>AR</mx:String>
+	                        <mx:String>AS</mx:String>
+	                        <mx:String>AZ</mx:String>
+	                        <mx:String>CA</mx:String>
+	                        <mx:String>CO</mx:String>
+	                        <mx:String>CT</mx:String>
+	                        <mx:String>DC</mx:String>
+	                        <mx:String>DE</mx:String>
+	                        <mx:String>FL</mx:String>
+	                        <mx:String>FM</mx:String>
+	                        <mx:String>GA</mx:String>
+	                        <mx:String>GU</mx:String>
+	                        <mx:String>HI</mx:String>
+	                        <mx:String>IA</mx:String>
+	                        <mx:String>ID</mx:String>
+	                        <mx:String>IL</mx:String>
+	                        <mx:String>IN</mx:String>
+	                        <mx:String>KS</mx:String>
+	                        <mx:String>KY</mx:String>
+	                        <mx:String>LA</mx:String>
+	                        <mx:String>MA</mx:String>
+	                        <mx:String>MD</mx:String>
+	                        <mx:String>ME</mx:String>
+	                        <mx:String>MH</mx:String>
+	                        <mx:String>MI</mx:String>
+	                        <mx:String>MN</mx:String>
+	                        <mx:String>MO</mx:String>
+	                        <mx:String>MP</mx:String>
+	                        <mx:String>MS</mx:String>
+	                        <mx:String>MT</mx:String>
+	                        <mx:String>NC</mx:String>
+	                        <mx:String>ND</mx:String>
+	                        <mx:String>NE</mx:String>
+	                        <mx:String>NH</mx:String>
+	                        <mx:String>NJ</mx:String>
+	                        <mx:String>NM</mx:String>
+	                        <mx:String>NV</mx:String>
+	                        <mx:String>NY</mx:String>
+	                        <mx:String>OH</mx:String>
+	                        <mx:String>OK</mx:String>
+	                        <mx:String>OR</mx:String>
+	                        <mx:String>PA</mx:String>
+	                        <mx:String>PR</mx:String>
+	                        <mx:String>PW</mx:String>
+	                        <mx:String>RI</mx:String>
+	                        <mx:String>SC</mx:String>
+	                        <mx:String>SD</mx:String>
+	                        <mx:String>TN</mx:String>
+	                        <mx:String>TX</mx:String>
+	                        <mx:String>UT</mx:String>
+	                        <mx:String>VA</mx:String>
+	                        <mx:String>VI</mx:String>
+	                        <mx:String>VT</mx:String>
+	                        <mx:String>WA</mx:String>
+	                        <mx:String>WI</mx:String>
+	                        <mx:String>WV</mx:String>
+	                        <mx:String>WY</mx:String>
+	                    </mx:ArrayCollection>
+	                </mx:ComboBox>
+	            </mx:FormItem>
+                <mx:FormItem>
+                   <mx:Button label="Find Address" click="doLocateAddress()"/>
+                </mx:FormItem>
+              </mx:Form>
+                   <mx:Text id="myInfo" width="100%" color="0x00FF00" textAlign="center" />
+</c:MaxRestorePanel>

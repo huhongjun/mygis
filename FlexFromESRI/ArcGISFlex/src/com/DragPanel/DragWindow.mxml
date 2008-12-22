@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<c:MaxRestorePanel  
+	xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical"
+	xmlns:samples="com.esri.ags.samples.*"
+	xmlns:esri="http://www.esri.com/2008/ags"
+	xmlns:c="com.DragPanel.*"
+	horizontalCenter="0"
+	x="{mx.core.Application.application.width  - this.width  - 20}" y="25"
+	title="Table of Contents"
+	backgroundColor="#000000">
+	<mx:Script source="../../../ActionScript/ImageClasses.as" />
+	
+	<mx:Script>
+		<![CDATA[
+			import com.esri.ags.Map;
+			import com.esri.ags.layers.Layer;
+			import mx.managers.PopUpManager;
+		 
+		 [Bindable]public var myLayer:Layer;
+		]]>
+	</mx:Script>
+	
+
+   <samples:LayerTOC layer="{myLayer}" height="100%" width="210"/>
+    	
+   
+</c:MaxRestorePanel>

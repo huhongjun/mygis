@@ -1,0 +1,416 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+////////////////////////////////////////////////////////////////////////////////
+//
+// Copyright © 2008 ESRI
+//
+// All rights reserved under the copyright laws of the United States.
+// You may freely redistribute and use this software, with or
+// without modification, provided you include the original copyright
+// and use restrictions.  See use restrictions in the file:
+// <install location>/FlexViewer/License.txt
+//
+////////////////////////////////////////////////////////////////////////////////
+-->
+<BaseWidget xmlns				="com.esri.solutions.flexviewer.*" 
+			xmlns:esri			="http://www.esri.com/2008/ags" 
+			xmlns:mx			="http://www.adobe.com/2006/mxml" 
+			xmlns:mxeffects		="com.adobe.ac.mxeffects.*" 
+			xmlns:widgets		="com.esri.solutions.flexviewer.widgets.*"
+			x					="600" 
+			y					="300" 
+			widgetConfigLoaded	="init()">
+	
+	
+	<mx:Script>
+		<![CDATA[
+					
+			import com.esri.ags.geometry.Extent;
+			import com.esri.ags.geometry.Geometry;
+			import com.esri.ags.geometry.MapPoint;
+			import com.esri.ags.geometry.Polygon;
+			import com.esri.ags.geometry.Polyline;
+			import com.esri.ags.Graphic;
+			import com.esri.ags.layers.GraphicsLayer;
+			import com.esri.ags.layers.Layer;
+			import com.esri.ags.Map;
+			import com.esri.ags.symbol.PictureMarkerSymbol;
+			import com.esri.ags.symbol.SimpleFillSymbol;
+			import com.esri.ags.symbol.SimpleLineSymbol;
+			import com.esri.solutions.flexviewer.SiteContainer;
+			import com.esri.solutions.flexviewer.utils.GeoRSSUtil;
+			import com.esri.solutions.flexviewer.utils.Namespaces;
+        	import mx.controls.Alert;
+			import mx.collections.*;
+			import mx.rpc.events.ResultEvent;
+			import mx.rpc.AsyncResponder; 
+								
+			//labels
+			private var loadingLabel:String;
+			
+			private var querySource:String;
+			
+			private var queryExpr:String;
+			
+			private var queryFields:String;
+			
+			private var queryTitleField:String;
+			
+			private var queryLinkField:String;
+			
+			private var queryRefreshRate:String;
+			
+			private var zoomScale:Number = 5000;
+			
+			private var graphicsLayer:GraphicsLayer;
+			
+			private var graphicPointSym:PictureMarkerSymbol;
+			
+			private var graphicLineSym:SimpleLineSymbol = new SimpleLineSymbol("solid", 0xFF0000, 0.8, 2);
+			
+			private var graphicPolySym:SimpleFillSymbol = new SimpleFillSymbol("solid", 0xFF0000, 0.5, graphicLineSym);
+			
+			private var timer:Timer;
+			
+			[Bindable]
+			private var msgVisible:Boolean = false;
+			
+			private var rsstype:String = "";
+			
+			private var hitimer:uint;
+						
+			private static const ATOM:Namespace = Namespaces.ATOM_NS;
+			
+        	private static const RE:RegExp = /M[ ](?P<mag>[^,]+),\.*/;
+        	
+			private function init():void
+			{
+				graphicPointSym = new PictureMarkerSymbol(widgetIcon, 30, 30)
+				graphicsLayer = new GraphicsLayer();
+				graphicsLayer.symbol = graphicPointSym;
+				map.addLayer(graphicsLayer);
+				if (configXML)
+				{
+					//labels
+					loadingLabel = configXML.labels.loadinglabel || "Loading feed...";
+					
+					querySource = configXML.source;
+					queryExpr = configXML.query;
+					queryFields = configXML.fields;
+					queryTitleField = configXML.titlefield;
+					queryLinkField = configXML.linkfield;
+					queryRefreshRate = configXML.refreshrate;
+					if (Number(configXML.zoomscale) > 0)
+						zoomScale = Number(configXML.zoomscale);
+					queryRSSData();
+					startWidgetTimer();
+				}
+			}			
+			
+			//start widget timer
+			private function startWidgetTimer():void
+			{
+				if (queryRefreshRate)
+				{
+					var seconds:Number = Number(queryRefreshRate);
+					var rate:Number = seconds * 1000;
+					stopWidgetTimer();
+					timer = new Timer(rate);
+					timer.addEventListener(TimerEvent.TIMER,timerTick);
+					timer.start();
+				}
+			}			
+			
+			//stop widget timer
+			private function stopWidgetTimer():void
+			{
+				if (timer != null)
+				{
+					if (timer.running)
+						timer.stop();
+				}
+			}			
+			
+			//timer tick
+			private function timerTick(evt:TimerEvent):void
+			{
+				queryRSSData();
+			}			
+			
+			//query rss data
+			private function queryRSSData():void
+			{
+				if (querySource)
+				{
+					rssService.url = querySource;
+					rssService.send();
+					showMessage(loadingLabel, true);    
+				}  
+			}			
+			
+			//fault handler
+			private function faultHandler(event:mx.rpc.events.FaultEvent):void
+			{
+				var sInfo:String = "Error: ";
+				sInfo += "Event Target: " + event.target + "\n\n";
+				sInfo += "Event Type: " + event.type + "\n\n";
+				sInfo += "Fault Code: " + event.fault.faultCode + "\n\n";
+				sInfo += "Fault Info: " + event.fault.faultString;
+				Alert.show(sInfo);
+			}			
+			
+			//load RSS data
+			private function loadRSSData(event:ResultEvent):void
+			{
+				var ac:ArrayCollection;
+				try
+				{
+					if (event.result is XML)
+					{
+						var x:XML = XML(event.result);
+						if (x.name() == "rss" && Number(x.@version) <= 2)
+		            	{
+		            		rsstype = "RSS";
+		                	ac = parseRSS(x);
+		            	}
+		            	else if (x.namespace().uri.toLowerCase() == "http://www.w3.org/2005/atom")
+		            	{
+		            		rsstype = "ATOM";
+		            		ac = parseAtom(x);                
+		            	}
+		            	else
+		            	{
+		            	    showMessage("Unable to determine RSS feed type.", false);                
+		           		 }  
+		   			}          
+					else
+					{
+						showMessage("HTTP Response is not XML.", false);
+					}
+					var recAC:ArrayCollection = createRecordData(ac);
+					this.addSharedData(widgetTitle, recAC);
+					wRepeater.dataProvider = recAC;
+					clearMessage();
+				}
+				catch (error:Error)
+				{
+					showMessage("A problem occured while parsing the RSS feed. " + error.message, false);
+				}
+			}			
+			
+			//create record data
+			private function createRecordData(ac:ArrayCollection):ArrayCollection
+			{
+				var recAC:ArrayCollection = new ArrayCollection();
+				var flds:Array;
+				if (queryFields)
+					flds = queryFields.split(",");
+						
+				for (var i:Number = 0; i < ac.length; i++)                    
+				{   
+					var recxml:XML = XML(ac.getItemAt(i));
+					var icon:String = widgetIcon;
+					var title:String = "";
+					if (queryTitleField)
+						title = recxml[queryTitleField]; 
+					if (!title)
+						title = widgetTitle; 
+					var content:String = "";
+					if (flds)
+					{
+						for (var j:Number = 0; j < flds.length; j++)
+						{
+							var fld:String = flds[j];
+							var val:String = recxml[fld];
+							if (val)
+								content += fld + ": " + val + "\n";	
+						}
+					}
+					var link:String;
+						if (queryLinkField)
+							link = recxml[queryLinkField];
+					var geometry:Geometry = GeoRSSUtil.toGeometry(recxml);
+	                var point:MapPoint = getGeomCenter(geometry);
+					                
+					var infoData:Object = 
+					{
+						icon: icon, 
+						title: title, 
+						content: content, 
+						link: link, 
+						point: point,
+						geometry: geometry
+					};                 
+					recAC.addItem(infoData);
+					
+					//***
+					var gra:Graphic = new Graphic(geometry);
+					gra.addEventListener(MouseEvent.ROLL_OVER, mouseOverGraphic)
+					gra.attributes = infoData;
+					switch (gra.geometry.type)
+	           		{
+	               		case Geometry.POLYLINE:
+	               		{
+	               			gra.symbol = graphicLineSym;
+	               			break;
+	               		}
+	               		
+	               		case Geometry.POLYGON:
+	               		{
+	               			gra.symbol = graphicPolySym;
+	               			break;
+	               		}
+	             	}
+	             	graphicsLayer.add(gra);
+	             	//***
+					
+			    } 
+			    return recAC;
+			}			
+		
+			//parse atom
+			 private function parseAtom(x:XML):ArrayCollection
+			 {
+			 	var ac:ArrayCollection = new ArrayCollection();
+		        for each (var entryXML:XML in x.ATOM::entry)
+		        {
+		            ac.addItem(entryXML );                                                                        
+		        }        
+		        return ac;
+		    }	    
+	    
+		    //parse rss
+		    private function parseRSS(x:XML):ArrayCollection
+		    {
+		    	var ac:ArrayCollection = new ArrayCollection();
+		        for each (var itemXML:XML in x.channel.item)
+		        {
+		            ac.addItem(itemXML);            
+		        }
+		        return ac;
+		    }					
+			
+			//get geom center
+			private function getGeomCenter(geom:Geometry):MapPoint
+			{
+				var pt:MapPoint;
+	           	switch (geom.type)
+	           	{
+	               case Geometry.MAPPOINT:
+	               {
+	                    pt = geom as MapPoint;
+	                    break;
+	               }
+	               
+	               case Geometry.POLYLINE:
+	               {
+	               		var pl:Polyline = geom as Polyline;
+	               		var pathCount:Number = pl.paths.length;
+	               		var pathIndex:int = int(pathCount / 2) - 1;
+	               		var midPath:Array = pl.paths[pathIndex];
+	               		var ptCount:Number = midPath.length;
+	               		var ptIndex:int = int(ptCount / 2) - 1;
+	               		pt = pl.getPoint(pathIndex, ptIndex);
+	               			
+	               		//pt = pl.extent.center;
+	                    break;
+	               }
+	               
+	               case Geometry.POLYGON:
+	               {
+	                    var poly:Polygon = geom as Polygon;
+	               		pt = poly.extent.center;
+	                    break;
+	               }
+	            }
+				return pt;
+			}			
+						
+			//mouse over graphic
+			private function mouseOverGraphic(event:MouseEvent):void
+			{
+				var gra:Graphic = event.currentTarget as Graphic;
+				var infoData:Object = gra.attributes;
+				this.showInfoWindow(infoData);
+			}
+						
+			private function mouseOverRecord(event:MouseEvent):void
+			{
+				var infoData:Object = event.currentTarget.infoData;
+				clearTimeout(hitimer);
+				hitimer = setTimeout(showHighlight, 800, [infoData]);
+			}
+						
+			private function mouseOutRecord():void
+			{
+				clearTimeout(hitimer);
+				this.showInfoWindow(null);
+			}
+						
+			private function clickRecord(event:MouseEvent):void
+			{
+				var infoData:Object = event.currentTarget.infoData;
+				var pt:MapPoint = infoData.point;
+				if (map.scale > zoomScale)
+					map.scale = zoomScale;
+				map.centerAt(pt);
+			}			
+			
+			private function showHighlight(params:Array):void
+			{
+				var infoData:Object = params[0];
+				var pt:MapPoint = infoData.point;
+				//if (!map.extent.contains(pt))
+				//	map.centerAt(pt);
+				this.showInfoWindow(params[0]);
+			}			
+			
+			private function showMessage(msg:String, swfVisible:Boolean):void
+			{
+				txtMessage.text = msg;
+				swfMessage.visible = swfVisible;
+				msgVisible = true;
+			}			
+			
+			private function clearMessage():void
+			{
+				msgVisible = false;
+			}			
+				
+			private function widgetClosedHandler(event:Event):void
+			{
+				graphicsLayer.visible = false;
+				stopWidgetTimer();
+				this.showInfoWindow(null);
+			}			
+			
+			private function widgetOpenedHandler(event:Event):void
+			{
+				graphicsLayer.visible = true;
+				startWidgetTimer();
+			}		
+			
+		]]>
+	</mx:Script>
+	
+	<!-- HTTP SERVICE -->
+	<mx:HTTPService	id="rssService" 
+					result="{loadRSSData(event)}" 
+					fault="{faultHandler(event)}" 
+					resultFormat="e4x"/>
+	
+	<WidgetTemplate id="wTemplate" widgetClosed="widgetClosedHandler(event)" widgetOpened="widgetOpenedHandler(event)">
+		<mx:ViewStack id="viewStack" width="100%" height="100%" creationPolicy="all">
+			<mx:VBox width="100%" height="100%" verticalGap="1">
+				<mx:HBox id="boxMessage" visible="{msgVisible}" includeInLayout="{msgVisible}" width="100%">
+					<mx:SWFLoader id="swfMessage" source="com/esri/solutions/flexviewer/assets/flash/loader.swf" visible="false" />
+					<mx:Text id="txtMessage" text="" styleName="WidgetText" width="90%"/>
+				</mx:HBox>
+				<mx:Repeater id="wRepeater">
+					<widgets:RecordData infoData="{wRepeater.currentItem}" mouseOver="mouseOverRecord(event)" mouseOut="mouseOutRecord()" click="clickRecord(event)"/>
+				</mx:Repeater>
+			</mx:VBox>
+		</mx:ViewStack>
+	</WidgetTemplate>
+	
+</BaseWidget>

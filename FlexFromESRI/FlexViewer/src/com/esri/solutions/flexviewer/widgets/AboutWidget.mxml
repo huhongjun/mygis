@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+////////////////////////////////////////////////////////////////////////////////
+//
+// Copyright © 2008 ESRI
+//
+// All rights reserved under the copyright laws of the United States.
+// You may freely redistribute and use this software, with or
+// without modification, provided you include the original copyright
+// and use restrictions.  See use restrictions in the file:
+// <install location>/FlexViewer/License.txt
+//
+////////////////////////////////////////////////////////////////////////////////
+-->
+
+<BaseWidget	xmlns				="com.esri.solutions.flexviewer.*" 
+	    	xmlns:mx			="http://www.adobe.com/2006/mxml"
+	    	x					="600" 
+	    	y					="220" 
+	    	widgetConfigLoaded	="init()">
+	    
+	<mx:Script>
+		
+		<![CDATA[
+		
+			import mx.controls.Alert;
+			
+			private function init():void
+			{
+				if (configXML)
+				{
+					txtTitle.text       = configXML.title;
+					txtSubtitle.text    = configXML.subtitle;
+					txtVersion.text     = configXML.version;
+					txtDescription.text = configXML.description;
+					txtCopyright.text   = configXML.copyright;
+				}
+			}
+			
+		]]>
+	</mx:Script>
+		
+	<WidgetTemplate>
+		<mx:Canvas id="viewStack" width="100%" height="100%" horizontalScrollPolicy="off">
+			<mx:VBox width="100%" paddingTop="15">
+				<mx:Text id="txtTitle" styleName="AboutTitle" text="" width="100%" />
+				<mx:Text id="txtSubtitle" styleName="AboutSubtitle" text="" width="100%" />
+				<mx:Text id="txtVersion" styleName="AboutVersion" text="Version 1.0 alpha [Build: 09.27.08]" width="100%" />
+				<mx:Text id="txtDescription" styleName="AboutDescription" text="Team: Bruce Harrison | Dave Wrazien | Moxie Zhang | Sajit Thomas" width="100%" />
+				<mx:Text id="txtCopyright" styleName="AboutDescription" text="© Copyright 2008 ESRI. All rights reserved." width="100%" />
+			</mx:VBox>
+		</mx:Canvas>
+	</WidgetTemplate>
+	
+</BaseWidget>

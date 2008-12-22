@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:DataGrid xmlns:mx="http://www.adobe.com/2006/mxml"
+    width="100%" height="100%" 
+    sortableColumns="false" 
+    resizableColumns="false">
+    
+    <mx:Script>
+        <![CDATA[
+            import com.esri.ags.layers.LayerInfo;
+            import com.esri.ags.events.LayerEvent;
+            import com.esri.ags.layers.ArcIMSMapServiceLayer;
+            import com.esri.ags.layers.ArcGISDynamicMapServiceLayer;
+            import com.esri.ags.layers.Layer;
+            import flash.net.registerClassAlias;
+            import mx.collections.ArrayCollection;
+            import mx.utils.ObjectUtil;
+            
+            private var layerInfos:Array;
+            
+            private var _layer:Layer;
+            private var _layerChanged:Boolean;
+            
+            public function get layer():Layer
+            {
+                return _layer;
+            }
+            
+            public function set layer(value:Layer):void
+            {
+                _layer = value;
+                _layerChanged = true;
+                invalidateProperties();
+            }
+            
+            override protected function commitProperties():void
+            {
+                if (_layerChanged)
+                {
+                    _layerChanged = false;
+                    if (layer)
+                    {
+                        layer.addEventListener(Event.COMPLETE, removeBusyCursor, false, 0, true);
+                        layer.addEventListener(IOErrorEvent.IO_ERROR, removeBusyCursor, false, 0, true);
+                        if (layer.loaded)
+                        {
+                            setDataProvider();
+                        }
+                        else
+                        {
+                            layer.addEventListener(LayerEvent.LOAD, layerLoadHandler, false, 0, true);
+                        }
+                    }
+                }
+                
+                // calling this last fixes an issue when the layer is set late via AS
+                super.commitProperties();
+            }
+            
+            private function setDataProvider():void
+            {
+                if (layer is ArcGISDynamicMapServiceLayer)
+                {
+                    layerInfos = ArcGISDynamicMapServiceLayer(layer).layerInfos;
+                }
+                else if (layer is ArcIMSMapServiceLayer)
+                {
+                    layerInfos = ArcIMSMapServiceLayer(layer).layerInfos;
+                }
+                
+                // make sure copy has typed LayerInfo objects
+                registerClassAlias("com.esri.ags.layers.LayerInfo", LayerInfo);
+                // create a copy since it'll be modified to reflect active selections
+                layerInfos = ObjectUtil.copy(layerInfos) as Array;
+                
+                dataProvider = layerInfos;
+            }
+            
+            private function layerLoadHandler(event:LayerEvent):void
+            {
+                setDataProvider();
+            }
+            
+            public function showLayer(layerInfo:LayerInfo):void
+            {
+                var visibleLayers:ArrayCollection;
+                if (layer is ArcGISDynamicMapServiceLayer)
+                {
+                    visibleLayers = ArcGISDynamicMapServiceLayer(layer).visibleLayers;
+                    visibleLayers.addItem(layerInfo.id); // add id
+                }
+                else if (layer is ArcIMSMapServiceLayer)
+                {
+                    visibleLayers = ArcIMSMapServiceLayer(layer).visibleLayers;
+                    visibleLayers.addItem(layerInfo.name); // add name
+                }
+               // if (visibleLayers)
+               // {
+                    //cursorManager.setBusyCursor();
+                //}
+            }
+            
+            public function hideLayer(layerInfo:LayerInfo):void
+            {
+                var visibleLayers:ArrayCollection;
+                if (layer is ArcGISDynamicMapServiceLayer)
+                {
+                    visibleLayers = ArcGISDynamicMapServiceLayer(layer).visibleLayers;
+                    var idIndex:int = visibleLayers.getItemIndex(layerInfo.id);
+                    if (idIndex != -1)
+                    {
+                        visibleLayers.removeItemAt(idIndex);
+                    }
+                }
+                else if (layer is ArcIMSMapServiceLayer)
+                {
+                    visibleLayers = ArcIMSMapServiceLayer(layer).visibleLayers;
+                    var nameIndex:int = visibleLayers.getItemIndex(layerInfo.name);
+                    if (nameIndex != -1)
+                    {
+                        visibleLayers.removeItemAt(nameIndex);
+                    }
+                }
+               // if (visibleLayers)
+               // {
+                  //  cursorManager.setBusyCursor();
+                //}
+            }
+            
+            private function removeBusyCursor(event:Event):void
+            {
+                cursorManager.removeBusyCursor();
+            }
+        ]]>
+    </mx:Script>
+    
+    <mx:columns>
+        <mx:DataGridColumn dataField="defaultVisibility" headerText="Visibility" width="70"
+            itemRenderer="com.esri.ags.samples.LayerVizRenderer"/>
+        <mx:DataGridColumn dataField="name" headerText="Layer Name"/>
+    </mx:columns>
+    
+</mx:DataGrid>

@@ -1,0 +1,351 @@
+<?xml version="1.0" encoding="utf-8"?>
+<c:MaxRestorePanel  
+	xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical"
+	xmlns:samples="com.esri.ags.samples.*"
+	xmlns:esri="http://www.esri.com/2008/ags"
+	xmlns:c="com.DragPanel.*"
+	horizontalCenter="0"
+	title="ID Results"
+	width="500"
+	height="600"
+	backgroundColor="#000000">
+	
+	
+	<mx:Script>
+		<![CDATA[
+			import com.esri.ags.controls.InfoWindow;
+			import com.esri.ags.geometry.MapPoint;
+			import com.esri.ags.geometry.Polyline;
+			import com.esri.ags.geometry.Polygon;
+			import com.esri.ags.geometry.Extent;
+		
+			import com.esri.ags.toolbars.Navigation;
+			import mx.messaging.channels.StreamingAMFChannel;
+			import com.net.digitalprimates.utils.E4XParser;
+			import mx.controls.Alert;
+			import com.esri.ags.layers.GraphicsLayer;
+			import com.esri.ags.Map;
+		
+		   import com.esri.ags.Graphic;            
+		   import com.esri.ags.events.DrawEvent;            
+		   import com.esri.ags.events.IdentifyEvent;            
+		   import com.esri.ags.geometry.Geometry;            
+		   import com.esri.ags.symbol.Symbol;            
+		   import com.esri.ags.tasks.IdentifyParameters;            
+		   import com.esri.ags.tasks.IdentifyResult;            
+		   import com.esri.ags.toolbars.Draw;
+		   import com.esri.ags.Map;
+		   import com.net.digitalprimates.utils.E4XParser;
+		   
+		   [Bindable] public var MainMap:Map;
+		   [Bindable] public var navToolBar:Navigation
+		   [Bindable] private var idResults:XML;
+		   [Bindable] private var idResultsNoFields:XML;
+		   [Bindable] private var idResultDetail:XML;
+		   [Bindable] public var myGraphicsLayer:GraphicsLayer;
+		   [Bindable] public var myGraphicsLayer2:GraphicsLayer = new GraphicsLayer();
+		   private var mytoolTip:String;
+		   private var ZoomToGeo:Geometry = new Geometry();
+		   private var myPoly:Polygon = new Polygon();
+		   private var myPoint:MapPoint = new MapPoint();
+		   private var myline:Polyline = new Polyline();
+		   private var zoomGraphic:Graphic = new Graphic();
+		  
+			
+		  //private var myInfoWindowRenderer:ClassFactory = new ClassFactory(MyInfoWindowRenderer);
+			
+			 private function deactivate():void            
+            {                
+            drawToolbar2.deactivate(); 
+            MainMap.zoomSliderVisible = true;                       
+            }  
+            
+           
+            
+            private function drawEndHandler(event:DrawEvent):void            
+            {                
+            var geometry : Geometry = event.graphic.geometry;                
+            var identifyParams : IdentifyParameters = new IdentifyParameters();                 
+            identifyParams.returnGeometry = true;                
+            identifyParams.tolerance = 3;                
+            identifyParams.width = 600;                
+            identifyParams.height = 550;                
+            identifyParams.geometry = geometry;                
+            switch (layerOption.value)                
+            {                    
+            case "top":                       
+            identifyParams.layerOption = IdentifyParameters.LAYER_OPTION_TOP;                       
+            break;                    
+            case "visible":                       
+            identifyParams.layerOption = IdentifyParameters.LAYER_OPTION_VISIBLE;                       
+            break;                    
+            case "all":                            
+            identifyParams.layerOption = IdentifyParameters.LAYER_OPTION_ALL;                        
+            break;                
+            }                
+            identifyParams.mapExtent = MainMap.extent;                                                
+            identifyTask.execute( identifyParams );           
+            }
+            
+            private function identifyCompleteHandler(event:IdentifyEvent):void           
+            {  
+            	var layerName:String = "";
+            	var newLayer:Boolean = false;
+            	var count:Number = 0;
+            	var resultString:String = "";
+            	var resultStringNoFields:String = "";
+                idResults = new XML("<Results></Results>");
+                idResultsNoFields = new XML("<Results></Results>");
+            	var objectID:String;
+            	idResultsTree2.visible = false;
+				myGraphicsLayer.clear();
+				myGraphicsLayer.symbolFunction = mySymbolFunction;
+				myGraphicsLayer2.clear();
+				myGraphicsLayer2.symbolFunction = mySymbolFunction;
+				
+            		for each (var result:IdentifyResult in event.identifyResults)
+            		{ 
+            		
+					    
+				 for (var detail2:String in result.feature.attributes)
+				{
+     					if (detail2 == "ObjectID")
+     					objectID = result.feature.attributes[detail2] ;
+				}
+								
+            			
+	            	    if (count == 0)
+	            	    {
+	            	    resultString += "<Layers name='" + result.layerName + "'>";
+	            	    resultStringNoFields += "<Layers name='" + result.layerName + "'>";
+	            	    layerName = result.layerName;
+	            	    }
+	            		if (layerName != result.layerName && count != 0)
+	            		{
+	            			layerName = result.layerName;
+	            			resultString += "</Layers>";
+	            			resultStringNoFields += "</Layers>";
+	            			idResults.appendChild(resultString);
+	            			idResultsNoFields.appendChild(resultStringNoFields);
+	            			resultString = "";
+	            			resultString = "<Layers name='" + layerName + "'>";	
+	            			resultStringNoFields = "";
+	            			resultStringNoFields = "<Layers name='" + layerName + "'>";	
+	            		}
+            		
+            				resultString += "<feature name='" + result.value +  ":ObjectID = " + objectID + "'>";
+            				resultStringNoFields += "<feature name='" + result.value +  ":ObjectID = " + objectID + "'>";
+		          		   	
+		          		   
+		          		       
+		          		   
+		          		 		mytoolTip = ""
+		          		 		   
+		          				for (var detail:String in result.feature.attributes)
+								{
+     							 resultString += "<Field name='" + detail + ": " + result.feature.attributes[detail] + "'></Field>";
+     							 mytoolTip += detail + ": " + result.feature.attributes[detail] + "\n" ;
+     							
+								}
+							
+							var graphic:Graphic = new Graphic();
+		          		   	graphic = result.feature;
+		          		   
+		          		   	//var tem:InfoTemplate = new InfoTemplate();
+		          		   	//tem.title = result.value +  ":ObjectID = " + objectID;
+		          		   	//graphic.infoTemplate = tem;
+
+		          		   
+		          		   	graphic.attributes = result.value +  ":ObjectID = " + objectID;
+		          		   graphic.toolTip = mytoolTip;
+		          
+		          		    myGraphicsLayer.add(graphic);
+		          		    myGraphicsLayer2.add(graphic);
+		          		    
+            		resultString += "</feature>";
+            		resultStringNoFields += "</feature>";
+            		count += 1;
+            	} 
+            	resultString += "</Layers>"; 
+            	resultStringNoFields += "</Layers>"; 
+            	idResults.appendChild(resultString); 
+            	idResultsNoFields.appendChild(resultStringNoFields); 
+            	deactivate();
+            	
+            	for each (var myGraphic3:Graphic in myGraphicsLayer2.graphicProvider)
+        			{
+        				
+     					myGraphicsLayer.add(myGraphic3);
+        			}
+            	
+            
+        	} 
+        	
+        
+
+        	
+        	private function getDetails(event:Event):void
+        	{
+        		var selectedNode:Object = event.target.selectedItem;
+        		var str:String = selectedNode.toXMLString();
+        		var strSearch:String = str.slice(1,8);
+        		
+        		
+        		if (strSearch == "feature")
+        		{
+        			for each (var myGraphic:Graphic in myGraphicsLayer2.graphicProvider)
+        			{
+        				
+     					if (myGraphic.attributes == selectedNode.@name)
+     				
+     					{
+     						zoomGraphic = myGraphic;
+     						myGraphicsLayer.clear();
+     						myGraphicsLayer.add(myGraphic);
+     						switch (myGraphic.geometry.type)
+               				{
+			                   case Geometry.MAPPOINT:
+			                   {
+			                   		
+			                       myPoint = MapPoint(myGraphic.geometry);
+			                        break;
+			                   }
+			                   case Geometry.POLYLINE:
+			                   {
+			                      myline = Polyline(myGraphic.geometry);
+			                      break;
+			                   }
+			                   case Geometry.POLYGON:
+			                   {
+			                        myPoly = Polygon(myGraphic.geometry);
+			                        break;
+			                   }
+			                }
+     						ZoomToGeo = myGraphic.geometry;
+     						Zoom.visible = true;
+						}
+        			}
+        			
+        			var expersion:String = "Layers.feature.(@name==" + selectedNode.@name + ")"
+        			 var returnXML:XMLList;
+	                 returnXML = E4XParser.evaluate( new XML( idResults.toXMLString() ), expersion );
+	                	var xml:XML = new XML(returnXML.toXMLString())
+	                 idResultsTree2.dataProvider = xml.Field;
+        			idResultsTree2.visible = true;	
+        		}
+        		else
+        		{
+        			myGraphicsLayer.clear();
+        			for each (var myGraphic3:Graphic in myGraphicsLayer2.graphicProvider)
+        			{
+     					myGraphicsLayer.add(myGraphic3);
+     				}
+        			idResultsTree2.visible = false;
+        			Zoom.visible = false;
+        		}
+        		
+        		
+        	}
+        	
+        	private function mySymbolFunction(graphic:Graphic):Symbol
+           {
+           	
+               var result:Symbol;
+               switch (graphic.geometry.type)
+               {
+                   case Geometry.MAPPOINT:
+                   {
+                        result = smsIdentify;
+                        break;
+                   }
+                   case Geometry.POLYLINE:
+                   {
+                        result = slsIdentify;
+                        break;
+                   }
+                   case Geometry.POLYGON:
+                   {
+                        result = sfsIdentify;
+                        break;
+                   }
+                }
+                return result;
+           }
+           
+           private function ZoomTo():void
+           {
+           	
+           	switch (zoomGraphic.geometry.type)
+               				{
+			                   case Geometry.MAPPOINT:
+			                   {
+			                   		
+			                    MainMap.extent.update(myPoint.x + 100, 
+                              	myPoint.y + 100,
+                                myPoint.x - 100,
+                                myPoint.y - 100,
+                                null)
+        					    MainMap.centerAt( myPoint );
+			                        break;
+			                   }
+			                   case Geometry.POLYLINE:
+			                   {
+			                     MainMap.extent = myline.extent;
+			                      break;
+			                   }
+			                   case Geometry.POLYGON:
+			                   {
+			                        MainMap.extent = myPoly.extent;
+			                        break;
+			                   }
+			                }
+        	
+
+            
+           }
+        	
+		]]>
+	</mx:Script>
+	
+	 <!-- Identify Task -->    
+    <esri:IdentifyTask id="identifyTask"        
+    	identifyComplete="identifyCompleteHandler(event)"        
+    	url="http://sampleserver1.arcgisonline.com/ArcGIS/rest/services/Demographics/ESRI_Census_USA/MapServer"/>
+    
+     <esri:Draw id="drawToolbar2" map="{MainMap}" graphicsLayer="{myGraphicsLayer}" drawEnd="drawEndHandler(event)"/>
+	
+	 <!-- Symbol for Identify Result as Polyline -->
+    <esri:SimpleLineSymbol id="slsIdentify" style="solid" color="0xff9900" width="2" alpha="1"/>
+    
+    <!-- Symbol for Identify Result as Point -->
+    <esri:SimpleMarkerSymbol id="smsIdentify" style="diamond" color="0xff9900" size="15"/>
+    
+    <!-- Symbol for Identify Result as Polygon -->
+    <esri:SimpleFillSymbol id="sfsIdentify" color="0xff9900"/>
+		<mx:HBox>
+			 <mx:ComboBox horizontalCenter="0" top="35" id="layerOption" selectedIndex="0" borderColor="0xCCCCCC" cornerRadius="0" fontWeight="normal">                    
+			 <mx:String>top</mx:String>                    
+			 <mx:String>visible</mx:String>                    
+			 <mx:String>all</mx:String>                
+			 </mx:ComboBox>
+			 <mx:Button label="Point" click=" navToolBar.deactivate();drawToolbar2.activate(Draw.MAPPOINT)"/>
+			  <mx:Button label="Polygon" click=" navToolBar.deactivate();drawToolbar2.activate(Draw.POLYGON)"/>
+			  <mx:Button id="Zoom" label="Zoom To" click="ZoomTo()" visible="false"/>
+			  <mx:Button label="Clear" click="myGraphicsLayer.clear()"/>
+		</mx:HBox>
+		<mx:HBox>
+			<mx:Tree id="idResultsTree"
+			width="200" height="525"
+			dataProvider="{idResultsNoFields.Layers}"
+			labelField="@name"
+			change="getDetails(event)"
+			scroll="true"/>
+			
+			<mx:Tree id="idResultsTree2"
+			width="250" height="525"
+			labelField="@name"
+			visible="false"
+			scroll="true"/>				
+		</mx:HBox>
+		
+</c:MaxRestorePanel>

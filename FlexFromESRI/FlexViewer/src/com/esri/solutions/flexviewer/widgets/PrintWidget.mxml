@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+////////////////////////////////////////////////////////////////////////////////
+//
+// Copyright © 2008 ESRI
+//
+// All rights reserved under the copyright laws of the United States.
+// You may freely redistribute and use this software, with or
+// without modification, provided you include the original copyright
+// and use restrictions.  See use restrictions in the file:
+// <install location>/FlexViewer/License.txt
+//
+////////////////////////////////////////////////////////////////////////////////
+-->
+<BaseWidget	xmlns:esri			="http://www.esri.com/2008/ags" 
+			xmlns				="com.esri.solutions.flexviewer.*" 
+			xmlns:mx			="http://www.adobe.com/2006/mxml" 
+			xmlns:mxeffects		="com.adobe.ac.mxeffects.*"
+			xmlns:widgets		="com.esri.solutions.flexviewer.widgets.*"
+			x					="600" 
+			y					="300" 
+			widgetConfigLoaded	="init()">
+	
+	
+	<mx:Script>
+		<![CDATA[
+			
+			import flash.net.SharedObject;
+			import mx.collections.ArrayCollection;
+			import mx.containers.Canvas;
+			import mx.controls.Alert;
+			import mx.controls.Image;
+			import mx.controls.Text;
+			import mx.printing.FlexPrintJobScaleType;
+            import mx.printing.FlexPrintJob;
+            import mx.graphics.ImageSnapshot;
+            			
+			//labels
+			[Bindable]
+			private var titleLabel:String;
+			
+			[Bindable]
+			private var subtitleLabel:String;
+			
+			[Bindable]
+			private var submitLabel:String;
+			
+			[Bindable]
+			private var title:String;
+			
+			[Bindable]
+			private var subtitle:String;
+			
+			private var copyright:String;
+			
+			[Bindable]
+			private var footer:String;
+							
+			private function init():void
+			{
+	            if (configXML)
+				{
+					//labels
+					titleLabel = configXML.labels.titlelabel || "Title:";
+					subtitleLabel = configXML.labels.subtitlelabel || "Subtitle:";
+					submitLabel = configXML.labels.submitlabel || "Print";
+					
+					title = configXML.title;
+					subtitle = configXML.subtitle;
+					copyright = configXML.copyright;
+				}
+			}			
+			
+			private function printMapOld():void
+            {
+                var printJob:FlexPrintJob = new FlexPrintJob();
+				if (printJob.start())
+                {
+                    try
+                    {
+                        map.zoomSliderVisible = false;
+                        printJob.addObject(map, FlexPrintJobScaleType.FILL_PAGE);
+                        map.zoomSliderVisible = true;
+                    }
+                    catch (e:Error)
+                    {
+                        Alert.show( e.toString() );
+                    }
+                    printJob.send();
+                }
+            }
+            
+            private function printMap():void
+            {
+            	var printJob:FlexPrintJob = new FlexPrintJob();
+				if (printJob.start())
+                {
+                	var h:Number = printJob.pageHeight;
+                	var w:Number = printJob.pageWidth;
+                	//VBOX
+                	var printBox:VBox = new VBox();
+                	printBox.styleName = "PrintBox";
+                	printBox.width = map.width;
+                	printBox.horizontalScrollPolicy = "off";
+                	printBox.verticalScrollPolicy = "off";
+                    try
+                    {
+                    	//TITLE
+                    	var printTitle:Text = new Text();
+                    	printTitle.text = txtTitle.text;
+                    	printTitle.styleName = "PrintTitle";
+                    	printTitle.setStyle("fontSize", h/12);
+                    	printTitle.percentWidth = 100;
+                    	printBox.addChild(printTitle);
+                    	//SUBTITLE
+                    	var printSubtitle:Text = new Text();
+                    	printSubtitle.text = txtSubtitle.text;
+                    	printSubtitle.styleName = "PrintSubtitle";
+                    	printSubtitle.setStyle("fontSize", h/24);
+                    	printSubtitle.percentWidth = 100;
+                    	printBox.addChild(printSubtitle);
+                    	//MAP
+                    	map.zoomSliderVisible = false;
+		            	var bmpMap:BitmapData = ImageSnapshot.captureBitmapData(map);
+		                var bmp:Bitmap = new Bitmap(bmpMap);  
+		                var printImg:Image = new Image();   
+		                printImg.source = bmp;
+		                map.zoomSliderVisible = true;
+		                printBox.addChild(printImg); 
+		                //COPYRIGHT
+                    	var now:Date = new Date();
+                    	var printCopy:Text = new Text();
+                    	printCopy.text = copyright + " Printed on " + now.toLocaleString() + ".";
+                    	printCopy.styleName = "PrintCopyright";
+                    	printCopy.setStyle("fontSize", h/48);
+                    	printCopy.percentWidth = 100;
+                    	printBox.addChild(printCopy);
+		                //PRINT
+		                this.addChild(printBox);
+		                printJob.addObject(printBox, FlexPrintJobScaleType.SHOW_ALL);
+                    	printJob.printAsBitmap;
+                    	this.removeChild(printBox);
+		        	}
+                    catch (e:Error)
+                    {
+                    	this.removeChild(printBox);
+                        Alert.show( e.toString() );
+                    }
+                    printJob.send();
+                }
+            }		
+				
+		]]>
+	</mx:Script>
+	
+
+	<WidgetTemplate id="wTemplate">
+		<mx:ViewStack id="viewStack" width="100%" height="100%" creationPolicy="all">
+			<mx:VBox width="100%" height="100%" verticalGap="10" paddingTop="10">
+				<mx:Form id="frmPrint" verticalScrollPolicy="off" paddingBottom="0" width="100%" height="100%">
+					<mx:FormItem label="{titleLabel}" styleName="WidgetText" width="100%">
+						<mx:TextInput id="txtTitle" text="{title}"/>
+					</mx:FormItem>
+					<mx:FormItem label="{subtitleLabel}" styleName="WidgetText" width="100%">
+						<mx:TextInput id="txtSubtitle" text="{subtitle}"/>
+					</mx:FormItem>
+					<mx:HBox horizontalAlign="center" width="100%">
+						<mx:Button label="{submitLabel}" click="printMap()"/>
+					</mx:HBox>
+				</mx:Form>
+			</mx:VBox>
+		</mx:ViewStack>
+	</WidgetTemplate>
+	
+</BaseWidget>
