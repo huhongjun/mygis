@@ -1,4 +1,4 @@
-﻿/*
+/*
 Scripts for creating SVG apps, converting clientX/Y to viewBox coordinates
 and for displaying tooltips
 
@@ -82,25 +82,20 @@ function mapApp(adjustVBonWindowResize,resizeCallbackFunction) {
 	this.initialized = false;
 	if (!document.documentElement.getScreenCTM) {
 		//add zoom and pan event event to document element
-		//添加zoom和pan事件
 		//this part is only required for viewers not supporting document.documentElement.getScreenCTM() (e.g. ASV3)
 		document.documentElement.addEventListener("SVGScroll",this,false);
 		document.documentElement.addEventListener("SVGZoom",this,false);
 	}
 	//add SVGResize event, note that because FF does not yet support the SVGResize event, there is a workaround
-	//添加resize事件
  	try {
   		//browsers with native SVG support
-		//浏览器本身支持SVG，如FireFox
   		window.addEventListener("resize",this,false);
  	}
 	catch(er) {
 		//SVG UAs, like Batik and ASV/Iex
-		//SVG插件运行环境，如Batik和ASV/Iex
 		document.documentElement.addEventListener("SVGResize",this,false);
 	}
 	//determine the browser main version
-	//确定浏览器版本
 	this.navigator = "Batik";
 	if (window.navigator) {
 		if (window.navigator.appName.match(/Adobe/gi)) {
@@ -138,7 +133,6 @@ function mapApp(adjustVBonWindowResize,resizeCallbackFunction) {
 	this.tables = new Array();
 }
 
-// 定义原型函数，处理SVGResize和mouseover
 mapApp.prototype.handleEvent = function(evt) {
 	if (evt.type == "SVGResize" || evt.type == "resize" || evt.type == "SVGScroll" || evt.type == "SVGZoom") {
 		this.resetFactors();
@@ -173,6 +167,18 @@ mapApp.prototype.resetFactors = function() {
 		this.m = this.m.scale( 1/scale );
 		this.m = this.m.translate(-trans.x, -trans.y);
 	}
+	//now calculate size of a unit in pixel
+	var params = document.documentElement.getAttributeNS(null,"viewBox").split(/\s*,\s*|\s+/);
+	this.vbWidth = parseFloat(params[2]);
+	this.vbHeight = parseFloat(params[3]);
+	if (this.innerWidth/this.innerHeight > this.vbWidth/this.vbHeight) {
+		//case viewport is wider than viewBox
+		this.unitPixSize = 	this.innerHeight / this.vbHeight;
+	}
+	else {
+		this.unitPixSize = 	this.innerWidth / this.vbWidth;	
+	}
+
 	if (this.resizeCallbackFunction && this.initialized) {
 		if (typeof(this.resizeCallbackFunction) == "function") {
 			this.resizeCallbackFunction();

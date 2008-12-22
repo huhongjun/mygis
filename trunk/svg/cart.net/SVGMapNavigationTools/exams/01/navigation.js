@@ -1,7 +1,7 @@
 /*
 Scripts for SVG only webmapping application navigation tools
-Copyright (C) <2004 - 2007>  <Andreas Neumann>
-Version 1.3.1, 2007-05-07
+Copyright (C) <2004 - 2006>  <Andreas Neumann>
+Version 1.9, 2006-09-05
 neumann@karto.baug.ethz.ch
 http://www.carto.net/
 http://www.carto.net/neumann/
@@ -24,6 +24,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 ----
 
+current version: 1.9
+
 version history:
 1.0 initial version
 1.01 (2005-02-15) added cleanUp() method to map and dragObj objects, some fixes in the documentation
@@ -37,7 +39,7 @@ version history:
 1.2.3 (2006-06-19): changed the behaviour of the highlightCross, the highlightCross is now automatically hidden after each zoom and pan; highlightCross in main map now correctly disappears if coordinate outside of main map; fixed a bug when repeatedly starting the same mode
 1.2.4 (2006-08-10): added methods .bboxTestWithin(bbox) and .bboxTestOverlaps(bbox); updated the slider object in index.svg
 1.3 (2007-04-19): added evt.preventDefault() in dragObj.prototype.handleEvent to prevent that a potential raster image is dragged in the reference map (applies to Apple Safari); manual zoom rectangle can now be drawn in all directions; the behavior of small manual zoom rectangles was slightly changed
-1.3.1 (2007-05-07): corrected a bug where coordinate display still happened when the mouse cursor was above the reference map, even when the map object instance had the showCoords property set to false
+1.9 (2006-09-05): this is an unofficial, internal release - added support for multiple, synchronous maps. Added support for maps that have a different width/height ratio than the reference map. This needs more testing.
 
 original document site: http://www.carto.net/papers/svg/navigationTools/
 Please contact the author in case you want to use code or ideas commercially.
@@ -55,37 +57,41 @@ somewhere in the source-code-comment or the "about" of your project and give cre
 
 //constructor: holds data on map and initializes various references
 function map(mapName,maxWidth,minWidth,zoomFact,nrDecimals,epsg,units,unitsFactor,showCoords,coordXId,coordYId,dynamicLayers,digiLayers,activeDigiLayer,zoomRectAttribs,highlightAttribs,dragRectAttribs,refmapName,dragSymbol,symbolThreshold) {
-	this.mapName = mapName; //id of svg element containing the map geometry
-	this.mapSVG = document.getElementById(this.mapName); //reference to nested SVG element holding the map-graphics
+	this.maps = new Array(); //this array contains mapdata from all maps controlled by the map object
+	this.maps.push(new mapData(mapName,dynamicLayers,digiLayers,activeDigiLayer,highlightAttribs));
+	this.maps[0].backgroundRect.addEventListener("mousedown",this,false);
+	this.maps[0].backgroundRect.addEventListener("mousemove",this,false);
+	this.maps[0].backgroundRect.addEventListener("mouseup",this,false);
+	this.maps[0].backgroundRect.addEventListener("mouseout",this,false);
+	this.maps[0].backgroundRect.addEventListener("click",this,false);
 	this.refmapSVG = document.getElementById(refmapName); //holds a reference to the reference map
-	this.mainMapGroup = document.getElementById(this.mapName+"Group"); //group within mainmap - to be transformed when panning manually
-	this.dynamicLayers = dynamicLayers; //an associative array holding ids of values that are loaded from the web server dynamically (.getUrl())
-	this.nrLayerToLoad = 0; //statusVariable to indicate how many layers are still to load
 	this.maxWidth = maxWidth; //max map width
 	this.minWidth = minWidth; //min map width, after zooming in
 	this.zoomFact = zoomFact; //ratio to zoom in or out in relation to previous viewBox
-	this.digiLayers = digiLayers; //references to digiLayers (for digitizing tools)
-	this.activeDigiLayer = activeDigiLayer; //active Digi Layer, key is final group id where geometry should be copied to after digitizing
 	this.zoomRectAttribs = zoomRectAttribs; //array of literals with presentation attributes defining the look of the zoom rectangle
 	this.dragRectAttribs = dragRectAttribs; //array of literals with presentation attributes of the dragable rectangle in the reference map
 	this.highlightAttribs = highlightAttribs; //array of literals with presentation attributes used for the highlight crosshair
 	this.dragSymbol = dragSymbol; //this holds the id of a symbol that is used to display the current map extent if it is very small
 	this.symbolThreshold = symbolThreshold; //this value defines a threshold after which the drag symbol should be displayed in addition to the drag rectangle
-	this.pixXOffset = parseFloat(this.mapSVG.getAttributeNS(null,"x")); //offset from left margin of outer viewBox
-	this.pixYOffset = parseFloat(this.mapSVG.getAttributeNS(null,"y")); //offset from top margin of outer viewBox
-	var viewBox = this.mapSVG.getAttributeNS(null,"viewBox");
+	//get viewBox of first main map
+	var viewBox = this.maps[0].mapSVG.getAttributeNS(null,"viewBox");
 	var viewBoxArray = viewBox.split(" ");
 	this.curxOrig = parseFloat(viewBoxArray[0]); //holds the current xOrig
 	this.curyOrig = parseFloat(viewBoxArray[1]); //holds the current yOrig
 	this.curWidth = parseFloat(viewBoxArray[2]); //holds the current map width
 	this.curHeight = parseFloat(viewBoxArray[3]); //holds the current map height
-	this.minX = this.curxOrig;
-	this.minY = this.curyOrig;
-	this.maxX = this.curxOrig + this.curWidth;
-	this.maxY = this.curyOrig + this.curHeight;
-	this.pixWidth = parseFloat(this.mapSVG.getAttributeNS(null,"width")); //holds width of the map in pixel coordinates
-	this.pixHeight = parseFloat(this.mapSVG.getAttributeNS(null,"height")); //holds height of the map in pixel coordinates
-	this.pixSize = this.curWidth / this.pixWidth; //size of a screen pixel in map units
+	//get viewBox of reference map, which is the reference for min/max
+	var viewBoxRefMap = this.refmapSVG.getAttributeNS(null,"viewBox");
+	var viewBoxRefArray = viewBoxRefMap.split(" ");	
+	this.minX = parseFloat(viewBoxArray[0]); //holds the minX value
+	this.minY = parseFloat(viewBoxArray[1]); //holds the minY value
+	this.maxX = this.minX + parseFloat(viewBoxArray[2]); //holds the maxX value
+	this.maxY = this.minY + parseFloat(viewBoxArray[3]); //holds the maxY value
+	this.minXorig = this.minX;
+	this.minYorig = this.minY;
+	this.maxXorig = this.maxX;
+	this.maxYorig = this.maxY;
+	this.refMapRatio = (this.maxX - this.minX) / (this.maxY - this.minY);
 	this.zoomVal = this.maxWidth / this.curWidth * 100; //zoomVal in relation to initial zoom
 	this.nrDecimals = nrDecimals; //nr of decimal places to be displayed for show coordinates or accuracy when working with digitizing
 	this.epsg = epsg; //epsg projection code - can be used for building URL strings for loading data from a WMS or spatial database, if you don't need it just input any number
@@ -99,8 +105,10 @@ function map(mapName,maxWidth,minWidth,zoomFact,nrDecimals,epsg,units,unitsFacto
 	this.timestamp = null; //holds the timestamp after a zoom or pan occured
 	//initialize coordinate display if showCoords == true
 	if (this.showCoords == true) {
-		//add event listener for coordinate display
-		this.mapSVG.addEventListener("mousemove",this,false);
+		for (var i=0;i<this.maps.length;i++) {
+			//add event listener for coordinate display
+			this.maps[i].mapSVG.addEventListener("mousemove",this,false);
+		}
 		if (typeof(coordXId) == "string") {
 			this.coordXText = document.getElementById(coordXId).firstChild;
 		}
@@ -118,70 +126,20 @@ function map(mapName,maxWidth,minWidth,zoomFact,nrDecimals,epsg,units,unitsFacto
 	this.mapExtents = new Array();
 	this.mapExtents.push({xmin:this.curxOrig,ymin:((this.curyOrig + this.curHeight) * -1),xmax:(this.curxOrig + this.curWidth),ymax:(this.curyOrig * -1)});
 	this.curMapExtentIndex = 0;
-	//create background-element to receive events for showing coordinates
-	//this rect is also used for manual zooming and panning
-	this.backgroundRect = document.createElementNS(svgNS,"rect");
-	this.backgroundRect.setAttributeNS(null,"x",this.curxOrig);
-	this.backgroundRect.setAttributeNS(null,"y",this.curyOrig);
-	this.backgroundRect.setAttributeNS(null,"width",this.curWidth);
-	this.backgroundRect.setAttributeNS(null,"height",this.curHeight);
-	this.backgroundRect.setAttributeNS(null,"fill","none");
-	this.backgroundRect.setAttributeNS(null,"stroke","none");
-	this.backgroundRect.setAttributeNS(null,"pointer-events","fill");
-	this.backgroundRect.setAttributeNS(null,"id","mapBackgroundRect");
-	this.backgroundRect.addEventListener("mousedown",this,false);
-	this.backgroundRect.addEventListener("mousemove",this,false);
-	this.backgroundRect.addEventListener("mouseup",this,false);
-	this.backgroundRect.addEventListener("mouseout",this,false);
-	this.backgroundRect.addEventListener("click",this,false);
-	this.mainMapGroup.insertBefore(this.backgroundRect,this.mainMapGroup.firstChild);
-	//initialize highlight cross in main map
-	this.highlightCross = document.createElementNS(svgNS,"g");
-	this.highlightCross.setAttributeNS(null,"visibility","hidden");
-	this.highlightVisible = false; //indicates whether hightlightcrosshair is visible
-	for (var attrib in this.highlightAttribs) {
-		var attribValue = this.highlightAttribs[attrib];
-		if (attrib == "stroke-width") {
-			attribValue = this.curWidth * parseFloat(this.highlightAttribs["stroke-width"]);
-		}
-		if (attrib == "stroke-dasharray") {
-			var dasharray = this.highlightAttribs["stroke-dasharray"].split(",");
-			var attribValue = "";
-			for (var i=0;i<dasharray.length;i++) {
-				attribValue += (this.curWidth * parseFloat(dasharray[i]))+",";
-			}
-			attribValue = attribValue.slice(0,attribValue.length - 1);
-		}
-		this.highlightCross.setAttributeNS(null,attrib,attribValue);
-	}
-	this.highlightCross.setAttributeNS(null,"pointer-events","none");
-	this.highlightCrossHoriz = document.createElementNS(svgNS,"line");
-	this.highlightCrossHoriz.setAttributeNS(null,"x1",this.curxOrig);
-	this.highlightCrossHoriz.setAttributeNS(null,"x2",this.curxOrig + this.curWidth);
-	this.highlightCrossHoriz.setAttributeNS(null,"y1",this.curyOrig + this.curHeight * 0.5);
-	this.highlightCrossHoriz.setAttributeNS(null,"y2",this.curyOrig + this.curHeight * 0.5);
-	this.highlightCross.appendChild(this.highlightCrossHoriz);
-	this.highlightCrossVert = document.createElementNS(svgNS,"line");
-	this.highlightCrossVert.setAttributeNS(null,"x1",this.curxOrig + this.curWidth * 0.5);
-	this.highlightCrossVert.setAttributeNS(null,"x2",this.curxOrig + this.curWidth * 0.5);
-	this.highlightCrossVert.setAttributeNS(null,"y1",this.curyOrig);
-	this.highlightCrossVert.setAttributeNS(null,"y2",this.curyOrig + this.curHeight);
-	this.highlightCross.appendChild(this.highlightCrossVert);
-	this.mainMapGroup.appendChild(this.highlightCross);
 	//initialize highlight cross in reference map
 	this.rMhighlightCross = document.createElementNS(svgNS,"g");
 	this.rMhighlightCross.setAttributeNS(null,"visibility","hidden");
 	for (var attrib in this.highlightAttribs) {
 		var attribValue = this.highlightAttribs[attrib];
 		if (attrib == "stroke-width") {
-			var overview2MainMapFactor = this.pixWidth / parseFloat(this.refmapSVG.getAttributeNS(null,"width"));
-			attribValue = this.curWidth * parseFloat(this.highlightAttribs["stroke-width"]) * overview2MainMapFactor;
+			var overview2MainMapFactor = (this.maps[0].pixWidth + this.maps[0].pixHeight) / (parseFloat(this.refmapSVG.getAttributeNS(null,"width"))+parseFloat(this.refmapSVG.getAttributeNS(null,"height")));
+			attribValue = ((this.curWidth + this.curHeight) * 0.5) * parseFloat(this.highlightAttribs["stroke-width"]) * overview2MainMapFactor;
 		}
 		if (attrib == "stroke-dasharray") {
 			var dasharray = this.highlightAttribs["stroke-dasharray"].split(",");
 			var attribValue = "";
 			for (var i=0;i<dasharray.length;i++) {
-				attribValue += (this.curWidth * parseFloat(dasharray[i]))+",";
+				attribValue += (((this.curWidth + this.curHeight) * 0.5) * parseFloat(dasharray[i]))+",";
 			}
 			attribValue = attribValue.slice(0,attribValue.length - 1);
 		}
@@ -201,8 +159,6 @@ function map(mapName,maxWidth,minWidth,zoomFact,nrDecimals,epsg,units,unitsFacto
 	this.rMhighlightCrossVert.setAttributeNS(null,"y2",this.curyOrig + this.curHeight);
 	this.rMhighlightCross.appendChild(this.rMhighlightCrossVert);
 	this.refmapSVG.appendChild(this.rMhighlightCross);
-	//ensure that the reference map has the same viewBox than the main map
-	this.refmapSVG.setAttributeNS(null,"viewBox",viewBox);
 	this.refmapSVG.setAttributeNS(null,"cursor","crosshair");
 	//add invisible rect to reference map to ensure that we get events in the nested svg of the reference map
 	var invisRect = document.createElementNS(svgNS,"rect");
@@ -221,7 +177,7 @@ function map(mapName,maxWidth,minWidth,zoomFact,nrDecimals,epsg,units,unitsFacto
 		this.getScreenCTM = false;
 	}
 	//initialize refMapDragger object
-	myMapApp.refMapDragger = new dragObj(this.refmapSVG,this.dragSymbol,this.symbolThreshold,this.dragRectAttribs,this.showCoords,coordXId,coordYId,this);
+	myMapApp.refMapDragger = new dragObj(this.refmapSVG,this.dragSymbol,this.symbolThreshold,this.dragRectAttribs,true,coordXId,coordYId,this);
 }
 
 //resets viewBox of main map after zooming and panning
@@ -231,22 +187,24 @@ map.prototype.newViewBox = function(history) {
 	this.curWidth = parseFloat(this.dragger.getAttributeNS(null,"width"));
 	this.curHeight = parseFloat(this.dragger.getAttributeNS(null,"height"));
 	var myViewBoxString = this.curxOrig + " " + this.curyOrig + " " + this.curWidth + " " + this.curHeight;
-	this.pixSize = this.curWidth / this.pixWidth;
 	this.zoomVal = this.maxWidth / this.curWidth * 100;
-	this.mapSVG.setAttributeNS(null,"viewBox",myViewBoxString);
-	myMapApp.zoomSlider.setValue(this.curWidth);
-	//reset line width of hightlightCross
-	if (this.highlightAttribs["stroke-width"]) {
-		this.highlightCross.setAttributeNS(null,"stroke-width",this.curWidth * parseFloat(this.highlightAttribs["stroke-width"]));
-	}
-	if (this.highlightAttribs["stroke-dasharray"]) {
-		var dasharray = this.highlightAttribs["stroke-dasharray"].split(",");
-		var attribValue = "";
-		for (var i=0;i<dasharray.length;i++) {
-			attribValue += (this.curWidth * parseFloat(dasharray[i]))+",";
+	myMapApp.sliders["zoomSlider"].setValue(this.curWidth);
+	for (var i=0;i<this.maps.length;i++) {
+		this.maps[i].pixSize = this.curWidth / this.maps[i].pixWidth;
+		this.maps[i].mapSVG.setAttributeNS(null,"viewBox",myViewBoxString);
+		//reset line width of hightlightCross
+		if (this.highlightAttribs["stroke-width"]) {
+			this.maps[i].highlightCross.setAttributeNS(null,"stroke-width",((this.curWidth + this.curHeight) * 0.5) * parseFloat(this.highlightAttribs["stroke-width"]));
 		}
-		attribValue = attribValue.slice(0,attribValue.length - 1);
-		this.highlightCross.setAttributeNS(null,"stroke-dasharray",attribValue);	
+		if (this.highlightAttribs["stroke-dasharray"]) {
+			var dasharray = this.highlightAttribs["stroke-dasharray"].split(",");
+			var attribValue = "";
+			for (var i=0;i<dasharray.length;i++) {
+				attribValue += (((this.curWidth + this.curHeight) * 0.5) * parseFloat(dasharray[i]))+",";
+			}
+			attribValue = attribValue.slice(0,attribValue.length - 1);
+			this.maps[i].highlightCross.setAttributeNS(null,"stroke-dasharray",attribValue);	
+		}
 	}
 	//remove highlight cross after zooming/panning
 	if (this.highlightVisible) {
@@ -255,9 +213,72 @@ map.prototype.newViewBox = function(history) {
 	loadProjectSpecific();
 	if (history) {
 	    this.mapExtents.push({xmin:this.curxOrig,ymin:((this.curyOrig + this.curHeight) * -1),xmax:(this.curxOrig + this.curWidth),ymax:(this.curyOrig * -1)});
-               this.curMapExtentIndex = (this.mapExtents.length - 1);
+        this.curMapExtentIndex = (this.mapExtents.length - 1);
 	}
 	this.checkButtons();
+}
+
+//this function allows to reposition and resize one of the main map
+map.prototype.reSizePos = function(mapIndex,x,y,width,height) {
+	var widthBefore = this.curWidth;
+	var heightBefore = this.curHeight;
+	var xBefore = this.curxOrig;
+	var yBefore = this.curyOrig;
+	this.maps[mapIndex].pixXOffset = x;
+	this.maps[mapIndex].pixYOffset = y;
+	this.maps[mapIndex].pixWidth = width;
+	this.maps[mapIndex].pixHeight = height;
+	this.maps[mapIndex].mapSVG.setAttributeNS(null,"x",this.maps[mapIndex].pixXOffset)
+	this.maps[mapIndex].mapSVG.setAttributeNS(null,"y",this.maps[mapIndex].pixYOffset)
+	this.maps[mapIndex].mapSVG.setAttributeNS(null,"width",this.maps[mapIndex].pixWidth)
+	this.maps[mapIndex].mapSVG.setAttributeNS(null,"height",this.maps[mapIndex].pixHeight)
+	var newRatio = width / height;
+	if (newRatio > this.refMapRatio) {
+		var maxHeight = this.maxYorig - this.minYorig;
+		if (this.curHeight > maxHeight) {
+			this.curHeight = maxHeight;
+			this.curyOrig = this.minYorig;
+		}
+		//case we have to add in width
+		this.curWidth = this.curHeight * newRatio;
+		this.curxOrig = this.curxOrig + (widthBefore - this.curWidth) * 0.5;
+		this.minY = this.minYorig;
+		this.maxY = this.maxYorig;
+		this.maxWidth = (this.maxY - this.minY) * newRatio;
+		this.minX = this.minXorig + ((this.maxXorig - this.minXorig) - this.maxWidth) * 0.5;
+		this.maxX = this.maxXorig + ((this.maxXorig - this.minXorig) - this.maxWidth) * -0.5;
+	}
+	else {
+		//case we have to add in height
+		this.maxWidth = this.maxXorig - this.minXorig;
+		if (this.curWidth > this.maxWidth) {
+			this.curWidth = this.maxWidth;
+			this.curxOrig = this.minXorig;
+		}
+		this.minX = this.minXorig;
+		this.maxX = this.maxXorig;
+		this.curHeight = this.curWidth * (height / width);
+		this.curyOrig = this.curyOrig + (heightBefore - this.curHeight) * 0.5;
+		var maxHeight = (this.maxX - this.minX) * (height / width);
+		this.minY = this.minYorig + ((this.maxYorig - this.minYorig) - maxHeight) * 0.5;
+		this.maxY = this.maxYorig + ((this.maxYorig - this.minYorig) - maxHeight) * -0.5;
+	}
+	this.maps[mapIndex].mapSVG.setAttributeNS(null,"viewBox",this.curxOrig+" "+this.curyOrig+" "+this.curWidth+" "+this.curHeight);
+
+	this.maps[mapIndex].pixSize = this.curWidth / this.maps[mapIndex].pixWidth; //size of a screen pixel in map units
+	this.zoomVal = this.maxWidth / this.curWidth * 100; //zoomVal in relation to initial zoom
+	
+	//need to adopt rect in reference map
+	myMapApp.refMapDragger.newView(this.curxOrig,this.curyOrig,this.curWidth,this.curHeight);
+		
+	//need to adopt zoom slider
+	myMapApp.sliders["zoomSlider"].value2 = this.maxWidth;
+	myMapApp.sliders["zoomSlider"].setValue(this.curWidth);
+	
+	//check buttons
+	this.checkButtons();
+	
+	loadProjectSpecific();
 }
 
 map.prototype.backwardExtent = function() {
@@ -298,7 +319,9 @@ map.prototype.checkButtons = function() {
            }
 
            //maximum map width reached, cannot zoom out further
-           if (this.curWidth >= this.maxWidth) {
+		   //this statement is to avoid rounding errors
+		   //previously we had this.curWidth >= this.maxWidth
+           if (this.curWidth/this.maxWidth > 0.999) {
                if (myMapApp.buttons["zoomOut"].activated) {
                    myMapApp.buttons["zoomOut"].deactivate();
                }
@@ -364,20 +387,27 @@ map.prototype.checkButtons = function() {
 
 map.prototype.setNewViewBox = function(xmin,ymin,xmax,ymax,history) {
 	//check if within constraints
-	if (xmin < myMapApp.refMapDragger.constrXmin) {
-		xmin = myMapApp.refMapDragger.constrXmin;
+	if (xmin < this.minX) {
+		xmin = this.minX;
 	}
-	if (xmax > myMapApp.refMapDragger.constrXmax) {
-		xmax = myMapApp.refMapDragger.constrXmin;
+	if (xmax > this.maxX) {
+		xmax = this.maxX;
 	}
-	if (ymin < (myMapApp.refMapDragger.constrYmax * -1)) {
-		ymin = myMapApp.refMapDragger.constrYmax * -1;
+	if (ymin < (this.maxY * -1)) {
+		ymin = this.maxY * -1;
 	}
-	if (ymax > (myMapApp.refMapDragger.constrYmin * -1)) {
-		ymax = myMapApp.refMapDragger.constrYmin * -1;
+	if (ymax > (this.minY * -1)) {
+		ymax = this.minY * -1;
 	}
 
 	var origWidth = xmax - xmin;
+	//check if new width is below min width
+	if (origWidth < this.minWidth) {
+		var diffX = this.minWidth - origWidth;
+		xmin -= diffX * 0.5;
+		xmax += diffX * 0.5;
+		origWidth = this.minWidth;
+	}
 	var origHeight = ymax - ymin;
 	var myRatio = this.curWidth/this.curHeight;
 
@@ -393,17 +423,17 @@ map.prototype.setNewViewBox = function(xmin,ymin,xmax,ymax,history) {
 		ymin = ymax * -1;
 	}
 	//check if within constraints
-	if (xmin < myMapApp.refMapDragger.constrXmin) {
-		xmin = myMapApp.refMapDragger.constrXmin;
+	if (xmin < this.minX) {
+		xmin = this.minX;
 	}
-	if (ymin < myMapApp.refMapDragger.constrYmin) {
-		ymin = myMapApp.refMapDragger.constrYmin;
+	if (ymin < this.minY) {
+		ymin = this.minY;
 	}
-	if ((xmin + newWidth) > myMapApp.refMapDragger.constrXmax) {
-		xmin = myMapApp.refMapDragger.constrXmax - newWidth;
+	if ((xmin + newWidth) > this.maxX) {
+		xmin = this.maxX - newWidth;
 	}
-	if ((ymin + newHeight) > myMapApp.refMapDragger.constrYmax) {
-		ymin = myMapApp.refMapDragger.constrYmax - newHeight;
+	if ((ymin + newHeight) > this.maxY) {
+		ymin = this.maxY - newHeight;
 	}
 	myMapApp.refMapDragger.newView(xmin,ymin,newWidth,newHeight);
 	this.newViewBox(history);
@@ -412,41 +442,51 @@ map.prototype.setNewViewBox = function(xmin,ymin,xmax,ymax,history) {
 //handles events associated with navigation
 map.prototype.handleEvent = function(evt) {
 	var callerId = evt.currentTarget.getAttributeNS(null,"id");
-	if (callerId.match(/\bzoomBgRectManual/)) {
-		this.zoomManDragRect(evt);
-	}
-	if (callerId.match(/\bzoomBgRectRecenter/)) {
-		this.recenterFinally(evt);
-	}
-	if (callerId.match(/\bbgPanManual/)) {
-		this.panManualFinally(evt);
-	}
-	if (callerId == "mainMap" && evt.type == "mousemove") {
-		if (this.navStatus != "panmanualActive") {
-		    this.showCoordinates(evt);
+	//System.out.println("callerID="+callerId);
+	for (var i=0;i<this.maps.length;i++) {
+		if (callerId == "zoomBgRectManual"+i) {
+			this.zoomManDragRect(evt,i);
+		}
+		if (callerId == "zoomBgRectRecenter"+i) {
+			this.recenterFinally(evt,i);
+		}
+		if (callerId == "bgPanManual"+i) {
+			this.panManualFinally(evt,i);
+		}
+		if (callerId == this.maps[i].mapName) {
+			if (evt.type == "mousemove") {
+				if (this.navStatus != "panmanualActive") {
+				    this.showCoordinates(evt,i);
+				}
+			}
 		}
 	}
+	evt.preventDefault();
 }
 
 //calcs coordinates; relies on myMapApp to handle different window sizes and resizing of windows
-map.prototype.calcCoord = function(evt) {
+map.prototype.calcCoord = function(evt,index) {
 	//with getScreenCTM the values are already in the inner coordinate system
 	if (!this.getScreenCTM) {
-		var coords = myMapApp.calcCoord(evt,this.mapSVG);
-		coords.x = this.curxOrig + (coords.x - this.pixXOffset) * this.pixSize;
-		coords.y = (this.curyOrig + (coords.y - this.pixYOffset) * this.pixSize);
+		var coords = myMapApp.calcCoord(evt,this.maps[index].mapSVG);
+		coords.x = this.curxOrig + (coords.x - this.maps[index].pixXOffset) * this.maps[index].pixSize;
+		coords.y = (this.curyOrig + (coords.y - this.maps[index].pixYOffset) * this.maps[index].pixSize);
 	}
 	else {
-		var coords = myMapApp.calcCoord(evt,this.mainMapGroup);
+		var coords = myMapApp.calcCoord(evt,this.maps[index].mainMapGroup);
 	}
 	return coords;
 }
 
 //displays x and y coordinates in two separate text elements
-map.prototype.showCoordinates = function(evt) {
-	var mapCoords = this.calcCoord(evt);
-	this.coordXText.nodeValue = "X: " + formatNumberString((mapCoords.x * this.unitsFactor).toFixed(this.nrDecimals),",") + this.units;
-	this.coordYText.nodeValue = "Y: " + formatNumberString((mapCoords.y * this.unitsFactor * -1).toFixed(this.nrDecimals),",") + this.units;
+map.prototype.showCoordinates = function(evt,index) {
+	var mapCoords = this.calcCoord(evt,index);
+	mapCoords.y *= -1;
+	var geogCoords = swiss2geog(mapCoords,0);
+	geogCoords.lat = dd2dms(geogCoords.lat);
+	geogCoords.lon = dd2dms(geogCoords.lon);
+	this.coordXText.nodeValue = "X: " + formatNumberString((mapCoords.x * this.unitsFactor).toFixed(this.nrDecimals)) + this.units + ", Y: " + formatNumberString((mapCoords.y * this.unitsFactor).toFixed(this.nrDecimals)) + this.units;
+	this.coordYText.nodeValue = "E "+geogCoords.lon.deg +String.fromCharCode(176)+" "+geogCoords.lon.min+"' "+geogCoords.lon.sec.toFixed(2)+"'', N "+geogCoords.lat.deg +String.fromCharCode(176)+" "+geogCoords.lat.min+"' "+geogCoords.lat.sec.toFixed(2)+"''";
 }
 
 //checks for and removes temporary rectangle objects
@@ -462,11 +502,13 @@ map.prototype.stopNavModes = function(curId) {
 			myMapApp.buttons["recenterMap"].setSwitchValue(false,false);
 		}
 		if (curId != "zoomManual" && curId != "panManual" && curId != "recenterMap") {
-			this.backgroundRect.setAttributeNS(null,"id","mapBackgroundRect");
+			for (var i=0;i<this.maps.length;i++) {
+				this.maps[i].backgroundRect.setAttributeNS(null,"id","mapBackgroundRect");
+				this.maps[i].mapSVG.setAttributeNS(null,"cursor","crosshair");
+				this.maps[i].mainMapGroup.insertBefore(this.maps[i].backgroundRect,this.maps[i].mainMapGroup.firstChild);
+			}
 			this.navStatus = "info";
-			this.mapSVG.setAttributeNS(null,"cursor","crosshair");
-			statusChange("模式: 信息模式");
-			this.mainMapGroup.insertBefore(this.backgroundRect,this.mainMapGroup.firstChild);
+			statusChange("Mode: Infomode");
 			if (!myMapApp.buttons["infoButton"].getSwitchValue()) {
 				myMapApp.buttons["infoButton"].setSwitchValue(true,false);
 			}
@@ -478,16 +520,18 @@ map.prototype.stopNavModes = function(curId) {
 map.prototype.zoomManual = function(evt) {
 	if (Math.round(this.curWidth) > this.minWidth && evt.detail == 1) {
 		this.navStatus = "zoomManual";
-		this.backgroundRect.setAttributeNS(null,"id","zoomBgRectManual");
-		this.mainMapGroup.appendChild(this.backgroundRect);
-		this.mapSVG.setAttributeNS(null,"cursor","se-resize");
-		statusChange("点击和拖动以显示新的地图.");
+		for (var i=0;i<this.maps.length;i++) {
+			this.maps[i].backgroundRect.setAttributeNS(null,"id","zoomBgRectManual"+i);
+			this.maps[i].mainMapGroup.appendChild(this.maps[i].backgroundRect);
+			this.maps[i].mapSVG.setAttributeNS(null,"cursor","se-resize");
+		}
+		statusChange("Click and drag rectangle for new map extent.");
 	}
 }
 
 //manages manual zooming by drawing a rectangle
-map.prototype.zoomManDragRect = function(evt) {
-	var mapCoords = this.calcCoord(evt);
+map.prototype.zoomManDragRect = function(evt,index) {
+	var mapCoords = this.calcCoord(evt,index);
 	var myX = mapCoords.x;
 	var myY = mapCoords.y;
 	var myYXFact = this.curHeight / this.curWidth;
@@ -499,13 +543,13 @@ map.prototype.zoomManDragRect = function(evt) {
 		for (var attrib in this.zoomRectAttribs) {
 			var attribValue = this.zoomRectAttribs[attrib];
 			if (attrib == "stroke-width") {
-				attribValue = this.curWidth * parseFloat(this.zoomRectAttribs["stroke-width"]);
+				attribValue = ((this.curWidth + this.curHeight) * 0.5) * parseFloat(this.zoomRectAttribs["stroke-width"]);
 			}
 			if (attrib == "stroke-dasharray") {
 				var dasharray = this.zoomRectAttribs["stroke-dasharray"].split(",");
 				var attribValue = "";
 				for (var i=0;i<dasharray.length;i++) {
-					attribValue += (this.curWidth * parseFloat(dasharray[i]))+",";
+					attribValue += (((this.curWidth + this.curHeight) * 0.5) * parseFloat(dasharray[i]))+",";
 				}
 				attribValue = attribValue.slice(0,attribValue.length - 1);
 			}
@@ -516,7 +560,7 @@ map.prototype.zoomManDragRect = function(evt) {
 		this.zoomRect.setAttributeNS(null,"y",myY);
 		this.zoomRect.setAttributeNS(null,"width",minTempWidth);
 		this.zoomRect.setAttributeNS(null,"height",minTempWidth * myYXFact);
-		this.mainMapGroup.appendChild(this.zoomRect);
+		this.maps[index].mainMapGroup.appendChild(this.zoomRect);
 		this.zoomRectOrigX = myX;
 		this.zoomRectOrigY = myY;
 	}
@@ -537,7 +581,6 @@ map.prototype.zoomManDragRect = function(evt) {
 		}
 		else {
 			this.zoomRect.setAttributeNS(null,"y",this.zoomRectOrigY);
-		
 		}
 		this.zoomRect.setAttributeNS(null,"width",Math.abs(myZoomWidth));
 		this.zoomRect.setAttributeNS(null,"height",Math.abs(myZoomWidth) * myYXFact);
@@ -562,8 +605,8 @@ map.prototype.zoomManDragRect = function(evt) {
 			myMapApp.refMapDragger.newView(zoomRectX,zoomRectY,zoomRectWidth,zoomRectHeight);
 			this.newViewBox(true);
 		}
-		this.mainMapGroup.removeChild(this.zoomRect);
-		statusChange("模式: 手动缩放");
+		this.maps[index].mainMapGroup.removeChild(this.zoomRect);
+		statusChange("Mode: Manual Zooming");
 	}
 }
 
@@ -571,38 +614,40 @@ map.prototype.zoomManDragRect = function(evt) {
 map.prototype.recenter = function(evt) {
 	if (evt.detail == 1) {
 		this.navStatus = "recenter";
-		this.backgroundRect.setAttributeNS(null,"id","zoomBgRectRecenter");
-		this.mainMapGroup.appendChild(this.backgroundRect);
-		this.mapSVG.setAttributeNS(null,"cursor","pointer");
-		statusChange("点击地图以设置新的中心点。");
+		for (var i=0;i<this.maps.length;i++) {
+			this.maps[i].backgroundRect.setAttributeNS(null,"id","zoomBgRectRecenter"+i);
+			this.maps[i].mainMapGroup.appendChild(this.maps[i].backgroundRect);
+			this.maps[i].mapSVG.setAttributeNS(null,"cursor","pointer");
+		}
+		statusChange("Click in map to define new map center.");
 	}
 }
 
 //finishes recentering after mouse-click
-map.prototype.recenterFinally = function(evt) {
+map.prototype.recenterFinally = function(evt,index) {
 	if (evt.type == "click") {
-		var mapCoords = this.calcCoord(evt);
+		var mapCoords = this.calcCoord(evt,index);
 		var myX = mapCoords.x;
 		var myY = mapCoords.y;
 		var myNewX = myX - this.curWidth / 2;
 		var myNewY = myY - this.curHeight / 2;
 
 		//check if within constraints
-		if (myNewX < myMapApp.refMapDragger.constrXmin) {
-			myNewX = myMapApp.refMapDragger.constrXmin;
+		if (myNewX < this.minX) {
+			myNewX = this.minX;
 		}
-		if (myNewY < myMapApp.refMapDragger.constrYmin) {
-			myNewY = myMapApp.refMapDragger.constrYmin;
+		if (myNewY < this.minY) {
+			myNewY = this.minY;
 		}
-		if ((myNewX + this.curWidth) > myMapApp.refMapDragger.constrXmax) {
-			myNewX = myMapApp.refMapDragger.constrXmax - this.curWidth;
+		if ((myNewX + this.curWidth) > this.maxX) {
+			myNewX = this.maxX - this.curWidth;
 		}
-		if ((myNewY + this.curHeight) > myMapApp.refMapDragger.constrYmax) {
-			myNewY = myMapApp.refMapDragger.constrYmax - this.curHeight;
+		if ((myNewY + this.curHeight) > this.maxY) {
+			myNewY = this.maxY - this.curHeight;
 		}
 		myMapApp.refMapDragger.newView(myNewX,myNewY,this.curWidth,this.curHeight);
 		this.newViewBox(true);
-		statusChange("模式: 地图中心设定");
+		statusChange("Mode: Recentering Map");
 	}
 }
 
@@ -610,26 +655,28 @@ map.prototype.recenterFinally = function(evt) {
 map.prototype.panManual = function(evt) {
 	if (evt.detail == 1) {
 		this.navStatus = "panmanual";
-		this.backgroundRect.setAttributeNS(null,"id","bgPanManual");
-		this.mainMapGroup.appendChild(this.backgroundRect);
-		this.mapSVG.setAttributeNS(null,"cursor","move");
-		statusChange("按下鼠标并拖拽，移动地图");
+		for (var i=0;i<this.maps.length;i++) {
+			this.maps[i].backgroundRect.setAttributeNS(null,"id","bgPanManual"+i);
+			this.maps[i].mainMapGroup.appendChild(this.maps[i].backgroundRect);
+			this.maps[i].mapSVG.setAttributeNS(null,"cursor","move");
+		}
+		statusChange("Mouse down and move to pan the map");
 	}
 }
 
 //manages and finishes manual panning
-map.prototype.panManualFinally = function(evt) {
+map.prototype.panManualFinally = function(evt,index) {
 	if (evt.type == "mousedown") {
 		this.navStatus = "panmanualActive";
-		this.panCoords = this.calcCoord(evt);
+		this.panCoords = this.calcCoord(evt,index);
 		this.panCoorX = this.panCoords.x;
 		this.panCoorY = this.panCoords.y;
 		this.diffX = 0;
 		this.diffY = 0;
-		this.mainMapGroup.setAttributeNS(batikNS,"static","true");
+		this.maps[index].mainMapGroup.setAttributeNS(batikNS,"static","true");
 	}
 	if (evt.type == "mousemove" && this.navStatus == "panmanualActive") {
-		var mapCoords = this.calcCoord(evt);
+		var mapCoords = this.calcCoord(evt,index);
 		if (this.getScreenCTM) {
 			this.diffX = this.panCoorX - mapCoords.x + this.diffX;
 			this.diffY = this.panCoorY - mapCoords.y + this.diffY;
@@ -641,36 +688,36 @@ map.prototype.panManualFinally = function(evt) {
 		var myNewX = this.curxOrig + this.diffX;
 		var myNewY = this.curyOrig + this.diffY;
 		//check if within constraints
-		if (myNewX < myMapApp.refMapDragger.constrXmin) {
-			var myNewXTemp = myMapApp.refMapDragger.constrXmin;
+		if (myNewX < this.minX) {
+			var myNewXTemp = this.minX;
 			this.diffX = this.diffX + (myNewXTemp - myNewX);
 			myNewX = myNewXTemp;
 		}
-		if (myNewY < myMapApp.refMapDragger.constrYmin) {
-			var myNewYTemp = myMapApp.refMapDragger.constrYmin;
+		if (myNewY < this.minY) {
+			var myNewYTemp = this.minY;
 			this.diffY = this.diffY + (myNewYTemp - myNewY);
 			myNewY = myNewYTemp;
 		}
-		if ((myNewX + this.curWidth) > myMapApp.refMapDragger.constrXmax) {
-			var myNewXTemp = myMapApp.refMapDragger.constrXmax - this.curWidth;
+		if ((myNewX + this.curWidth) > this.maxX) {
+			var myNewXTemp = this.maxX - this.curWidth;
 			this.diffX = this.diffX + (myNewXTemp - myNewX);
 			myNewX = myNewXTemp;
 		}
-		if ((myNewY + this.curHeight) > myMapApp.refMapDragger.constrYmax) {
-			var myNewYTemp = myMapApp.refMapDragger.constrYmax - this.curHeight;
+		if ((myNewY + this.curHeight) > this.maxY) {
+			var myNewYTemp = this.maxY - this.curHeight;
 			this.diffY = this.diffY + (myNewYTemp - myNewY);
 			myNewY = myNewYTemp;
 		}
 		var transformString = "translate("+(this.diffX * -1) +","+(this.diffY * -1)+")";
-		this.mainMapGroup.setAttributeNS(null,"transform",transformString);
+		this.maps[index].mainMapGroup.setAttributeNS(null,"transform",transformString);
 		myMapApp.refMapDragger.newView(myNewX,myNewY,this.curWidth,this.curHeight);
 	}
 	if ((evt.type == "mouseup" || evt.type == "mouseout") && this.navStatus == "panmanualActive") {
 		this.navStatus = "panmanual";
-		this.mainMapGroup.setAttributeNS(batikNS,"static","false");
-		this.mainMapGroup.setAttributeNS(null,"transform","translate(0,0)");
+		this.maps[index].mainMapGroup.setAttributeNS(batikNS,"static","false");
+		this.maps[index].mainMapGroup.setAttributeNS(null,"transform","translate(0,0)");
 		this.newViewBox(true);
-		statusChange("模式: 手动漫游");
+		statusChange("Mode: Manual Panning");
 	}
 }
 
@@ -680,20 +727,24 @@ map.prototype.highlightPosition = function(xcoor,ycoor,hlOverview) {
 	this.highlightVisible = true;
 	//check if coordinate within visible map range
 	if (this.pointTestWithin(xcoor,ycoor)) {
-		this.highlightCrossHoriz.setAttributeNS(null,"x1",this.curxOrig);
-		this.highlightCrossHoriz.setAttributeNS(null,"x2",(this.curxOrig+this.curWidth));
-		this.highlightCrossHoriz.setAttributeNS(null,"y1",ycoor * -1);
-		this.highlightCrossHoriz.setAttributeNS(null,"y2",ycoor * -1);
-		this.highlightCrossVert.setAttributeNS(null,"x1",xcoor);
-		this.highlightCrossVert.setAttributeNS(null,"x2",xcoor);
-		this.highlightCrossVert.setAttributeNS(null,"y1",this.curyOrig);
-		this.highlightCrossVert.setAttributeNS(null,"y2",(this.curyOrig+this.curHeight));
-		this.highlightCross.setAttributeNS(null,"visibility","visible");
+		for (var i=0;i<this.maps.length;i++) {
+			this.maps[i].highlightCrossHoriz.setAttributeNS(null,"x1",this.curxOrig);
+			this.maps[i].highlightCrossHoriz.setAttributeNS(null,"x2",(this.curxOrig+this.curWidth));
+			this.maps[i].highlightCrossHoriz.setAttributeNS(null,"y1",ycoor * -1);
+			this.maps[i].highlightCrossHoriz.setAttributeNS(null,"y2",ycoor * -1);
+			this.maps[i].highlightCrossVert.setAttributeNS(null,"x1",xcoor);
+			this.maps[i].highlightCrossVert.setAttributeNS(null,"x2",xcoor);
+			this.maps[i].highlightCrossVert.setAttributeNS(null,"y1",this.curyOrig);
+			this.maps[i].highlightCrossVert.setAttributeNS(null,"y2",(this.curyOrig+this.curHeight));
+			this.maps[i].highlightCross.setAttributeNS(null,"visibility","visible");
+		}
 		returnVal = true;
 	}
 	else {
 	    if (this.highlightVisible) {
-	        this.highlightCross.setAttributeNS(null,"visibility","hidden");
+			for (var i=0;i<this.maps.length;i++) {
+	        	this.maps[i].highlightCross.setAttributeNS(null,"visibility","hidden");
+			}
 	    }
 	}
 	if (hlOverview) {
@@ -745,7 +796,9 @@ map.prototype.bboxTestOverlaps = function(bbox) {
 
 //hides the highlightCross
 map.prototype.hideHighlightCross = function() {
-	this.highlightCross.setAttributeNS(null,"visibility","hidden");
+	for (var i=0;i<this.maps.length;i++) {
+		this.maps[i].highlightCross.setAttributeNS(null,"visibility","hidden");
+	}
 	this.rMhighlightCross.setAttributeNS(null,"visibility","hidden");
 	this.highlightVisible = false;
 }
@@ -765,6 +818,122 @@ map.prototype.cleanUp = function() {
 			}
 			//call cleanup from myMapApp.refMapDragger
 			myMapApp.refMapDragger.cleanUp();
+}
+
+map.prototype.addMap = function(mapName,dynamicLayers,digiLayers,activeDigiLayer) {
+	this.maps.push(new mapData(mapName,dynamicLayers,digiLayers,activeDigiLayer,this.highlightAttribs));
+	var index = this.maps.length - 1;
+	this.maps[index].backgroundRect.addEventListener("mousedown",this,false);
+	this.maps[index].backgroundRect.addEventListener("mousemove",this,false);
+	this.maps[index].backgroundRect.addEventListener("mouseup",this,false);
+	this.maps[index].backgroundRect.addEventListener("mouseout",this,false);
+	this.maps[index].backgroundRect.addEventListener("click",this,false);
+	this.maps[index].mapSVG.addEventListener("mousemove",this,false);
+	if (this.navStatus == "zoomManual") {
+			this.maps[index].backgroundRect.setAttributeNS(null,"id","zoomBgRectManual"+index);
+			this.maps[index].mainMapGroup.appendChild(this.maps[index].backgroundRect);
+			this.maps[index].mapSVG.setAttributeNS(null,"cursor","se-resize");	
+	}
+	if (this.navStatus == "recenter") {
+			this.maps[index].backgroundRect.setAttributeNS(null,"id","zoomBgRectRecenter"+index);
+			this.maps[index].mainMapGroup.appendChild(this.maps[index].backgroundRect);
+			this.maps[index].mapSVG.setAttributeNS(null,"cursor","pointer");	
+	}
+	if (this.navStatus == "panmanual" || this.navStatus == "panmanualActive") {
+			this.maps[index].backgroundRect.setAttributeNS(null,"id","bgPanManual"+index);
+			this.maps[index].mainMapGroup.appendChild(this.maps[index].backgroundRect);
+			this.maps[index].mapSVG.setAttributeNS(null,"cursor","move");	
+	}
+}
+
+map.prototype.removeMap = function(index) {
+	if (index < this.maps.length) {
+		//first remove bg rectangle
+		this.maps[index].mainMapGroup.removeChild(this.maps[index].backgroundRect);
+		if (index == (this.maps.length - 1)) {
+			this.maps.pop();
+		}
+		else if (index == 0) {
+			this.maps.shift();
+		}
+		else {
+			var tempArray = this.maps.slice(0,index-1).concat(this.maps.slice(index+1,this.maps.length-1));
+			this.maps = tempArray;
+		}
+	}
+	else {
+		alert("error in map object (method 'removeMap'): provided parameter index with value of '"+index+"' is out of range.")
+	}
+}
+
+function mapData(mapName,dynamicLayers,digiLayers,activeDigiLayer,highlightAttribs) {
+	this.mapName = mapName;
+	this.dynamicLayers = dynamicLayers;
+	this.digiLayers = digiLayers;
+	this.activeDigiLayer = activeDigiLayer;
+	this.highlightAttribs = highlightAttribs;
+
+	this.mapSVG = document.getElementById(this.mapName); //reference to nested SVG element holding the map-graphics
+	this.mainMapGroup = document.getElementById(this.mapName+"Group"); //group within mainmap - to be transformed when panning manually
+	this.pixXOffset = parseFloat(this.mapSVG.getAttributeNS(null,"x")); //offset from left margin of outer viewBox
+	this.pixYOffset = parseFloat(this.mapSVG.getAttributeNS(null,"y")); //offset from top margin of outer viewBox
+	this.pixWidth = parseFloat(this.mapSVG.getAttributeNS(null,"width")); //holds width of the map in pixel coordinates
+	this.pixHeight = parseFloat(this.mapSVG.getAttributeNS(null,"height")); //holds height of the map in pixel coordinates
+	this.nrLayerToLoad = 0; //statusVariable to indicate how many layers are still to load
+
+	var viewBox = this.mapSVG.getAttributeNS(null,"viewBox");
+	var viewBoxArray = viewBox.split(" ");
+	var curxOrig = parseFloat(viewBoxArray[0]); //holds the current xOrig
+	var curyOrig = parseFloat(viewBoxArray[1]); //holds the current yOrig
+	var curWidth = parseFloat(viewBoxArray[2]); //holds the current map width
+	var curHeight = parseFloat(viewBoxArray[3]); //holds the current map height
+	this.pixSize = curWidth / this.pixWidth; //size of a screen pixel in map units
+
+	//create background-element to receive events for showing coordinates
+	//this rect is also used for manual zooming and panning
+	this.backgroundRect = document.createElementNS(svgNS,"rect");
+	this.backgroundRect.setAttributeNS(null,"x",curxOrig);
+	this.backgroundRect.setAttributeNS(null,"y",curyOrig);
+	this.backgroundRect.setAttributeNS(null,"width",curWidth);
+	this.backgroundRect.setAttributeNS(null,"height",curHeight);
+	this.backgroundRect.setAttributeNS(null,"fill","none");
+	this.backgroundRect.setAttributeNS(null,"stroke","none");
+	this.backgroundRect.setAttributeNS(null,"pointer-events","fill");
+	this.backgroundRect.setAttributeNS(null,"id","mapBackgroundRect");
+	this.mainMapGroup.insertBefore(this.backgroundRect,this.mainMapGroup.firstChild);
+	//initialize highlight cross in main map
+	this.highlightCross = document.createElementNS(svgNS,"g");
+	this.highlightCross.setAttributeNS(null,"visibility","hidden");
+	this.highlightVisible = false; //indicates whether hightlightcrosshair is visible
+	for (var attrib in this.highlightAttribs) {
+		var attribValue = this.highlightAttribs[attrib];
+		if (attrib == "stroke-width") {
+			attribValue = ((curWidth + curHeight) * 0.5) * parseFloat(this.highlightAttribs["stroke-width"]);
+		}
+		if (attrib == "stroke-dasharray") {
+			var dasharray = this.highlightAttribs["stroke-dasharray"].split(",");
+			var attribValue = "";
+			for (var i=0;i<dasharray.length;i++) {
+				attribValue += (((curWidth + curHeight) * 0.5) * parseFloat(dasharray[i]))+",";
+			}
+			attribValue = attribValue.slice(0,attribValue.length - 1);
+		}
+		this.highlightCross.setAttributeNS(null,attrib,attribValue);
+	}
+	this.highlightCross.setAttributeNS(null,"pointer-events","none");
+	this.highlightCrossHoriz = document.createElementNS(svgNS,"line");
+	this.highlightCrossHoriz.setAttributeNS(null,"x1",curxOrig);
+	this.highlightCrossHoriz.setAttributeNS(null,"x2",curxOrig + curWidth);
+	this.highlightCrossHoriz.setAttributeNS(null,"y1",curyOrig + curHeight * 0.5);
+	this.highlightCrossHoriz.setAttributeNS(null,"y2",curyOrig + curHeight * 0.5);
+	this.highlightCross.appendChild(this.highlightCrossHoriz);
+	this.highlightCrossVert = document.createElementNS(svgNS,"line");
+	this.highlightCrossVert.setAttributeNS(null,"x1",curxOrig + curWidth * 0.5);
+	this.highlightCrossVert.setAttributeNS(null,"x2",curxOrig + curWidth * 0.5);
+	this.highlightCrossVert.setAttributeNS(null,"y1",curyOrig);
+	this.highlightCrossVert.setAttributeNS(null,"y2",curyOrig + curHeight);
+	this.highlightCross.appendChild(this.highlightCrossVert);
+	this.mainMapGroup.appendChild(this.highlightCross);
 }
 
 //make an element (rectangle) draggable within constraints
@@ -853,6 +1022,7 @@ function dragObj(referenceMap,myDragSymbol,dragSymbThreshold,dragRectAttribs,sho
 	else {
 		this.getScreenCTM = false;
 	}
+	this.newView(this.mainMapObj.minX,this.mainMapObj.minY,(this.mainMapObj.maxX - this.mainMapObj.minX),(this.mainMapObj.maxY - this.mainMapObj.minY));
 	this.status = false;
 }
 
@@ -872,8 +1042,8 @@ dragObj.prototype.calcCoord = function(evt) {
 dragObj.prototype.handleEvent = function(evt) {
 	if (evt.type == "mousemove" && this.showCoords) {
 		var mapCoords = this.calcCoord(evt);
-		this.coordXText.nodeValue = "X: " + formatNumberString(mapCoords.x.toFixed(this.mainMapObj.nrDecimals),",") + this.mainMapObj.units;
-		this.coordYText.nodeValue = "Y: " + formatNumberString((mapCoords.y * -1).toFixed(this.mainMapObj.nrDecimals),",") + this.mainMapObj.units;
+		this.coordXText.nodeValue = "X: " + formatNumberString(mapCoords.x.toFixed(this.mainMapObj.nrDecimals)) + this.mainMapObj.units + ", Y: " + formatNumberString((mapCoords.y * -1).toFixed(this.mainMapObj.nrDecimals)) + this.mainMapObj.units;
+		this.coordYText.nodeValue = " ";
 	}
 	this.drag(evt);
 	evt.preventDefault();
@@ -906,17 +1076,17 @@ dragObj.prototype.getSliderVal = function(status,sliderGroupName,width) {
 	var myRatio = myHeight / myWidth;
 	var toMoveX = myCenterX - width / 2;
 	var toMoveY = myCenterY - width * myRatio / 2;
-	if (toMoveX < this.constrXmin) {
-		toMoveX = this.constrXmin;
+	if (toMoveX < this.mainMapObj.minX) {
+		toMoveX = this.mainMapObj.minX;
 	}
-	if ((toMoveX + width) > this.constrXmax) {
-		toMoveX = this.constrXmax - width;
+	if ((toMoveX + width) > this.mainMapObj.maxX) {
+		toMoveX = this.mainMapObj.maxX - width;
 	}
-	if (toMoveY < this.constrYmin) {
-		toMoveY = this.constrYmin;
+	if (toMoveY < this.mainMapObj.minY) {
+		toMoveY = this.mainMapObj.minY;
 	}
-	if ((toMoveY + width * myRatio) > this.constrYmax) {
-		toMoveY = this.constrYmax - width * myRatio;
+	if ((toMoveY + width * myRatio) > this.mainMapObj.maxY) {
+		toMoveY = this.mainMapObj.maxY - width * myRatio;
 	}
 	this.newView(toMoveX,toMoveY,width,width * myRatio);
 	if (status == "release") {
@@ -940,17 +1110,17 @@ dragObj.prototype.drag = function(evt) {
 		var myHeight = parseFloat(this.myDragger.getAttributeNS(null,"height"));
 		var toMoveX = newEvtX - myWidth / 2;
 		var toMoveY = newEvtY - myHeight / 2;
-		if (toMoveX < this.constrXmin) {
-			toMoveX = this.constrXmin;
+		if (toMoveX < this.mainMapObj.minX) {
+			toMoveX = this.mainMapObj.minX;
 		}
-		if ((toMoveX + myWidth) > this.constrXmax) {
-			toMoveX = this.constrXmax - myWidth;
+		if ((toMoveX + myWidth) > this.mainMapObj.maxX) {
+			toMoveX = this.mainMapObj.maxX - myWidth;
 		}
-		if (toMoveY < this.constrYmin) {
-			toMoveY = this.constrYmin;
+		if (toMoveY < this.mainMapObj.minY) {
+			toMoveY = this.mainMapObj.minY;
 		}
-		if ((toMoveY + myHeight) > this.constrYmax) {
-			toMoveY = this.constrYmax - myHeight;
+		if ((toMoveY + myHeight) > this.mainMapObj.maxY) {
+			toMoveY = this.mainMapObj.maxY - myHeight;
 		}
 		this.newView(toMoveX,toMoveY,myWidth,myHeight);
 	}
@@ -987,30 +1157,30 @@ dragObj.prototype.zoom = function(inOrOut) {
 			var myNewHeight = myOldHeight * (1 + this.mainMapObj.zoomFact);
 			break;
 		default:
-			var myNewX = this.constrXmin;
-			var myNewY = this.constrYmin;
-			var myNewWidth = this.constrXmax - this.constrXmin;
-			var myNewHeight = this.constrYmax - this.constrYmin;
+			var myNewX = this.mainMapObj.minX;
+			var myNewY = this.mainMapObj.minY;
+			var myNewWidth = this.mainMapObj.maxX - this.mainMapObj.minX;
+			var myNewHeight = this.mainMapObj.maxY - this.mainMapObj.minY;
 			break;
 	}
 	//check if within constraints
-	if (myNewWidth > (this.constrXmax - this.constrXmin)) {
-		myNewWidth = this.constrXmax - this.constrXmin;
+	if (myNewWidth > (this.mainMapObj.maxX - this.mainMapObj.minX)) {
+		myNewWidth = this.mainMapObj.maxX - this.mainMapObj.minX;
 	}
-	if (myNewHeight > (this.constrYmax - this.constrYmin)) {
-		myNewHeight = this.constrYmax - this.constrYmin;
+	if (myNewHeight > (this.mainMapObj.maxY - this.mainMapObj.minY)) {
+		myNewHeight = this.mainMapObj.maxY - this.mainMapObj.minY;
 	}
-	if (myNewX < this.constrXmin) {
-		myNewX = this.constrXmin;
+	if (myNewX < this.mainMapObj.minX) {
+		myNewX = this.mainMapObj.minX;
 	}
-	if (myNewY < this.constrYmin) {
-		myNewY = this.constrYmin;
+	if (myNewY < this.mainMapObj.minY) {
+		myNewY = this.mainMapObj.minY
 	}
-	if ((myNewX + myNewWidth) > this.constrXmax) {
-		myNewX = this.constrXmax - myNewWidth;
+	if ((myNewX + myNewWidth) > this.mainMapObj.maxX) {
+		myNewX = this.mainMapObj.maxX - myNewWidth;
 	}
-	if ((myNewY + myNewHeight) > this.constrYmax) {
-		myNewY = this.constrYmax - myNewHeight;
+	if ((myNewY + myNewHeight) > this.mainMapObj.maxY) {
+		myNewY = this.mainMapObj.maxY - myNewHeight;
 	}
 	this.newView(myNewX,myNewY,myNewWidth,myNewHeight);
 	this.mainMapObj.newViewBox(true);
@@ -1027,17 +1197,17 @@ dragObj.prototype.pan = function (myX,myY,howmuch) {
 	var rectXulcorner = xulcorner + howmuch * width * myX;
 	var rectYulcorner = yulcorner + howmuch * height * myY;
 	//check if within constraints
-	if (rectXulcorner < this.constrXmin) {
-		rectXulcorner = this.constrXmin;
+	if (rectXulcorner < this.mainMapObj.minX) {
+		rectXulcorner = this.mainMapObj.minX;
 	}
-	if (rectYulcorner < this.constrYmin) {
-		rectYulcorner = this.constrYmin;
+	if (rectYulcorner < this.mainMapObj.minY) {
+		rectYulcorner = this.mainMapObj.minY;
 	}
-	if ((rectXulcorner + width) > this.constrXmax) {
-		rectXulcorner = this.constrXmax - width;
+	if ((rectXulcorner + width) > this.mainMapObj.maxX) {
+		rectXulcorner = this.mainMapObj.maxX - width;
 	}
-	if ((rectYulcorner + height) > this.constrYmax) {
-		rectYulcorner = this.constrYmax - height;
+	if ((rectYulcorner + height) > this.mainMapObj.maxY) {
+		rectYulcorner = this.mainMapObj.maxY - height;
 	}
 	this.newView(rectXulcorner,rectYulcorner,width,height);
 
@@ -1046,7 +1216,7 @@ dragObj.prototype.pan = function (myX,myY,howmuch) {
 		this.mainMapObj.newViewBox(true);
 	}
 
-	statusChange("地图已就绪 ...");
+	statusChange("map ready ...");
 }
 
 //remove all temporarily used elements and event listeners
@@ -1074,7 +1244,7 @@ function zoomIt(evt,inOrOut) {
 				myMapApp.refMapDragger.zoom("in");
 			}
 			else {
-				statusChange("已到最大缩放比例，不能再放大。");
+				statusChange("Maximum zoom factor reached. Cannot zoom in any more.");
 			}
 		}
 		if (inOrOut == "out") {
@@ -1082,7 +1252,7 @@ function zoomIt(evt,inOrOut) {
 				myMapApp.refMapDragger.zoom("out");
 			}
 			else {
-				statusChange("已到最小缩放比例，不能再缩小。");
+				statusChange("Minimum zoom factor reached. Cannot zoom out any more.");
 			}
 		}
 		if (inOrOut == "full") {
@@ -1090,7 +1260,7 @@ function zoomIt(evt,inOrOut) {
 				myMapApp.refMapDragger.zoom("full");
 			}
 			else {
-				statusChange("已经显示为最大可缩放比例。");
+				statusChange("Full view already reached.");
 			}
 		}
 	}
@@ -1124,25 +1294,25 @@ function zoomImageSwitchButtons(id,evt,onOrOff) {
 	 }
 	 else {
 	    if (id == "zoomManual") {
-		myMainMap.zoomManual(evt);
-	                if (!myMapApp.buttons["zoomManual"].getSwitchValue()) {
-		    myMapApp.buttons["zoomManual"].setSwitchValue(true,false);
-	                }
-	     }
+			myMainMap.zoomManual(evt);
+	        if (!myMapApp.buttons["zoomManual"].getSwitchValue()) {
+		    	myMapApp.buttons["zoomManual"].setSwitchValue(true,false);
+	        }
+	    }
 	    if (id == "panManual") {
-		myMainMap.panManual(evt);
-	                if (!myMapApp.buttons["panManual"].getSwitchValue()) {
-		    myMapApp.buttons["panManual"].setSwitchValue(true,false);
-	                }
-	     }
+			myMainMap.panManual(evt);
+	       	if (!myMapApp.buttons["panManual"].getSwitchValue()) {
+		    	myMapApp.buttons["panManual"].setSwitchValue(true,false);
+	        }
+	    }
 	    if (id == "recenterMap") {
-		myMainMap.recenter(evt);
-	                if (!myMapApp.buttons["recenterMap"].getSwitchValue()) {
-		    myMapApp.buttons["recenterMap"].setSwitchValue(true,false);
-	                }
+			myMainMap.recenter(evt);
+	        if (!myMapApp.buttons["recenterMap"].getSwitchValue()) {
+		    	myMapApp.buttons["recenterMap"].setSwitchValue(true,false);
+	        }
 	    }
 	    if (myMapApp.buttons["infoButton"].getSwitchValue()) {
-		myMapApp.buttons["infoButton"].setSwitchValue(false,false);
+			myMapApp.buttons["infoButton"].setSwitchValue(false,false);
 	    }
 	}
 }
