@@ -1,0 +1,430 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+////////////////////////////////////////////////////////////////////////////////
+//
+// Copyright © 2008 ESRI
+//
+// All rights reserved under the copyright laws of the United States.
+// You may freely redistribute and use this software, with or
+// without modification, provided you include the original copyright
+// and use restrictions.  See use restrictions in the file:
+// <install location>/FlexViewer/License.txt
+//
+////////////////////////////////////////////////////////////////////////////////
+-->
+<BaseWidget xmlns				="com.esri.solutions.flexviewer.*" 
+			xmlns:esri			="http://www.esri.com/2008/ags"
+			xmlns:mx			="http://www.adobe.com/2006/mxml" 
+			xmlns:mxeffects		="com.adobe.ac.mxeffects.*"
+			xmlns:widgets		="com.esri.solutions.flexviewer.widgets.*"
+			x					="600" 
+			y					="300"  
+			widgetConfigLoaded	="init()">
+	
+	
+	<mx:Script>
+		<![CDATA[
+			
+			import com.esri.ags.events.DrawEvent;
+			import com.esri.ags.geometry.Geometry;
+			import com.esri.ags.geometry.Extent;
+			import com.esri.ags.geometry.MapPoint;
+			import com.esri.ags.geometry.Polyline;
+			import com.esri.ags.geometry.Polygon;
+			import com.esri.ags.Graphic;
+			import com.esri.ags.layers.GraphicsLayer;
+			import com.esri.ags.Map;
+			import com.esri.ags.SpatialReference;
+			import com.esri.ags.symbol.SimpleFillSymbol;
+			import com.esri.ags.symbol.SimpleLineSymbol;
+			import com.esri.ags.symbol.SimpleMarkerSymbol;
+			import com.esri.ags.symbol.Symbol;
+			import com.esri.ags.tasks.AddressCandidate;
+			import com.esri.ags.tasks.DataFile;
+			import com.esri.ags.tasks.ExecuteResult;            
+			import com.esri.ags.tasks.FeatureSet;
+			import com.esri.ags.tasks.ParameterValue;
+			import com.esri.ags.toolbars.Draw;
+			import com.esri.serialization.json.*;
+			import com.esri.solutions.flexviewer.AppEvent;
+			import com.esri.solutions.flexviewer.SiteContainer;
+			import com.esri.solutions.flexviewer.utils.Hashtable;
+			import com.esri.solutions.flexviewer.utils.WidgetEffects;
+			import mx.collections.*;
+			import mx.controls.Alert;
+			import mx.rpc.AsyncResponder; 
+			import mx.rpc.events.ResultEvent;
+			import mx.rpc.Fault;
+			
+			//labels
+			[Bindable]
+			private var serviceareaLabel:String;
+			
+			[Bindable]
+			private var locationLabel:String;
+			
+			[Bindable]
+			private var addlocationLabel:String;
+			
+			[Bindable]
+			private var previouslocationLabel:String;
+			
+			[Bindable]
+			private var intervalLabel:String;
+			
+			[Bindable]
+			private var submitLabel:String;
+			
+			[Bindable]
+			private var clearLabel:String;
+			
+			private var loadingLabel:String;
+			
+			[Bindable]
+			private var msgVisible:Boolean = false;
+			
+			private var graphicsLayer:GraphicsLayer;
+			
+			private var addrFields:Array;
+			
+			private var locPoint:MapPoint;
+			
+			private var outlineSym:SimpleLineSymbol = new SimpleLineSymbol("solid", 0xFFFFFF, 1, 2);
+			
+			private var locSym:SimpleMarkerSymbol = new SimpleMarkerSymbol("circle", 12, 0x08C308, 1, outlineSym);
+			
+			private var fillSym1:SimpleFillSymbol = new SimpleFillSymbol("solid", 0xFF0000, 0.5);
+			
+			private var fillSym2:SimpleFillSymbol = new SimpleFillSymbol("solid", 0xFF7800, 0.5);
+			
+			private var fillSym3:SimpleFillSymbol = new SimpleFillSymbol("solid", 0xC8FF00, 0.5);
+			
+			private var sharedwidgets:String;	
+			
+			[Bindable]
+			private var sharedLocations:Array = [];		
+									
+			private const ICON_URL:String = "com/esri/solutions/flexviewer/assets/images/icons/";
+			
+			private const START_POINT:String = "startPoint";
+			
+			private const END_POINT:String = "endPoint";
+						
+			private function init():void
+			{
+				SiteContainer.addEventListener(AppEvent.DATA_UPDATED, sharedDataUpdated);
+				graphicsLayer = new GraphicsLayer();
+				graphicsLayer.symbolFunction = fillFunc;
+				map.addLayer(graphicsLayer);
+				if (configXML)
+				{
+					serviceareaLabel = configXML.labels.servicearealabel || "Enter address or use tool to define a location";
+					locationLabel = configXML.labels.locationlabel || "Location Address:";
+					addlocationLabel = configXML.labels.addlocationlabel || "Add Location";
+					previouslocationLabel = configXML.labels.previouslocationlabel || "Or choose a location identified by other tools:";
+					intervalLabel = configXML.labels.intervallabel || "Drive Times (min):";
+					submitLabel = configXML.labels.submitlabel || "Show Service Area";
+					clearLabel = configXML.labels.clearlabel || "Clear";
+					loadingLabel = configXML.labels.loadinglabel || "Loading...";
+					
+					sharedwidgets = configXML.sharedwidgets;
+					var url:String = configXML.locator;
+					locatorService.url = url + "?f=json";
+					locator.url = url;
+					locatorService.send();
+					serviceAreaService.url = configXML.serviceareaservice;
+				}
+				this.fetchSharedData();
+			}			
+			
+			private function onJSONLoad(event:ResultEvent):void
+			{
+				var rawData:String = String(event.result);
+				var data:Object = JSON.decode(rawData)
+				addrFields = data.addressFields;
+			}	
+			
+			private function sharedDataUpdated(event:AppEvent):void
+			{
+				sharedLocations.length = 0;
+				var defaultlocation:Object = 
+				{
+					label: "",
+					point: null
+				}
+				sharedLocations.push(defaultlocation);
+				var dataTable:Hashtable = event.data as Hashtable;
+				if (sharedwidgets != "")
+				{
+					var keyArray:Array = sharedwidgets.split(",");
+					for each (var key:String in keyArray)
+					{
+						if (dataTable.containsKey(key))
+						{
+							var recAC:ArrayCollection = dataTable.find(key) as ArrayCollection;
+							for (var i:Number = 0; i < recAC.length; i++)
+							{
+								var obj:Object = recAC[i];
+								var title:String = obj.title;
+								var point:MapPoint = obj.point;
+								var location:Object = 
+								{
+									label: title,
+									point: point
+								}
+								sharedLocations.push(location);
+							}
+						}
+					}
+				}
+				cboPreviousLocations.dataProvider = sharedLocations;
+			}
+			
+			private function activateTool():void
+			{
+				var status:String = addlocationLabel;
+				setMapAction(Draw.MAPPOINT, status, locationClick);	
+			}			
+			
+			private function locationClick(event:DrawEvent):void
+			{
+				txtLocation.text = "";
+				var geom:Geometry = event.graphic.geometry;
+				var pt:MapPoint = geom as MapPoint;
+				locPoint = pt;
+				updateGraphics();
+			}			
+			
+			private function updateGraphics():void
+			{
+				graphicsLayer.clear();
+				if (locPoint)
+				{
+					var locGra:Graphic = new Graphic(locPoint, locSym);
+					graphicsLayer.add(locGra);
+		 		}
+			}			
+			
+			private function locateAddress(addr:String):void
+			{
+				var addrArray:Array = addr.split(",");
+				var data:Object = new Object();
+				for (var i:Number = 0; i < addrFields.length; i++)
+				{
+					var name:String = addrFields[i].name;
+					var value:String;
+					if (addrArray[i])
+						value = addrArray[i];
+					data[name] = value;
+				}
+				locator.addressToLocations(data, null, new ItemResponder(locateResult, locateError));
+				showMessage(loadingLabel, true);
+			}			
+			
+			private function locateResult(data:Array, token:Object=null):void
+			{
+				if (data.length > 0)
+				{
+					var addrCandidate:AddressCandidate =  data[0] as AddressCandidate
+					var pt:MapPoint = addrCandidate.location;
+					pt.spatialReference = new SpatialReference(map.spatialReference.wkid);
+					locPoint = pt;
+					clearMessage();
+					computeServiceArea();
+				}
+				else
+				{
+					showMessage("Unable to locate address, please verify address and try again.", false);
+				}
+			}					
+			
+			private function locateError(info:Object, token:Object = null):void
+			{
+				showMessage(info.toString(), false);	
+			}			        
+        
+        	private function getServiceArea():void
+        	{
+        		if (txtLocation.text)
+				{
+					locateAddress(txtLocation.text);
+				}
+				else
+				{
+					computeServiceArea();
+				}
+        	}        	
+        	
+	        private function computeServiceArea():void
+            {
+            	if (locPoint)
+            	{
+            		var graphic:Graphic = new Graphic(locPoint, locSym);
+	                var featureSet:FeatureSet = new FeatureSet([graphic]);
+	                var driveTimes:String = "";
+	                if (numTime1.value > 0) 
+	                	driveTimes += numTime1.value.toString();
+	                if (numTime2.value > 0)
+	                {
+	                	if(driveTimes.length)
+	                		driveTimes += " ";
+	                	driveTimes +=  numTime2.value.toString();
+	                }
+	                if (numTime3.value > 0)
+	                {
+	                	if(driveTimes.length)
+	                		driveTimes += " ";
+	                	driveTimes +=  numTime3.value.toString();
+	                }
+	                if (driveTimes.length)
+	                {
+		                var params:Object = 
+		                {
+		                    "Input_Location": featureSet,
+		                    "Drive_Times": driveTimes
+	                	};
+		                serviceAreaService.execute(params, new AsyncResponder(onResult, onFault));
+		                showMessage(loadingLabel, true);
+	                }
+	                
+	                
+	                function onResult(gpResult:ExecuteResult, token:Object = null):void
+	                {
+	                    var pv:ParameterValue = gpResult.parameterValues[0];
+	                    var fs:FeatureSet = pv.value as FeatureSet;
+	                    graphicsLayer.graphicProvider = fs.features;
+	                    graphicsLayer.add(graphic);
+	                    map.extent = getFeatureSetExtent(fs);
+	                    clearMessage();
+	                }
+	                
+	                function onFault(info:Object, token:Object = null):void
+	                {
+	                   showMessage(info.toString(), false);
+	                }
+            	}
+            }            
+            
+            private function getFeatureSetExtent(fs:FeatureSet):Extent
+            {
+            	var ext:Extent;
+            	for each (var gra:Graphic in fs.features)
+            	{
+            		if (gra.geometry.type == Geometry.POLYGON)
+            		{
+	            		var poly:Polygon = gra.geometry as Polygon;
+	            		if (ext)
+	            		{ 
+	            			ext = ext.union(poly.extent);
+	            		}
+	            		else
+	            		{
+	            			ext = poly.extent;
+	            		}
+            		}
+            	}
+            	return ext.expand(2);
+            }            
+            
+            private function fillFunc(g:Graphic):Symbol
+            {
+                var toBreak:Number = g.attributes.ToBreak;
+                if (toBreak == numTime1.value)
+                {
+                    return fillSym1;
+                }
+                if (toBreak == numTime2.value)
+                {
+                    return fillSym2;
+                }
+                return fillSym3;
+            }	        
+	        
+			private function clear():void
+			{
+				graphicsLayer.clear();
+				locPoint = null;
+				clearMessage();
+			}			
+			
+			private function showMessage(msg:String, swfVisible:Boolean):void
+			{
+				txtMessage.text = msg;
+				swfMessage.visible = swfVisible;
+				msgVisible = true;
+			}			
+			
+			private function clearMessage():void
+			{
+				msgVisible = false;
+			}
+						
+			private function widgetClosedHandler(event:Event):void
+			{
+				graphicsLayer.visible = false;
+				setMapNavigation(null, null);
+			}			
+			
+			private function widgetOpenedHandler(event:Event):void
+			{
+				graphicsLayer.visible = true;
+			}	
+			
+			private function selectPreviousLocation():void
+			{
+				txtLocation.text = "";
+				locPoint = cboPreviousLocations.selectedItem.point;
+			}		
+			
+		]]>
+	</mx:Script>
+	
+		
+	<esri:Geoprocessor		id="serviceAreaService" 
+							updateDelay="3000" 
+							url="http://sampleserver1.arcgisonline.com/ArcGIS/rest/services/Network/ESRI_DriveTime_US/GPServer/CreateDriveTimePolygons"/>
+								
+	<mx:HTTPService			id="locatorService" 
+							resultFormat="text" 
+							url="http://sampleserver1.arcgisonline.com/ArcGIS/rest/services/Locators/ESRI_Geocode_USA/GeocodeServer?f=json"	
+							result="onJSONLoad(event)"/>
+							
+	<esri:Locator			id="locator" 
+							url="http://sampleserver1.arcgisonline.com/ArcGIS/rest/services/Locators/ESRI_Geocode_USA/GeocodeServer" 
+							showBusyCursor="true"/>
+	
+	<WidgetTemplate id="wTemplate" height="240" widgetClosed="widgetClosedHandler(event)" widgetOpened="widgetOpenedHandler(event)">
+		<mx:ViewStack id="viewStack" width="100%" height="100%" creationPolicy="all" paddingTop="4">
+			<mx:VBox width="100%" height="100%" verticalGap="6">
+				<mx:Form id="frmDraw" verticalScrollPolicy="off" paddingBottom="0" width="100%" paddingTop="0">
+					<mx:Text text="{serviceareaLabel}" styleName="WidgetText" width="100%"/>
+					<mx:FormItem label="{locationLabel}" styleName="WidgetText" width="100%">
+						<mx:HBox>
+							<mx:TextInput id="txtLocation" text="" width="80%"/>
+							<mx:Image click="activateTool()" source="com/esri/solutions/flexviewer/assets/images/widget/w_addstart.png" useHandCursor="true" buttonMode="true" toolTip="{addlocationLabel}" width="20" height="20"/>
+						</mx:HBox>
+					</mx:FormItem>
+					<mx:Text text="{previouslocationLabel}" styleName="WidgetText" width="100%"/>
+					<mx:ComboBox id="cboPreviousLocations" change="{selectPreviousLocation()}"/>
+					<mx:HRule styleName="BannerRule" width="100%"/>
+					<mx:FormItem label="{intervalLabel}" styleName="WidgetText" width="100%">
+						<mx:HBox width="100%">
+							<mx:NumericStepper id="numTime1" minimum="0" maximum="15" value="1" width="45"/>
+							<mx:NumericStepper id="numTime2" minimum="0" maximum="15" value="3"  width="45"/>
+							<mx:NumericStepper id="numTime3" minimum="0" maximum="15" value="5"  width="45"/>
+						</mx:HBox>
+					</mx:FormItem>
+				</mx:Form>
+				<mx:HBox horizontalAlign="center" width="100%" horizontalGap="8">
+					<mx:Button label="{submitLabel}" click="getServiceArea()"/>
+					<mx:Button label="{clearLabel}" click="clear()"/>
+				</mx:HBox>
+				<mx:HBox id="boxMessage" visible="{msgVisible}" includeInLayout="{msgVisible}" width="100%">
+					<mx:SWFLoader id="swfMessage" source="com/esri/solutions/flexviewer/assets/flash/loader.swf" visible="false" />
+					<mx:Text id="txtMessage" text="" styleName="WidgetText" width="90%"/>
+				</mx:HBox>
+			</mx:VBox>
+		</mx:ViewStack>
+	</WidgetTemplate>
+	
+</BaseWidget>

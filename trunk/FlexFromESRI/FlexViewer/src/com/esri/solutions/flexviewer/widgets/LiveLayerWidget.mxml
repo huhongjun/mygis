@@ -1,0 +1,366 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+////////////////////////////////////////////////////////////////////////////////
+//
+// Copyright © 2008 ESRI
+//
+// All rights reserved under the copyright laws of the United States.
+// You may freely redistribute and use this software, with or
+// without modification, provided you include the original copyright
+// and use restrictions.  See use restrictions in the file:
+// <install location>/FlexViewer/License.txt
+//
+////////////////////////////////////////////////////////////////////////////////
+-->
+<BaseWidget	xmlns:esri			="http://www.esri.com/2008/ags" 
+			xmlns				="com.esri.solutions.flexviewer.*" 
+			xmlns:mx			="http://www.adobe.com/2006/mxml" 
+			xmlns:mxeffects		="com.adobe.ac.mxeffects.*"
+			xmlns:widgets		="com.esri.solutions.flexviewer.widgets.*"
+			x					="600" 
+			y					="300" 
+			widgetConfigLoaded	="init()">
+	
+	
+	<mx:Script>
+		<![CDATA[
+		
+			import com.esri.ags.geometry.Extent;
+			import com.esri.ags.geometry.Geometry;
+			import com.esri.ags.geometry.MapPoint;
+			import com.esri.ags.geometry.Polygon;
+			import com.esri.ags.geometry.Polyline;
+			import com.esri.ags.Graphic;
+			import com.esri.ags.layers.GraphicsLayer;
+			import com.esri.ags.layers.Layer;
+			import com.esri.ags.Map;
+			import com.esri.ags.symbol.PictureMarkerSymbol;
+			import com.esri.ags.symbol.SimpleFillSymbol;
+			import com.esri.ags.symbol.SimpleLineSymbol;
+			import com.esri.ags.tasks.FeatureSet;
+			import com.esri.ags.tasks.Query;
+			import com.esri.ags.tasks.QueryTask;
+			import com.esri.solutions.flexviewer.SiteContainer;			
+			import mx.collections.*;
+			import mx.controls.Alert;
+			import mx.rpc.AsyncResponder; 
+			import mx.rpc.events.ResultEvent;
+						
+			//labels
+			private var loadingLabel:String;
+			
+			private var queryLayer:String;
+			
+			private var queryExpr:String;
+			
+			private var queryFields:String;
+			
+			private var queryTitleField:String;
+			
+			private var queryLinkField:String;
+			
+			private var queryRefreshRate:String;
+			
+			private var zoomScale:Number = 5000;
+			
+			private var graphicsLayer:GraphicsLayer;
+			
+			private var graphicPointSym:PictureMarkerSymbol;
+			
+			private var graphicLineSym:SimpleLineSymbol = new SimpleLineSymbol("solid", 0xFF0000, 0.8, 2);
+			
+			private var graphicPolySym:SimpleFillSymbol = new SimpleFillSymbol("solid", 0xFF0000, 0.5, graphicLineSym);
+			
+			private var timer:Timer;
+			
+			[Bindable]
+			private var msgVisible:Boolean = false;			
+			
+			private function init():void
+			{
+				graphicPointSym = new PictureMarkerSymbol(widgetIcon, 30, 30)
+				graphicsLayer = new GraphicsLayer();
+				graphicsLayer.symbol = graphicPointSym;
+				map.addLayer(graphicsLayer);
+				if (configXML)
+				{
+					//labels
+					loadingLabel = configXML.labels.loadinglabel || "Loading...";
+					
+					queryLayer = configXML.layer;
+					queryExpr = configXML.query;
+					if (!queryExpr)
+						queryExpr = "OBJECTID > 0";
+					queryFields = configXML.fields;
+					queryTitleField = configXML.titlefield;
+					queryLinkField = configXML.linkfield;
+					queryRefreshRate = configXML.refreshrate;
+					if (Number(configXML.zoomscale) > 0)
+						zoomScale = Number(configXML.zoomscale);
+					queryFeatures();
+					startWidgetTimer();
+				}
+			}			
+			
+			//start widget timer
+			private function startWidgetTimer():void
+			{
+				if (queryRefreshRate)
+				{
+					var seconds:Number = Number(queryRefreshRate);
+					var rate:Number = seconds * 1000;
+					stopWidgetTimer();
+					timer = new Timer(rate);
+					timer.addEventListener(TimerEvent.TIMER,timerTick);
+					timer.start();
+				}
+			}			
+			
+			//stop widget timer
+			private function stopWidgetTimer():void
+			{
+				if (timer != null)
+				{
+					if (timer.running)
+						timer.stop();
+				}
+			}			
+			
+			//timer tick
+			private function timerTick(event:TimerEvent):void
+			{
+				queryFeatures();
+			}			
+			
+			//query features
+			private function queryFeatures():void
+			{
+				if (queryLayer)
+				{
+					var queryTask:QueryTask = new QueryTask(queryLayer);
+					var query:Query = new Query();
+					query.outFields = queryFields.split(",");
+					query.returnGeometry = true;
+					query.where = queryExpr;
+					query.outSpatialReference = map.spatialReference;
+					queryTask.execute(query, new AsyncResponder(onResult, onFault));  
+					showMessage(loadingLabel, true);    
+		              
+		          	// on result
+					function onResult(featureSet:FeatureSet, token:Object = null):void                
+					{   
+						try
+						{
+							var recAC:ArrayCollection = createRecordData(featureSet);
+							addSharedData(widgetTitle, recAC);
+							wRepeater.dataProvider = recAC;
+							clearMessage(); 
+						}
+						catch (error:Error)
+						{
+							showMessage(error.message, false);
+						}	
+						
+				  	}
+						
+					//on fault
+					function onFault(info:Object, token:Object = null) : void
+					{                    
+						showMessage(info.toString(), false);         
+					}
+				}  
+			}			
+				
+			//create record data new
+			private function createRecordData(featureSet:FeatureSet):ArrayCollection
+			{
+				graphicsLayer.clear();
+				var recAC:ArrayCollection = new ArrayCollection();
+				if (!queryTitleField)
+						queryTitleField = featureSet.displayFieldName;
+				var icon:String = widgetIcon;
+										
+				for each (var gra:Graphic in featureSet.features)                    
+				{   
+					var obj:Object = gra.attributes;
+					var fld:String;
+					var value:String;
+					var title:String;
+					var content:String = "";
+					var link:String = "";
+					var point:MapPoint = getGeomCenter(gra);
+			
+    		        for (fld in obj)
+    		        {
+    		        	value = obj[fld].toString();
+    		        	
+    		        	if (fld.toUpperCase() == queryTitleField.toUpperCase())
+    		        	{
+					   		title = value;
+						   	if (!title)
+								title = widgetTitle;
+    		        	}
+						else if (fld.toUpperCase() == queryLinkField.toUpperCase())
+						{
+							link = value;
+						}
+						else
+						{
+							if (fld.toUpperCase() != queryTitleField.toUpperCase())
+								content += fld + ": " + value + "\n";
+						}
+		        	}
+
+					var infoData:Object = 
+					{
+						icon: icon, 
+						title: title, 
+						content: content, 
+						link: link, 
+						point: point,
+						geometry: gra.geometry
+					};                 
+					recAC.addItem(infoData);
+					//***
+					gra.addEventListener(MouseEvent.ROLL_OVER, mouseOverGraphic)
+					gra.attributes = infoData;
+					switch (gra.geometry.type)
+	           		{
+	               		case Geometry.POLYLINE:
+	               		{
+	               			gra.symbol = graphicLineSym;
+	               			break;
+	               		}
+	               		
+	               		case Geometry.POLYGON:
+	               		{
+	               			gra.symbol = graphicPolySym;
+	               			break;
+	               		}
+	             	}
+	             	graphicsLayer.add(gra);
+	             	//***
+	              	             
+			    } 
+			    return recAC;
+			}		
+		
+			//get geom center
+			private function getGeomCenter(gra:Graphic):MapPoint
+			{
+				var pt:MapPoint;
+	           	switch (gra.geometry.type)
+	           	{
+	               case Geometry.MAPPOINT:
+	               {
+	                    pt = gra.geometry as MapPoint;
+	                    break;
+	               }
+	               
+	               case Geometry.POLYLINE:
+	               {
+	               		var pl:Polyline = gra.geometry as Polyline;
+	               		var pathCount:Number = pl.paths.length;
+	               		var pathIndex:int = int(pathCount / 2) - 1;
+	               		var midPath:Array = pl.paths[pathIndex];
+	               		var ptCount:Number = midPath.length;
+	               		var ptIndex:int = int(ptCount / 2) - 1;
+	               		pt = pl.getPoint(pathIndex, ptIndex);
+	               		break;
+	               }
+	               
+	               case Geometry.POLYGON:
+	               {
+	                    var poly:Polygon = gra.geometry as Polygon;
+	               		pt = poly.extent.center;
+	                    break;
+	               }
+	            }
+				return pt;
+			}			
+						
+			//mouse over graphic
+			private function mouseOverGraphic(event:MouseEvent):void
+			{
+				var gra:Graphic = event.currentTarget as Graphic;
+				var infoData:Object = gra.attributes;
+				this.showInfoWindow(infoData);
+			}			
+			
+			private var hitimer:uint;
+								
+			private function mouseOverRecord(event:MouseEvent):void
+			{
+				var infoData:Object = event.currentTarget.infoData;
+				clearTimeout(hitimer);
+				hitimer = setTimeout(showHighlight, 800, [infoData]);
+			}
+										
+			private function mouseOutRecord():void
+			{
+				clearTimeout(hitimer);
+				this.showInfoWindow(null);
+			}			
+			
+			private function clickRecord(event:MouseEvent):void
+			{
+				var infoData:Object = event.currentTarget.infoData;
+				var pt:MapPoint = infoData.point;
+				if (map.scale > zoomScale)
+					map.scale = zoomScale;
+				map.centerAt(pt);
+			}			
+			
+			private function showHighlight(params:Array):void
+			{
+				var infoData:Object = params[0];
+				var pt:MapPoint = infoData.point;
+				//if (!map.extent.contains(pt))
+					//map.centerAt(pt);
+				this.showInfoWindow(params[0]);
+			}			
+			
+			private function showMessage(msg:String, swfVisible:Boolean):void
+			{
+				txtMessage.text = msg;
+				swfMessage.visible = swfVisible;
+				msgVisible = true;
+			}			
+			
+			private function clearMessage():void
+			{
+				msgVisible = false;
+			}				
+				
+			private function widgetClosedHandler(event:Event):void
+			{
+				graphicsLayer.visible = false;
+				stopWidgetTimer();
+				this.showInfoWindow(null);
+			}			
+			
+			private function widgetOpenedHandler(event:Event):void
+			{
+				graphicsLayer.visible = true;
+				startWidgetTimer();
+			}
+							
+		]]>
+	</mx:Script>
+	
+
+	<WidgetTemplate id="wTemplate" widgetClosed="widgetClosedHandler(event)" widgetOpened="widgetOpenedHandler(event)">
+		<mx:ViewStack id="viewStack" width="100%" height="100%" creationPolicy="all">
+			<mx:VBox width="100%" height="100%" verticalGap="1">
+				<mx:HBox id="boxMessage" visible="{msgVisible}" includeInLayout="{msgVisible}" width="100%">
+					<mx:SWFLoader id="swfMessage" source="com/esri/solutions/flexviewer/assets/flash/loader.swf" visible="false" />
+					<mx:Text id="txtMessage" text="" styleName="WidgetText" width="90%"/>
+				</mx:HBox>
+				<mx:Repeater id="wRepeater">
+					<widgets:RecordData infoData="{wRepeater.currentItem}" mouseOver="mouseOverRecord(event)" mouseOut="mouseOutRecord()" click="clickRecord(event)"/>
+				</mx:Repeater>
+			</mx:VBox>
+		</mx:ViewStack>
+	</WidgetTemplate>
+	
+</BaseWidget>

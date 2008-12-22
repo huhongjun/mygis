@@ -1,0 +1,19 @@
+// ActionScript file
+//image Classes 
+[Bindable][Embed(source="../Images/s_zoomin.gif")]public var ZoomInTopIcon:Class;
+[Bindable][Embed(source="../Images/s_zoomout.gif")]public var ZoomOutTopIcon:Class;
+[Bindable][Embed(source="../Images/s_pan.gif")]public var PanTopIcon:Class;
+[Bindable][Embed(source="../Images/map.png")]public var ZoomExtentTopIcon:Class;
+[Bindable][Embed(source="../Images/zoomNext.png")]public var ZoomNextTopIcon:Class;
+[Bindable][Embed(source="../Images/zoomPrev.png")]public var ZoomPreviousTopIcon:Class;
+[Bindable][Embed(source="../Images/Map.png")]public var MapsTopIcon:Class;
+[Bindable][Embed(source="../Images/s_drawline.gif")]public var DrawLineTopIcon:Class;
+[Bindable][Embed(source="../Images/s_drawpoint.gif")]public var DrawPointTopIcon:Class;
+[Bindable][Embed(source="../Images/s_drawpolygon.gif")]public var DrawPolyTopIcon:Class;
+[Bindable][Embed(source="../Images/Eraser.png")]public var EraseTopIcon:Class;
+[Bindable][Embed(source="../Images/Print.png")]public var PrintTopIcon:Class;
+[Bindable][Embed(source="../Images/find.png")]public var FindAddressTopIcon:Class;
+[Bindable][Embed(source="../Images/OpenNav.png")]public var openNav:Class;
+[Bindable][Embed(source="../Images/CloseNav.png")]public var closeNav:Class;
+[Bindable][Embed(source="../Images/id.png")]public var idNav:Class;
+[Bindable][Embed(source="../Images/map_layers.png")]public var layersNav:Class;

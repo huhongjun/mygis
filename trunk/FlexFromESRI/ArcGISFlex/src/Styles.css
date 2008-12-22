@@ -1,0 +1,145 @@
+Application {
+   backgroundColor: #000000;
+   backgroundGradientColors: #999999, #000000;
+   themeColor: #000000;
+   color: #ff9933;
+}
+
+ApplicationControlBar {
+   fillAlphas: 0.86, 0.44;
+   fillColors: #000000, #666666;
+   backgroundColor: #000000;
+   backgroundAlpha: 1;
+   cornerRadius: 0;
+   shadowDistance: 2;
+   dropShadowColor: #000000;
+}
+
+Button {
+   fillAlphas: 0.6, 0.46, 0.54, 0.65;
+   fillColors: #ffffff, #000000, #ff9900, #eeeeee;
+   color: #ff9900;
+   textRollOverColor: #000000;
+   textSelectedColor: #000000;
+   borderColor: #000000;
+}
+
+ButtonBar {
+   buttonStyleName: "mybuttonBarButtonStyle";
+   firstButtonStyleName: "mybuttonBarFirstButtonStyle";
+   lastButtonStyleName: "mybuttonBarLastButtonStyle";
+}
+
+.mybuttonBarButtonStyle {
+   fillColors: #ffffff, #000000, #ff9900, #eeeeee;
+   color: #ff9900;
+   textRollOverColor: #000000;
+   textSelectedColor: #000000;
+   borderColor: #000000;
+}
+
+.mybuttonBarFirstButtonStyle {
+}
+
+.mybuttonBarLastButtonStyle {
+}
+
+MenuBar {
+   backgroundAlpha: 0.44;
+   borderColor: #000000;
+   highlightAlphas: 0.49, 0.63;
+   fillAlphas: 0.82, 0.54;
+   fillColors: #2F2E2E, #000000;
+   rollOverColor: #ff9900;
+   selectionColor: #000000;
+   color: #ff9900;
+   textRollOverColor: #000000;
+   textSelectedColor: #000000;
+   disabledColor: #333333;
+   themeColor: #000000;
+   background-color: #000000;
+
+}
+
+Menu{
+	
+   backgroundAlpha: 0.79;
+   borderColor: #000000;
+   highlightAlphas: 0.49, 0.63;
+   fillAlphas: 0.82, 0.54;
+   fillColors: #999999, #000000;
+   rollOverColor: #ff9900;
+   selectionColor: #000000;
+   color: #ff9900;
+   textRollOverColor: #000000;
+   textSelectedColor: #000000;
+   disabledColor: #333333;
+   themeColor: #000000;
+   fontWeight: bold;
+	backgroundColor: #070707;
+}
+ToolTip{
+ 	backgroundAlpha: 0.79;
+   borderColor: #000000;
+   highlightAlphas: 0.49, 0.63;
+   fillAlphas: 0.82, 0.54;
+   fillColors: #999999, #000000;
+   rollOverColor: #ff9900;
+   selectionColor: #000000;
+   color: #ff9900;
+   textRollOverColor: #000000;
+   textSelectedColor: #000000;
+   disabledColor: #333333;
+   themeColor: #000000;
+   fontWeight: bold;
+	backgroundColor: #070707;
+}
+
+TextInput {
+  backgroundColor: #333333;	
+}
+
+ComboBox {
+ backgroundColor: #333333;	
+}
+
+
+Panel {
+   borderColor: #000000;
+   headerColors: #999999, #000000;
+   footerColors: #999999, #000000;
+   backgroundColor: #000000;
+   titleStyleName: "mypanelTitle";
+}
+
+.mypanelTitle {
+   color: #ff9900;
+   fontFamily: Verdana;
+   fontWeight: bold;
+}
+
+DataGrid {   
+ backgroundColor: #000000;
+ alternatingItemColors: #000000, #333333;
+ headerColors: #666666, #000000;
+ rollOverColor: #ffffff;
+ textRollOverColor: #ff9900;
+ borderColor: #000000;
+ selectionColor: #ff9900;
+ color: #ff9900;
+ textSelectedColor: #000000;
+ headerStyleName: "mydataGridHeaderStyle";
+}
+.mydataGridHeaderStyle {
+   color: #ff9900;
+}
+
+Tree {
+   backgroundColor: #000000;
+}
+
+
+
+
+	
+

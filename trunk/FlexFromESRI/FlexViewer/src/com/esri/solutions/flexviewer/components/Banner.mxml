@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+////////////////////////////////////////////////////////////////////////////////
+//
+// Copyright © 2008 ESRI
+//
+// All rights reserved under the copyright laws of the United States.
+// You may freely redistribute and use this software, with or
+// without modification, provided you include the original copyright
+// and use restrictions.  See use restrictions in the file:
+// <install location>/FlexViewer/License.txt
+//
+////////////////////////////////////////////////////////////////////////////////
+-->
+<mx:Canvas	xmlns:mx	="http://www.adobe.com/2006/mxml" 
+			styleName	="BannerCanvas" 
+			minWidth	="500" 
+			minHeight	="70">
+
+	<mx:Script>
+		<![CDATA[
+		
+            import mx.resources.ResourceBundle;
+            			
+			private var _logo:String;
+			
+			/**
+			 * The logo that is used to brand the application at the controller area.
+			 * 
+			 * @param value the relative URL points to the logo image file.
+			 */
+			public function set logo(value:String):void
+			{
+				_logo = value;
+				if (value != "")
+				{
+					imgLogo.visible = true;
+					imgLogo.includeInLayout = true;
+				}
+				else
+				{
+					imgLogo.visible = false;
+					imgLogo.includeInLayout = false;
+				}
+			}
+					
+			/**
+			 * @private
+			 */
+			[Bindable]
+			public function get logo():String
+			{
+				return _logo;
+			}
+			
+			/**
+			 * The title displayed in the banner.
+			 */
+			[Bindable]
+			public var title:String;
+			
+			/**
+			 * The subtitle displayed in the banner.
+			 */	
+			[Bindable]
+			public var subtitle:String;
+			
+			/**
+			 * The current/activated tool status displayed in the banner.
+			 */		
+			[Bindable]
+			public var status:String;				
+			
+			private function nlsString(nlsToken:String):String
+			{
+				return resourceManager.getString('ControllerStrings', nlsToken);
+			}
+			
+		]]>
+	</mx:Script>
+ 
+ 
+    <mx:Metadata>
+        [ResourceBundle("ControllerStrings")]
+    </mx:Metadata> 
+    
+
+	<mx:VBox width="100%" height="100%" verticalGap="0">
+		<mx:Spacer height="5"/>
+		<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
+			<mx:Spacer width="10" />
+			<mx:Image	id="imgLogo" 
+						source="{logo}" 
+						maintainAspectRatio="true" 
+						maxHeight="50" 
+						maxWidth="70" 
+						horizontalAlign="left" 
+						verticalAlign="top" 
+						visible="false" 
+						includeInLayout="false"/>
+			<mx:Spacer width="5" />
+			<mx:VBox verticalGap="0" horizontalAlign="left" width="100%">
+				<mx:Label styleName="BannerTitle" text="{title}"/>
+				<mx:HRule styleName="BannerRule" width="100%" />
+				<mx:HBox width="100%" verticalAlign="top">
+					<mx:Label styleName="BannerSubtitle" text="{subtitle}"/>
+					<mx:HBox width="100%" horizontalAlign="right">
+						<mx:Label styleName="BannerStatus" text="{nlsString('current_action') + status}"/>
+					</mx:HBox>
+				</mx:HBox>
+			</mx:VBox>
+			<mx:Spacer width="10" />
+		</mx:HBox>
+		<mx:Spacer height="15"/>
+	</mx:VBox>
+	
+</mx:Canvas>
