@@ -408,7 +408,7 @@ function formatNumberString(inputNumber,separator) {
  * @version 1.0 (2007-04-30)
  */
  function statusChange(statusText) {
-	document.getElementById("statusText").firstChild.nodeValue = "Statusbar: " + statusText;
+	document.getElementById("statusText").firstChild.nodeValue = "状态条："+ statusText;
 }
 
 /**
