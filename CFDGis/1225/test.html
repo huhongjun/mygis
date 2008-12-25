@@ -1,0 +1,98 @@
+
+<script >
+var selectedCarId;
+function onNodeSelect(nodeId)
+{
+	//alert(nodeId);
+	if (nodeId < 5 ) return;
+	selectedCarId=selectedCarId;
+	svgDoc = window.parent.svgmapctrl.getSVGDocument();
+	cBtn = svgDoc.getElementById(nodeId);
+	att = cBtn.attributes;
+
+	var iTextBox = _el("carID");
+	iTextBox.value = att.item(0).value;
+	
+	var iTextBox = _el("carType");
+	iTextBox.value = att.item(5).value;
+		
+	var iTextBox = _el("carCode");
+	iTextBox.value = att.item(3).value;
+		
+	var iTextBox = _el("carName");
+	iTextBox.value = att.item(4).value;		
+} 
+function StopRealControl()
+{
+	clearInterval(parent.controlTimer);
+//	window.parent.StopRealControl();
+}
+function _el(id){
+ return document.getElementById(id);
+	}
+</script>
+<html>
+
+<body>
+<link rel="stylesheet" href="styles/maps.css" type="text/css" />
+<link rel="stylesheet" href="styles/fontandcolor.css" type="text/css" />
+	<link rel="StyleSheet" href="dtree.css" type="text/css" />
+<link rel="STYLESHEET" type="text/css" href="dhtmlxtree.css">
+<script  src="dhtmlxcommon.js"></script>
+<script  src="dhtmlxtree.js"></script>
+
+	  <p >
+	      <input type="button" value="开始监控" onclick="javascript:StartRealControl()"><input type="button" value="停止监控" onclick="javascript:StopRealControl()">
+          <input name="jkState" type="text" style="border:0;" value="状态:正在监控"   size=10 readonly=true/>
+      </p>
+      <tr><td colspan="1"><hr noshade style="border:1 dotted red" width="100%" size="1"></td></tr>
+	  <div id="treeboxbox_tree" style="width:100%;height:210"></div>	
+			<script>
+				tree=new dhtmlXTreeObject("treeboxbox_tree","100%","100%",0);
+				tree.setImagePath("imgs/");
+				//link tree to asp script
+				tree.setXMLAutoLoading("Get_Car_TreeView.php"); 
+						
+				//load first level of tree
+				tree.loadXML("Get_Car_TreeView.php?id=0");
+				tree.enableThreeStateCheckboxes(true);//false to disable 
+				tree.attachEvent("onClick",onNodeSelect);//set function object to call on node select //see other available event handlers in API documentation 
+
+			</script>
+      <tr><td colspan="1"><hr noshade style="border:1 dotted red" width="100%" size="1"></td></tr>
+			
+		<form id="a001" name="form001" method="post">
+		     <table>
+				<tr >
+					<td>当前车辆：</td>
+				</tr>
+ 			</table>
+
+		      <TABLE cellSpacing=1 cellPadding=1 border=0>
+		        <TBODY>
+				  <TR>
+		            <TD 
+		              id = "carID1" size= 12 style="COLOR: #ffffff; BACKGROUND-COLOR: #66cc00; ">车辆ID</TD>
+		            <TD  style="COLOR: #ffffff; BACKGROUND-COLOR: #ffffff; TEXT-ALIGN: center">
+		            	<input type="text" id="carIDText" name="carID"  size=18/></TD></TR>
+		          <TR>
+		            <TD 
+		              id = "carType1" style="COLOR: #ffffff; BACKGROUND-COLOR: #66cc00; ">车辆类型</TD>
+		            <TD  style="COLOR: #ffffff; BACKGROUND-COLOR: #ffffff; TEXT-ALIGN: center">
+		            	<input type="text" name="carType"  size=18/></TD></TR>
+		          <TR>
+		            <TD 
+		              id = "carCode1" style="COLOR: #ffffff; BACKGROUND-COLOR: #66cc00; ">车辆编号</TD>
+		            <TD  style="COLOR: #ffffff; BACKGROUND-COLOR: #ffffff; TEXT-ALIGN: center">
+		            	<input type="text" name="carCode"  size=18/></TD></TR>
+		          <TR>
+		            <TD 
+		              id = "carName1" style="COLOR: #ffffff; BACKGROUND-COLOR: #66cc00; ">车辆名称</TD>
+		            <TD  style="COLOR: #ffffff; BACKGROUND-COLOR: #ffffff; TEXT-ALIGN: center">
+		            	<input type="text" name="carName"   size=18/></TD></TR>
+		          </TBODY>
+		      </TABLE> 	
+		      <tr><td colspan="2"><input type="checkbox" onclick="" checked=true name="chktrail">跟踪当前车辆</td></tr>
+		 </form>				
+</body>
+</html>
