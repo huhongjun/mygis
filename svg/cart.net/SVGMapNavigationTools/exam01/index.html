@@ -1,0 +1,120 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+	"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+	<head>
+		<title>Map Navigator 货场监控系统</title>
+	<META http-equiv=Content-Type content="text/html; charset=UTF-8">	
+		
+	</head>
+	<link rel="stylesheet" href="styles/maps.css" type="text/css" />
+	<link rel="stylesheet" href="styles/fontandcolor.css" type="text/css" />
+	<script type="text/javascript" src="javascript/divpanels.js"></script>
+	<script type="text/javascript" src="javascript/mapapi.js"></script>
+
+<body>
+    <script type="text/javascript">
+
+     </script>
+
+     <embed src="index.svg" width="1000" height="640" type="image/svg+xml" wmode="transparent"></embed>
+     <noembed>MapNavigation SVG</noembed>
+	 
+	<div id="panels">
+		<div id="p1" class="panel1" >
+			<div id="p1t" style="background-color:#123ECC;"class="titlediv" >
+				<span style="float:right;">
+					<span id="p1m"  onClick="_panelShow('p1','p1m',true);">&#160;&#160;□</span>
+					<span onClick="_el('p1').style.display='none'">&#160;×&#160;</span>
+				</span>
+				<span onClick="_panelShow('p1','p1m',true);">&#160;地图控制</span>
+			 </div>
+		     <div id="p1c" style="padding:6px;width:100%;height:325px;overflow:auto;overflow-x:hidden;display:none">
+
+		    </div>
+		</div>
+			
+		<div id="p2" class="panel1">
+			<div id="p2t" style="background-color:#A418CE;" class="titlediv">
+				<span style="float:right;">
+					<span id="p2m"  onClick="_panelShow('p2','p2m',true)">&#160;&#160;□</span>
+					<span onClick="_el('p2').style.display='none'">&#160;×&#160;</span>
+				</span>
+				<span onClick="javascript:_panelShow('p2','p2m',true);">&#160;实时监控</span>
+			</div>
+			<div id="p2c" style="width:100%;height:80px;overflow:auto;overflow-x:hidden;display:none">
+
+	
+			</div>
+		</div>
+	
+		<div id="p3" class="panel1">
+			<div id="p3t" style="background-color:#CF1B17; color:#000000;" class="titlediv" >
+				<span style="float:right;">
+					<span id="p3m"  onClick="_panelShow('p3','p3m',true);">&#160;&#160;□</span>
+					<span onClick="_el('p3').style.display='none';">&#160;×&#160;</span>
+				</span>
+				<span onClick="_panelShow('p3','p3m',true);"><span>&#160;车辆监控</span>
+					<span id="all_what" style="color:red"></span>
+				</span>
+			</div>
+			<div id="p3c" style="width:100%;height:450px;overflow:auto;overflow-x:hidden;display:none">
+
+			</div>
+		</div>
+	
+		<div id="p4" class="panel1">
+			<div id="p4t" style="background-color:#A418CE;" class="titlediv" >
+				<span style="float:right;">
+					<span id="p4m" onClick="_panelShow('p4','pm1',true);">&#160;&#160;□</span>
+					<span onClick="_el('p4').style.display='none'">&#160;×&#160;</span>
+				</span>
+				<span  onClick="_panelShow('p4','p4m',true);"><span>&#160;车辆监控</span>	</span>
+			</div>
+			<div id="p4c" style="width:100%;height:330px;overflow:auto;overflow-x:hidden;display:none">
+
+			</div>
+		</div>
+	
+		<div id="p5" class="panel1">
+			<div id="p5t" style="background-color:#42AECC;"class="titlediv" >
+				<span style="float:right;">
+					<span id="p5m"  onClick="_panelShow('p5','pm5',true);">&#160;&#160;□</span>
+					<span onClick="_el('p5').style.display='none'">&#160;×&#160;</span>
+				</span>
+				<span onClick="_panelShow('p5','pm5',true);"><span>&#160;车辆监控</span></span>
+		  </div>
+		     <div id="p5c" style="padding:6px;width:100%;height:150px;overflow:auto;overflow-x:hidden;display:none">
+
+		    </div>
+		</div>
+			
+		<div id="p6" class="panel1">
+			<div id="p6t" style="background-color:#A418CE;" class="titlediv" >
+				<span style="float:right;">
+					<span id="p6m" onClick="_panelShow('p6','pm6',true);">&#160;&#160;□</span>
+					<span onClick="_el('p6').style.display='none'">&#160;×&#160;</span>
+				</span>
+				<span  onClick="_panelShow('p6','pm6',true);"><span>&#160;车辆监控</span>	</span>
+			</div>
+			<div id="p6c" style="width:100%;height:330px;overflow:auto;overflow-x:hidden;display:none">
+
+			</div>
+		</div>
+		<div id="p7" class="panel1"  >
+			<div id="p7t" style="background-color:#A418CE;" class="titlediv">
+				<span style="float:right;">
+					<span id="p7m"  onClick="_panelShow('p7','pm7',true)">&#160;&#160;□</span>
+					<span onClick="_el('p7').style.display='none'">&#160;×&#160;</span>
+				</span>
+				<span onClick="_panelShow('p7','pm7',true);">&#160;SVG API测试</span>
+			</div>
+			<div id="p7c" style="width:100%;height:440px;overflow:auto;overflow-x:hidden;display:none">
+				<a href="javascript:svgAlert()">调用SVG函数 svgAlert()</a> </br>
+				<a href="javascript:svgAlert()">下一页</a>
+	
+			</div>
+		</div>	
+	</div>	 
+</body>
+</html> 
+

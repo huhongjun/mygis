@@ -1,6 +1,7 @@
-﻿/*
+/*
 Scripts for creating SVG apps, converting clientX/Y to viewBox coordinates
 and for displaying tooltips
+=》创建SVG应用；左边转换（对象客户区域坐标到显示盒子坐标）；显示工具标注
 
 Copyright (C) <2002-2007>  <Andreas Neumann>
 Version 1.2.2, 2007-04-03
@@ -147,6 +148,7 @@ mapApp.prototype.handleEvent = function(evt) {
 		this.displayTooltip(evt);
 	}
 }
+
 
 mapApp.prototype.resetFactors = function() {
 	//set inner width and height
