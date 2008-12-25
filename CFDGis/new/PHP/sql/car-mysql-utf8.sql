@@ -1,4 +1,4 @@
--- 
+-- 车辆信息
 Create TABLE `SO_CAR_CURRENT_POS` (
 	`ID` 				int(15),
 	`CAR_CODE`  	VARCHAR(100),

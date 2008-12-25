@@ -1,9 +1,9 @@
-//---------------------- 
+ï»¿//---------------------- 
 var second = 1;
-var svgdoc=null;	//HTML Ò³ÃæÄÚ¿ÉÓÃµÄSVGDocumentÈ«¾Ö±äÁ¿
+var svgdoc=null;	//HTML é¡µé¢å†…å¯ç”¨çš„SVGDocumentå…¨å±€å˜é‡
 var cBtn = null;
 var ss=null;
-var staknames  =['-AÇø', 'AÇø',   'BÇø',   'CÇø',   'DÇø',   'EÇø',  'FÇø',  '-FÇø',  '1Çø',   '2Çø',   '3Çø',   '4Çø',  '5Çø', '6Çø', '7Çø', '8Çø','9Çø']
+var staknames  =['-AåŒº', 'AåŒº',   'BåŒº',   'CåŒº',   'DåŒº',   'EåŒº',  'FåŒº',  '-FåŒº',  '1åŒº',   '2åŒº',   '3åŒº',   '4åŒº',  '5åŒº', '6åŒº', '7åŒº', '8åŒº','9åŒº']
 var stakxs     =[921.58,  911,     900.42,  889.84,  879.26,  868.68, 858.1,  847.52, 193,     203,      213,    224,    234,    245,  254,   263,  274];
 var stakys     =[335.95,  325,     314.05,  303.1,   292.15,  281.2,  270.25,  259.3, 110,     120,      130,    140,150,160,170,180,190];
 var stakrotates=[136.1,   136.1,   136.1,   136.1,   136.1,   136.1,  136.1,   136.1, 316.1,   316.1,316.1,316.1,316.1,316.1,316.1,316.1,316.1,316.1,316.1,316.1,316.1,316.1,46.1,136.1,136.1,136.1,136.1,136.1,136.1,136.1,136.1,136.1];
@@ -12,10 +12,19 @@ var a0x=911;
 var a0y=325;
 var a0rotate=136.1;
 
+top.initData = initData;
+ 
+function initData(evt)
+{
+	//getGeoData_Stak();
+	getGeoData_Car();
 
-
+	zoomVal += 0.5;
+	zoomTo(zoomVal);
+	//StartRealControl();
+}
 	
-function getFirstData(sec)
+function getGeoData_Car(sec)
 {
 	getURL("PHP/getCar_PDO_mysql.php?oid="+1,displayCallbackFirst);
 }
@@ -78,7 +87,7 @@ function DrawStakByStr(str)
 	ay=a0y+(x*350/1500)*Math.sin((Math.PI / 180)*(180-a0rotate));
 
 	widthscale = 350/1500;
-	//µØÍ¼350±íÊ¾1500Ã×
+	//åœ°å›¾350è¡¨ç¤º1500ç±³
 
 	string = "";
 	
@@ -119,8 +128,8 @@ function carinfor()
 	var iTextBox = _el("carName");
 	iTextBox.value = att.item(4).value;	
 
-	//ÓÃtip·½Ê½ÏÔÊ¾²ù³µĞÅÏ¢
-	//showinfotip(evt,"²ù³µID:"+att.item(0).value);
+	//ç”¨tipæ–¹å¼æ˜¾ç¤ºé“²è½¦ä¿¡æ¯
+	//showinfotip(evt,"é“²è½¦ID:"+att.item(0).value);
 }
 function displayCallbackFirst(data)
 {
@@ -133,7 +142,7 @@ function displayCallbackFirst(data)
 			var strdata=cirs[i];
 			node = parseXML(strdata, svgdoc);
 		    Map.appendChild(node);
-		   //Map.getElementById("½¨ÖşÎï").appendChild(node);
+		   //Map.getElementById("å»ºç­‘ç‰©").appendChild(node);
 		}
 	}
 }

@@ -1,11 +1,11 @@
-
+ï»¿
 var _panels=['p1','p2','p3','p4','p5','p6','p7'];
 var _maxmin=['pm1','pm2','pm3','pm4','pm5','pm6','pm7'];
 var _max=true;
 var _lp;
 
 function _panelShow(a,b,c)
-{//	map_layer.setDraggable(false); //·ÀÖ¹Í¼Æ¬ÒÆ¶¯
+{//	map_layer.setDraggable(false); //é˜²æ­¢å›¾ç‰‡ç§»åŠ¨
 	parent.map_tool_op=0;	
 	var b=_el(b);
 	
@@ -14,7 +14,7 @@ function _panelShow(a,b,c)
 	{
 		if (_panels[i]!=a)
 		{
-			_el(_maxmin[i]).innerHTML='¡õ';
+			_el(_maxmin[i]).innerHTML='â–¡';
 			var c=_el(_panels[i]).childNodes;
 			for (var k=1;k<c.length;k++)
 			{
@@ -26,26 +26,26 @@ function _panelShow(a,b,c)
 	{
 		if (_max)
 		{
-			b.innerHTML='£ß';
+			b.innerHTML='ï¼¿';
 			d="block";
 			_max=false;
 		}
 		else
 		{
-			b.innerHTML='¡õ';
+			b.innerHTML='â–¡';
 			d="none";
 			_max=true;
 		}
 	}
 	else
 	{
-			b.innerHTML='£ß';
+			b.innerHTML='ï¼¿';
 			d="block";
 			_max=false;
 	}
 	if (!e)
 	{
-		b.innerHTML='£ß';
+		b.innerHTML='ï¼¿';
 		d="block";
 		_max=false;
 	}

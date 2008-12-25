@@ -1,4 +1,4 @@
-// ¹ØÓÚ±¾ÎÄ¼ş£º
+ï»¿// å…³äºæœ¬æ–‡ä»¶ï¼š
 
 var controlTimer;
 
@@ -7,7 +7,7 @@ function StartRealControl()
 	if (controlTimer==null){
 		controlTimer=setInterval("getDataCurrent(second)", 1000);
 		var iTextBox = _el("jkState");
-		iTextBox.value = "×´Ì¬:ÕıÔÚ¼à¿Ø";	
+		iTextBox.value = "çŠ¶æ€:æ­£åœ¨ç›‘æ§";	
 	}
 }
 function StopRealControl()
@@ -15,6 +15,6 @@ function StopRealControl()
 	if (controlTimer!=null){
 		clearInterval(controlTimer);
 		var iTextBox = _el("jkState");
-		iTextBox.value = "×´Ì¬:Í£Ö¹¼à¿Ø";		
+		iTextBox.value = "çŠ¶æ€:åœæ­¢ç›‘æ§";		
 	}
 }

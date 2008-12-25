@@ -13,7 +13,7 @@ var lonMin,latMin,lonMax,latMax,xTimes,yTimes,Scaler;
 var zoomVal=0;
 var moveStep=20;
 
-//----Public-----------------------------------------------------------------
+//---- SVG onload 调用----------------------------------------------------------
 function Init(evt,lon1,lat1,lon2,lat2,zoom,layers)
 {
 
@@ -36,7 +36,7 @@ function Init(evt,lon1,lat1,lon2,lat2,zoom,layers)
 	addGraphicUnit();
 
 	//获得标注数据
-	getData();	
+	initData(evt);	
 }
 
 function mapMouseDown(evt)
