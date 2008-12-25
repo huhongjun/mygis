@@ -31,6 +31,7 @@ try{
 	$dbh->query("SET CHARACTER_SET_CLIENT=utf8");
 	$dbh->query("SET CHARACTER_SET_RESULTS=utf8");
 	 
+	 $svgxml  = "<tree id='0'>" ;
 	foreach($dbh->query($sqlall) as $row)
 	{
 		//print_r($row);	//调试用途
@@ -44,11 +45,13 @@ try{
 		
 		
 		//生成circle的SVG XML定义        
-		$circlexml = "<use id='".$circleoid."' x='". $circlecx."' y='" . $circlecy ."' CAR_CODE='".$CAR_CODE."' CAR_NAME='".$CAR_NAME."' xlink:href='#ballGroup' stroke='red' fill='#ffff00' onclick='carinfor(evt)' onmouseout='nomralColor(evt)' onmousemove='highColor(evt)' transform='rotate(30 x,y) scale(0.01)'/>";
-
+		$carinforxml = "<item child='1' id='".$circleoid."' text='".$CAR_NAME."'><userdata name='ud_block'>ud_data</userdata></item>";
+		
 		//拼装全部circle的SVG XML定义
-		$svgxml = $svgxml . ';' . $circlexml;	
+		$svgxml = $svgxml . $circlexml;	
 	}
+	
+		$svgxml  = $svgxml . "</tree>";	
 	
 	//输出给浏览器端的内容
 	echo $svgxml;

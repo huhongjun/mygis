@@ -1,4 +1,4 @@
-// Í¨¹ıÎ¨Ò»µÄID»ñµÃÒ³ÃæÔªËØ
+ï»¿// é€šè¿‡å”¯ä¸€çš„IDè·å¾—é¡µé¢å…ƒç´ 
 function _el(id)
 {
 	return document.getElementById(id);

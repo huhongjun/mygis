@@ -1,0 +1,102 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 20010904//EN"
+"http://www.w3.org/TR/2001/REC-SVG- 20010904/DTD/svg10.dtd">
+
+<svg width="100%" height="100%" onload="init(evt)"
+    xmlns="http://www.w3.org/2000/svg">
+
+ <desc>Capture mouse click events</desc>
+
+ <script type="text/ecmascript">
+   <![CDATA[
+     function init(evt) {}
+
+     function mouseClick1(evt)
+     {
+        var rect     = evt.target;
+        var parent   = rect.parentNode;
+        var svgDocument = parent.getOwnerDocument();
+
+        var rectID = rect.getAttribute("id");
+        var xPos   = rect.getAttribute("x");
+        var yPos   = rect.getAttribute("y");
+        var width  = rect.getAttribute("width");
+        var height = rect.getAttribute("height");
+
+        var cx    = 1.*xPos;
+        var cy    = 1.*yPos;
+
+        cx        += 1.*width/2;
+        cy        += 1.*height/2;
+
+        var style = "";
+
+        var idVal = 1.*rectID.substr(4);
+
+        if(idVal % 2 == 0) { style = "fill:red"; }
+        else               { style = "fill:yellow"; }
+
+        circleNode = svgDocument.createElement("circle");
+
+        circleNode.setAttribute("x",     xPos);
+        circleNode.setAttribute("y",     yPos);
+        circleNode.setAttribute("cx",    cx);
+        circleNode.setAttribute("cy",    cy);
+        circleNode.setAttribute("style", style);
+        circleNode.setAttribute("r",     width/2);
+
+        parent.appendChild(circleNode);
+     }
+
+ ]]> </script>
+
+ <!-- ==================================== -->
+ <g transform="translate(50,50)">
+    <text x="0" y="0" font-size="30">
+      Click inside the grid
+    </text>
+ </g>
+
+ <!-- rectangular background -->
+ <g id="gc" transform="translate(50,70)">
+
+    <!-- first row -->
+    <rect id="rect1" fill="red"
+          width="100" height="100" x="0"   y="0"
+          onclick="mouseClick1(evt)"/>
+
+    <rect id="rect2" fill="blue"
+          width="100" height="100" x="100" y="0"
+          onclick="mouseClick1(evt)"/>
+
+    <rect id="rect3" fill="red"
+          width="100" height="100" x="200" y="0"
+          onclick="mouseClick1(evt)"/>
+
+    <!-- second row -->
+    <rect id="rect4" fill="blue"
+          width="100" height="100" x="0"   y="100"
+          onclick="mouseClick1(evt)"/>
+
+    <rect id="rect5" fill="red"
+          width="100" height="100" x="100" y="100"
+          onclick="mouseClick1(evt)"/>
+
+    <rect id="rect6" fill="blue"
+          width="100" height="100" x="200" y="100"
+          onclick="mouseClick1(evt)"/>
+
+    <!-- third row -->
+    <rect id="rect7" fill="red"
+          width="100" height="100" x="0"   y="200"
+          onclick="mouseClick1(evt)"/>
+
+    <rect id="rect8" fill="blue"
+          width="100" height="100" x="100" y="200"
+          onclick="mouseClick1(evt)"/>
+
+    <rect id="rect9" fill="red"
+          width="100" height="100" x="200" y="200"
+          onclick="mouseClick1(evt)"/>
+ </g>
+ </svg>

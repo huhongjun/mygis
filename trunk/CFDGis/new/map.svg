@@ -2,6 +2,7 @@
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd" >
 <svg onload="Init(evt,114.272,29.251,120.107,34.7785,5.836)" zoomAndPan="disable">
 	<script xlink:href="script/MapControl.js" language="JavaScript"/>
+	<script xlink:href="script/MapCFD.js" language="JavaScript"/>
 	
 <svg id="map" overflow="hidden" xml:space="preserve" width="1280px" height="750px" viewBox="100 0 1280 750" zoomAndPan="magnify" style="shape-rendering:geometricPrecision;text-rendering:geometricPrecision;image-rendering:optimizeQuality;color-interpolation:sRGB" xmlns:dbxns="http://www.dbxgeomatics.com/ns">
 <defs> 
@@ -11,6 +12,7 @@
 
 
 ]]></script>
+
 <![CDATA[
 	.b2-16056308-16777215 {fill:rgb(244,255,244);fill-rule:evenodd;stroke-linejoin:round}
 	.b2-16777209-16777215 {fill:rgb(255,255,249);fill-rule:evenodd;stroke-linejoin:round}
