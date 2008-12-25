@@ -34,6 +34,7 @@ function addCircle()
 		node1.setAttribute("height","50");
 		node1.setAttribute("width","50");
 		node1.setAttribute("style","fill:red");
+		svgdoc.rootElement.appendChild(node1);
 
 		str = "<circle id='cir112'  cx='2' cy='3' r='19' fill='#FFFFFF' stroke='#000000'/>";
 		//node2 = parseXML(str, svgdoc);
@@ -42,7 +43,6 @@ function addCircle()
 		svgdoc.rootElement.appendChild(node2);
 		svgdoc.getElementById("cir112").content = str;
 		
-		svgdoc.rootElement.appendChild(node1);
 		alert(svgdoc.getElementById("rect50").x);
 
 }

@@ -1,4 +1,4 @@
-var svgDoc,Map,svgMain;
+﻿var svgDoc,Map,svgMain,svgDocbak;
 var svgW,svgH,vbMaxW,vbMaxH;
 var vbCX,vbCY,vbCW,vbCH,WAmp,HAmp,currentAmp;
 var minAmp,maxAmp=100;
@@ -18,25 +18,30 @@ var SVGRoot = null;
 var cBtn = null;
 var ss=null;
 var staknames  =['-A区', 'A区',   'B区',   'C区',   'D区',   'E区',  'F区',  '-F区',  '1区',   '2区',   '3区',   '4区',  '5区', '6区', '7区', '8区','9区']
-//ku guding
 var stakxs     =[921.58,  911,     900.42,  889.84,  879.26,  868.68, 858.1,  847.52, 193,     203,      213,    224,    234,    245,  254,   263,  274];
-var stakys     =[335.95,  325,     314.05,  303.1,   292.15,  281.2,  270.25,  259.3, 110,     120,      130,    140,150,160,170,180,190];
+var stakys     =[335.95,  325,     314.05,  303.1,   292.15,  281.2,  270.25,  259.3, 110,     120,      130,    140,150,160,170,180,  190];
 var stakrotates=[136.1,   136.1,   136.1,   136.1,   136.1,   136.1,  136.1,   136.1, 316.1,   316.1,316.1,316.1,316.1,316.1,316.1,316.1,316.1,316.1,316.1,316.1,316.1,316.1,46.1,136.1,136.1,136.1,136.1,136.1,136.1,136.1,136.1,136.1];
 var widthscale=0.2;
 var a0x=911;
 var a0y=325;
 var a0rotate=136.1;
 var controlTimer;
-
+var angle;
+var carNames=new Array(); 
+var dtree;
+//選中的車輛ID
+var selectedCarID;
 //----Public-----------------------------------------------------------------
 function Init(evt,lon1,lat1,lon2,lat2,zoom,layers)
 {
+	svgdoc = evt.target.ownerDocument;
+	svgDocbak = svgdoc;
 
-		svgdoc = evt.target.ownerDocument;
-		string = "<circle id='cir112'  cx='2' cy='3' r='2' fill='#FFFFFF' stroke='#000000'/>";
-		node = parseXML(string, document);
- 		//svgdoc.rootElement.appendChild(node);
-		//cBtn = svgdoc.getElementById("cir112");
+	string =  "<use id='111' x='9110' y='3250' xlink:href='#ballGroupJiaoChe' transform='rotate(0 x,y) scale(0.1)'/>";
+
+	node = parseXML(string, document);
+	//svgdoc.rootElement.appendChild(node);
+	//cBtn = svgdoc.getElementById("cir112");
 
 	//获得第一层的SVG文档对象
 	svgDoc = evt.target.ownerDocument;
@@ -50,6 +55,7 @@ function Init(evt,lon1,lat1,lon2,lat2,zoom,layers)
 
 	//初始化经纬度参数
 	initGrid(lon1,lat1,lon2,lat2,zoom);
+	createAniCar();
 	getStakInfo();
 	 //注册鼠标事件
 	addEventHanle();
@@ -60,19 +66,80 @@ function Init(evt,lon1,lat1,lon2,lat2,zoom,layers)
 	//获得标注数据
 	getData();	
 	
-	svgdoc = evt.target.ownerDocument;
+	//svgdoc = evt.target.ownerDocument;
 	getFirstData();
 
 	zoomVal += 0.5;
 	zoomTo(zoomVal);
-	//StartRealControl();
+    StartRealControl();
+
+	
+
 }
 
-function getFirstData(sec)
+function createAniCar()
 {
-	getURL("PHP/getCar_PDO_mysql.php?oid="+1,displayCallbackFirst);
+	// 创建动画小车图标
+    var str ="<image y='1'  x='1'   id='car_img'  height='3'  width='8'  xlink:href='jiaochefushi.jpg'  >"+
+				"   <animateMotion id='car_ani' path='M0,0'"+
+ 				"   begin='indefinite' dur='10s' fill='freeze' rotate='auto' restart='always'/>"+
+   				" </image>";
+   	/*
+   	var str = "<circle cx='0' cy='0' r='10' style='fill:green;stroke:red;stroke-width:2'> " +
+   		      "<animateMotion id='carAnimation' 
+   	*/
+   		
+	//node = parseXML(str, document);
+	
+	parseSVG(Map,str,null);
+	
+	//Map.appendChild(node);
+	//Map.insertBefore(node,Map.firstChild);
 }
 
+function movetocenter()
+{
+	svgDoc = window.parent.svgmapctrl.getSVGDocument();
+	cBtn = svgDoc.getElementById("image2486");
+    cBtn.setAttributeNS(null,"x","911");
+    cBtn.setAttributeNS(null,"y","325");
+	cBtn = svgDoc.getElementById("an1");
+    cBtn.setAttributeNS(null,"path","M911,326 L910,327 L909,328 L908,329 L907,330 L906,331 L905,332 L904,333 L903,334 L902,335 L901,336 L900,337 L899,337 L898,338 L897,339 L896,340 L895,341 L894,342 L893,343 L892,344 L891,345 L890,346 L889,347 L888,348 L887,349 L886,350 L885,351 L884,352 L883,353 L882,354 L881,355 L880,356 L879,357 L878,358 L877,359 L876,360 L875,361 L874,361 L873,362 L872,363 L871,364 L870,365 L869,366 L868,367 L867,368 L866,369 L865,370 L864,371 L863,372 L862,373 L861,374 L860,375 L859,376 L858,377 L857,378 L856,379 L855,380 L854,381 L853,382 L852,383");
+}
+
+function movetocenter1()
+{
+	dtree1 = new dTree('dtree1');
+	alert(carNames.length);
+	    for(var i=1; i < carNames.length-1;i++)
+		{
+			var strdata=carNames[i];
+			onecirs = strdata.split(':');
+			dtree1.add(15+i,1,strdata,'javascript:show()');
+	    }
+	    	_el("dtree1").innerHTML = dtree1;
+
+}
+function getAllCarToTree()
+{
+	    for(var i=1; i < carNames.length-1;i++)
+		{
+			var strdata=carNames[i];
+			onecirs = strdata.split(':');
+			dtree1.add(15+i,1,strdata,'javascript:show()');
+	    }
+	    	_el("dtree1").innerHTML = dtree1;
+
+}
+
+function getFirstData111(sec)
+{
+	getURL("DBGeo_PDO_Query.php?oid="+1,displayCallbackFirst);
+}
+function getCarTreeData()
+{
+	getURL("GetCarTreeData.php?oid="+1,CallbackGetCarTreeData);
+}
 function getStakInfo()
 {
 	getURL("GET_STACK_INFO.php?oid="+1+1,CallbackStakInfo);
@@ -125,6 +192,12 @@ function DrawStakByStr(str)
 	width = y-x;
 
   
+  	var STOWid= stakstrs[0];
+	var STOW_NAME= stakstrs[1];
+	var BOAT_NAME= stakstrs[2];
+	var GOODS_NAME= stakstrs[5];
+	var COUSTOMER_NAME= stakstrs[3];
+	
     widthscale = 350/1500;
 
 	ax=a0x-(x*350/1500)*Math.cos((Math.PI / 180)*(180-a0rotate));
@@ -134,8 +207,7 @@ function DrawStakByStr(str)
 	//地图350表示1500米
 
 	string = "";
-	
-	   string = string + "<rect x='"+ax+"' y='"+ay+"' width=' "+width*widthscale+"' height='9' style='fill:#00FFFF;stroke:#ffffff;stroke-width:1' rx= '2' ry = '2'  transform='rotate("+a0rotate+ " " +ax+","+ay+")'/>";
+	   string = string + "<rect x='"+ax+"' y='"+ay+"' width=' "+width*widthscale+"' height='8' "+" STOWid='"+STOWid+"' STOW_NAME='"+STOW_NAME+"' BOAT_NAME='"+BOAT_NAME+"' GOODS_NAME='"+GOODS_NAME+"' COUSTOMER_NAME='"+COUSTOMER_NAME+"' style='fill:#00FFFF;stroke:#000000;stroke-width:0' rx= '2' ry = '2' onclick='stakinfor(evt)' onmouseout='staknomralColor(evt)' onmousemove='stakhighColor(evt)'  transform='rotate("+a0rotate+ " " +ax+","+ay+")'/>";
 	   node = parseXML(string, svgdoc);
 	   Map.appendChild(node);   
 	   if (a0rotate<300)
@@ -159,19 +231,81 @@ function nomralColor(evt)
 		obj = evt.target;
 	obj.setAttributeNS(null,"fill","#ffff00");
 }
-function carinfor()
+function stakhighColor(evt)
+{
+		obj = evt.target;
+	obj.setAttributeNS(null,"style","fill:#00FF00;stroke:#00ff00;stroke-width:0");
+
+}
+function staknomralColor(evt)
 {
 	obj = evt.target;
-	
+	obj.setAttributeNS(null,"style","fill:#00FFFF;stroke:#ffffff;stroke-width:0");
+}
+function carinfor(evt)
+{
+	obj = evt.target;
+	//obj.setAttributeNS(null,"style","fill:#00FF00;stroke:#00ffff;stroke-width:1");
 	att = obj.attributes;
-	//document.getElementById("carID");
+	
+	fr=window.frames("outputfrm_car_inspect");
+	
+//   alert((fr==null));
+	
+//	fr=s1.carID;document
+//	alert((fr.carID1==null));
+
+//	alert((fr.document.a001==null));
+//	alert(fr.document.form001.carID.value);
+	//var itext = fr.carID;
+	fr.onNodeSelect(att.item(0).value);
+//	itext.value = att.item(0).value;
+	/*
 	var iTextBox = _el("carID");
 	iTextBox.value = att.item(0).value;
+	
+	var iTextBox = _el("carType");
+	iTextBox.value = att.item(5).value;
+		
 	var iTextBox = _el("carCode");
 	iTextBox.value = att.item(3).value;
+		
 	var iTextBox = _el("carName");
-	iTextBox.value = att.item(4).value;	
+	iTextBox.value = att.item(4).value;	*/
 
+	//用tip方式显示铲车信息
+	showinfotip(evt,"铲车ID:"+att.item(0).value);
+}
+
+function movetocenter11()
+{
+	//alert(svgDocbak);
+	cBtn = svgDoc.getElementById("999");
+	att = cBtn.attributes;
+    x0 = att.item(1).value;
+	y0 = att.item(2).value;
+	centerTo(x0,y0);
+}
+function stakinfor(evt)
+{
+	obj = evt.target;
+//	+" STOWid='"+STOWid+"' STOW_NAME='"+STOW_NAME+"' BOAT_NAME='"+BOAT_NAME+"' GOODS_NAME='"+GOODS_NAME+"' COUSTOMER_NAME='"+COUSTOMER_NAME+	
+	att = obj.attributes;
+	//document.getElementById("carID");
+	var iTextBox = _el("STOWid");
+	iTextBox.value = att.item(4).value;
+	
+	var iTextBox = _el("STOW_NAME");
+	iTextBox.value = att.item(5).value;
+		
+	var iTextBox = _el("BOAT_NAME");
+	iTextBox.value = att.item(6).value;
+		
+	var iTextBox = _el("GOODS_NAME");
+	iTextBox.value = att.item(7).value;	
+
+	var iTextBox = _el("COUSTOMER_NAME");
+	iTextBox.value = att.item(8).value;	
 	//用tip方式显示铲车信息
 	//showinfotip(evt,"铲车ID:"+att.item(0).value);
 }
@@ -181,7 +315,7 @@ function displayCallbackFirst(data)
 	{	
 		string = data.content;
         cirs = string.split(';');
-        for(var i=0; i < cirs.length-1;i++)
+        for(var i=1; i < cirs.length;i++)
 		{
 			var strdata=cirs[i];
 			node = parseXML(strdata, svgdoc);
@@ -193,17 +327,39 @@ function displayCallbackFirst(data)
 function StartRealControl()
 {
 	if (controlTimer==null){
-		controlTimer=setInterval("getDataCurrent(second)", 1000);
-		var iTextBox = _el("jkState");
-		iTextBox.value = "状态:正在监控";	
+		controlTimer=setInterval("getDataCurrent(second)", 500);
+	//	var iTextBox = _el("jkState");
+	//	iTextBox.value =  "状态:正在监控";	
 	}
 }
 function StopRealControl()
 {
+			var iTextBox = _el("jkState");
+controlTimer=		iTextBox.value;
+	//alert(controlTimer);
 	if (controlTimer!=null){
 		clearInterval(controlTimer);
 		var iTextBox = _el("jkState");
 		iTextBox.value = "状态:停止监控";		
+   }
+}
+
+function CallbackGetCarTreeData(data)
+{
+	if(data.success)
+	{	
+		string = data.content;
+        cirs = string.split(';');
+        for(var i=1; i < cirs.length-1;i++)
+		{
+			var strdata=cirs[i];
+			onecirs = strdata.split(':');
+			carNames.push(strdata);
+		
+			//dtree1.add(i,0,'柳工','javascript:show()');
+		    //dtree1.add(i,0,onecirs[1],'javascript:show()');
+	    }
+	    //getAllCarToTree();
 	}
 }
 function displayCallbackCurrentCarPos(data)
@@ -212,30 +368,63 @@ function displayCallbackCurrentCarPos(data)
 	if(data.success)
 	{	
 		string = data.content;
-                cirs = string.split(';');
-                for(var i=1; i < cirs.length-1;i++)
+        cirs = string.split(';');
+        //var iTextBox = _el("carID");
+	    fr=window.frames("outputfrm_car_inspect");
+        frm=fr.document.form001;
+        if (frm==null) return;
+    	var	iTextBox=fr.document.form001.carID;
+    	
+    	var trailchk = fr.document.form001.chktrail;
+    	
+        for(var i=1; i < cirs.length-1;i++)
 		{
 			var strdata=cirs[i];
-
 			onecirs = strdata.split(':');
 
 			cBtn = svgdoc.getElementById(onecirs[0]);
+			
 	        x = onecirs[1];
 			y = onecirs[2];
-
-	        cBtn.setAttribute("x",x);
+      
+	        att = cBtn.attributes;
+			x0 = att.item(1).value;
+			y0 = att.item(2).value;	  
+			cBtn.setAttribute("x",x);
 	        cBtn.setAttribute("y",y);
+
+	
+	        if (trailchk.checked)
+	        {
+					if (onecirs[0]==iTextBox.value){
+						        centerTo(x*0.01,y*0.01);
+					}
+		    }
+			if (att.item(0).value=='999')
+			{
+
+				if (x!=x0)
+				{
+		            angle = Math.atan((y-y0)/(x-x0));
+					angle = 180*angle/(Math.PI);		            
+	            }
+				
+				trans="rotate("+angle+" "+x/100+","+y/100+")"+" scale(0.01)";
+				cBtn.setAttribute("transform",trans);
+			}
 		}
 	}
 }
 function getDataCurrent(sec)
 {
-	getURL("getCarCurrentPos_PDO_mysql.php?oid="+1,displayCallbackCurrentCarPos);
+	getURL("CarCurrentPos.php?oid="+1,displayCallbackCurrentCarPos);
 }
 
 function mapMouseDown(evt)
 {
+
     if(evt.target.tagName!="rect") return;
+    	
 	switch(CMD)
 	{
 		case null:
@@ -247,7 +436,8 @@ function mapMouseDown(evt)
 	            isBusy=true;
 		    break;
 		case"RECTZOOM"://拉框放大
-    		    	if(!checkAmp()) return;
+
+    		if(!checkAmp()) return;
 		   	getCurrentVB();
 			var x=evt.clientX*WAmp+vbCX;
 			var y=evt.clientY*HAmp+vbCY;
@@ -262,6 +452,7 @@ function mapMouseDown(evt)
 }
 function mapMouseMove(evt)
 {
+
     if(!isBusy) return;
 	switch(CMD)
 	{
@@ -286,6 +477,7 @@ function mapMouseMove(evt)
 			if(h<0)	h=0;
 			zoomRect.setAttributeNS(null,"width",w);
 			zoomRect.setAttributeNS(null,"height",h);
+
 			break;
 	}
 }
@@ -308,6 +500,7 @@ function mapMouseUp(evt)
 			var h=evt.clientY*HAmp+vbCY-y;
 			var cx=x+w/2;
 			var cy=y+h/2;
+			
 			if(w > 0 && h > 0)
 			{
 				currentAmp=Math.min(svgW/w,svgH/h,maxAmp);
@@ -471,6 +664,7 @@ function searchCallback(data)
 		centerTo(x,y);
 	}
 }
+
 function drawPoint(name,lat,lon,w)
 {
 	var x = Math.round(lon2x(lon));
