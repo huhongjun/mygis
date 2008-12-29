@@ -1,6 +1,6 @@
 <?php
 
-if(!($conn=ora_logon("system@hlgis", "system"))) 
+if(!($conn=ora_logon("cfdgis@XE", "cfdgis"))) 
 { 
 	echo "Error: Cannot connect to database\n"; 
 	exit; 

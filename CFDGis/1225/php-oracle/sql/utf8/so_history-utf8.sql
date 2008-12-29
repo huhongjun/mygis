@@ -1,5 +1,5 @@
-prompt PL/SQL Developer import file
-prompt Created on 2008Äê12ÔÂ25ÈÕ by tanhw
+ï»¿prompt PL/SQL Developer import file
+prompt Created on 2008å¹´12æœˆ25æ—¥ by tanhw
 set feedback off
 set define off
 prompt Creating SO_CAR_HISTORY_POS...

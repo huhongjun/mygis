@@ -17,7 +17,7 @@ $svgxml ="";
 
 //try{
 	/*	初始化一个PDO对象，就是创建了数据库连接对象	*/
-	if(!($conn=ora_logon("system@hlgis","system"))) 
+	if(!($conn=ora_logon("cfdgis@XE","cfdgis"))) 
 	{ 
 		echo "Error: Cannot connect to database\n"; 
 		exit; 
@@ -28,7 +28,7 @@ $svgxml ="";
 	
 	/*	拼装SQL语句			*/
 	//$sql = "SELECT objectid,x,y from sde.car where objectid='" . $oid . "'";	//有查询条件
-	$sql = "SELECT ID,X,Y,CAR_CODE,CAR_NAME,CAR_TYPE,CAR_OWNER from sde.SO_CAR_CURRENT_POS ";	//有查询条件
+	$sql = "SELECT ID,X,Y,CAR_CODE,CAR_NAME,CAR_TYPE,CAR_OWNER from SO_CAR_CURRENT_POS ";	//有查询条件
 	$cursor=ora_open($conn);
 	ora_parse($cursor,$sql,0); 
 	ora_exec($cursor);
