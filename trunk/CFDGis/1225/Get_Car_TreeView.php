@@ -24,29 +24,31 @@ $svgxml ="";
 
 	/*	从传入参数获得查询条件	*/
 	$group =$_REQUEST["id"];
+	if(!($conn=ora_logon("cfdgis@XE","cfdgis"))) 
+	{ 
+		echo "Error: Cannot connect to database\n"; 
+		exit; 
+	} 	
 	
-	/*	初始化一个PDO对象，就是创建了数据库连接对象	*/
-	$dbh=new PDO($dsn,$user,$pass);
-	//echo "连接成功<br/>";	//调试用途
-
-	$dbh->query("SET NAMES 'utf8'");
-	$dbh->query("SET CHARACTER_SET_CLIENT=utf8");
-	$dbh->query("SET CHARACTER_SET_RESULTS=utf8");	
 	
 	$sql = "SELECT ID,CAR_NAME from so_car_info where CAR_TYPE_ID="+group;	//有查询条件
 	//$sql = $sql.$where;
+
 	//$sqlall = "SELECT ID,X,Y,CAR_CODE,CAR_NAME,CAR_TYPE,CAR_OWNER from SO_CAR_CURRENT_POS ";				//无查询条件
     $type1=mb_convert_encoding("柳工",   "UTF-8","GB2312");
     $type2=mb_convert_encoding("龙工",   "UTF-8","GB2312");
     $type3=mb_convert_encoding("联众",   "UTF-8","GB2312");
 	if ($group == 0){
 			$sql = "SELECT TYPE_ID,TYPE_NAME from SO_CAR_TYPE ";	//有查询条件
+			$cursor=ora_open($conn);
+			ora_parse($cursor,$sql,0); 
+			ora_exec($cursor);
 			$svgxml = '<tree id="0">';
-		foreach($dbh->query($sql) as $row)
+			while(ora_fetch($cursor)) 
 			{ 
 
-				$TYPE_ID = $row[0];
-				$TYPE_NAME = $row[1];
+				$TYPE_ID = ora_getcolumn ($cursor, 0);
+				$TYPE_NAME = mb_convert_encoding(ora_getcolumn ($cursor, 1),   "UTF-8","GB2312");
                 
 	
 		        $typexml = '<item child="1" id="'.$TYPE_ID.'" text="'.$TYPE_NAME.'">
@@ -59,38 +61,30 @@ $svgxml ="";
 					
 			//输出给浏览器端的内容
 			echo $svgxml; 
-
+			
 	}
 	else{
-
-
 	    	$sql = "SELECT ID,X,Y,CAR_CODE,CAR_NAME,CAR_TYPE,CAR_OWNER from sde.SO_CAR_CURRENT_POS ";
 		$sql = "SELECT ID,CAR_NAME from SO_CAR_INFO where CAR_TYPE_ID= ".$group;
-		try{
-			 
-			foreach($dbh->query($sql) as $row)
-			{
-				//print_r($row);	//调试用途
-				$circleoid 		= $row[0];
-				$circlecx 		= $row[1];
+			$cursor=ora_open($conn);
+			ora_parse($cursor,$sql,0); 
+			ora_exec($cursor);
+			while(ora_fetch($cursor)) 
+			{ 
+				$circleoid = ora_getcolumn ($cursor, 0);
+				$CAR_NAME = mb_convert_encoding(ora_getcolumn ($cursor, 1),   "UTF-8","GB2312");
 
 						$carinforxml = "<item child='0' id='".$circleoid."' text='".$CAR_NAME."'><userdata name='ud_block'>ud_data</userdata></item>";
-				
-				//拼装全部circle的SVG XML定义
-				$svgxml = $svgxml . $carinforxml;	
-			}
-			
-				$svgxml  = "<tree id='" .$group."'>" . $svgxml . "</tree>";	
-			
+						
+						//拼装全部circle的SVG XML定义
+						$svgxml = $svgxml . $carinforxml;	
+						
+			} 
+			$svgxml  = "<tree id='" .$group."'>" . $svgxml . "</tree>";	
+					
 			//输出给浏览器端的内容
-			echo $svgxml;
-
-		// 释放PHP的数据库连接，即此处清空后Oracle OCI8驱动客户端会重用连接
-			$dbh=null;
-		}catch(PDOException$e){
-			//显示数据库操作错误信息
-			die("Error!: ".$e->getMessage()."<br/>");
-		}
+			echo $svgxml; 
+			
 	}
 /*	help
 	采用PHP PDO开发，支持数据库无关性，

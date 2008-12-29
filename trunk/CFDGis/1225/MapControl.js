@@ -71,7 +71,7 @@ function Init(evt,lon1,lat1,lon2,lat2,zoom,layers)
 
 	zoomVal += 0.5;
 	zoomTo(zoomVal);
-    StartRealControl();
+   StartRealControl();
 
 	
 
@@ -306,6 +306,17 @@ function stakinfor(evt)
 
 	var iTextBox = _el("COUSTOMER_NAME");
 	iTextBox.value = att.item(8).value;	
+	
+	// 垛位数据采集：垛位id，垛位区域，当前测绘车辆位置(999)
+	var iTextBox = _el("uSTOWid");			iTextBox.value = att.item(4).value;
+	
+	var iTextBox = _el("uStackArea");	iTextBox.value = att.item(5).value;
+			
+	var carCH = document.getElementById("999");
+	carAtt = carCH.attributes;
+	var iTextBox = _el("uCarPosX");			iTextBox.value = carAtt.item(1).value;	
+	var iTextBox = _el("uCarPosY");			iTextBox.value = carAtt.item(2).value;	
+	
 	//用tip方式显示铲车信息
 	//showinfotip(evt,"铲车ID:"+att.item(0).value);
 }
@@ -386,7 +397,7 @@ function displayCallbackCurrentCarPos(data)
 			
 	        x = onecirs[1];
 			y = onecirs[2];
-      
+			//alert(strdata);
 	        att = cBtn.attributes;
 			x0 = att.item(1).value;
 			y0 = att.item(2).value;	  

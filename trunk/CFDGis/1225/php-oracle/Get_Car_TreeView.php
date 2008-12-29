@@ -24,7 +24,7 @@ $svgxml ="";
 
 	/*	从传入参数获得查询条件	*/
 	$group =$_REQUEST["id"];
-	if(!($conn=ora_logon("system@hlgis","system"))) 
+	if(!($conn=ora_logon("cfdgis@XE","cfdgis"))) 
 	{ 
 		echo "Error: Cannot connect to database\n"; 
 		exit; 

@@ -31,6 +31,7 @@ body {
 <link rel="STYLESHEET" type="text/css" href="dhtmlxtree.css">
 <script  src="dhtmlxcommon.js"></script>
 <script  src="dhtmlxtree.js"></script>
+
 <script language="javascript" event="onkeydown" for="document">
 	return document_onkeydown();
 </script>
@@ -39,9 +40,106 @@ body {
 <script type="text/javascript">
 var dtree1;
 
-function updatetree()
-{
+	function pixToReal(ax,str_area)
+	{   
+		var result=null;
+		SetOrginPoint(str_area);
+		widthscale = 350/1500;
+		result = (a0x - ax/100)/(widthscale*(Math.cos((Math.PI / 180)*(180-a0rotate))));
+		return result.toFixed(0);
+	}
+	
+	function setAreaStart(){
+		str = _el("uStackArea").value;
+		first = str.substring(0, str.indexOf("("));
+		area1 = str.substring(str.indexOf("(") -(-1) , str.indexOf(",") );
+		area2 = str.substring(str.indexOf(",") -(-1), str.indexOf(")") );
+		area1 = pixToReal( _el("uCarPosX").value , first);
+		
+		alert(first);	alert(area1);	alert(area2);	
+		_el("uStackArea").value = first +"("+ area1 +","+ area2+")";
+		
+	}
+	
+	function setAreaEnd(){
+		str = _el("uStackArea").value;
+		first = str.substring(0, str.indexOf("("));
+		area1 = str.substring(str.indexOf("(") -(-1) , str.indexOf(",") );
+		area2 = str.substring(str.indexOf(",") -(-1), str.indexOf(")") );
+		
+		area2 = pixToReal( _el("uCarPosX").value , first);
+		
+		alert(first);	alert(area1);	alert(area2);	
+		_el("uStackArea").value = first +"("+ area1 +","+ area2+")";
+	}
+
+	function saveToDB(){
+		//getURL('updateStackArea.php',saveToDBCallback);
+		
+		stackid = _el("uSTOWid").value;
+		uStackArea = _el("uStackArea").value;
+		
+		window.open("updateStackArea.php?uSTOWid=" + stackid + "&uStackArea="+ uStackArea  );
+		//UpdateStackArea();
+	}
+	function saveToDBCallback(){
+	;
+	}
+
+function createXmlHttp(){
+ var xmlHttp;
+ 
+ try
+    {
+   // Firefox, Opera 8.0+, Safari
+    xmlHttp=new XMLHttpRequest();
+    }
+ catch (e)
+    {
+
+  // Internet Explorer
+   try
+      {
+      xmlHttp=new ActiveXObject("Msxml2.XMLHTTP");
+      }
+   catch (e)
+      {
+
+      try
+         {
+         xmlHttp=new ActiveXObject("Microsoft.XMLHTTP");
+         }
+      catch (e)
+         {
+         alert("您的浏览器不支持AJAX！");
+         return false;
+         }
+      }
+    }
+
+  return xmlHttp;
 }
+
+function UpdateStackArea()
+ {
+    var xmlHttp = createXmlHttp();
+    if(!xmlHttp) return;
+
+	
+    xmlHttp.onreadystatechange=function()
+      {
+      if(xmlHttp.readyState==4)
+        {
+		//var carinfolist = xmlHttp.responseText;
+	    //UpdateStack(carinfolist);
+        }
+      }
+
+    xmlHttp.open("GET","updateStackArea.php",true);
+    xmlHttp.send(null);
+	
+ }
+
 function updatetree1()
 {
 	dtree1 = new dTree('dtree1');
@@ -331,7 +429,7 @@ function draw(op){
 
 </script>
       
-<body ondrag="return false" onload="javascript: updatetree()">
+<body ondrag="return false" >
 
 
 <html:errors property="error"/>  
@@ -397,7 +495,7 @@ function my_DropFunc()
 	    </div>
 	</div>
 		
-	<div id="p2" class="panel1" style = "display:none" >
+	<div id="p2" class="panel1" >
 		<div id="p2t" style="background-color:#A418CE;" class="titlediv">
 			<span style="float:right;">
 				<span id="pm2"  onClick="_panelShow('p2','pm2',true)">&#160;&#160;□</span>
@@ -405,14 +503,40 @@ function my_DropFunc()
 			</span>
 			<span onClick="_panelShow('p2','pm2',true);">&#160;剁位数据采集</span>
 		</div>
-		<div id="pc2" style="width:100%;height:80px;overflow:auto;overflow-x:hidden;display:none">
-			<table>
+		<div id="pc2" style="width:100%;height:280px;overflow:auto;overflow-x:hidden;display:none">
+		    <form id="stackupdate" name="xlxzsz" method="post">     
+		     <TABLE cellSpacing=1 cellPadding=1 border=0>
+		        <TBODY>
+				  <TR>
+		            <TD 
+		              id = "carID1" size= 12 style="COLOR: #ffffff; BACKGROUND-COLOR: #66cc00; ">ID</TD>
+		            <TD  style="COLOR: #ffffff; BACKGROUND-COLOR: #ffffff; TEXT-ALIGN: center">
+		            	<input type="text" name="uSTOWid"  size=18/></TD></TR>
+		          <TR>
+		            <TD 
+		              id = "carCode1" style="COLOR: #ffffff; BACKGROUND-COLOR: #66cc00; ">区域</TD>
+		            <TD  style="COLOR: #ffffff; BACKGROUND-COLOR: #ffffff; TEXT-ALIGN: center">
+		            	<input type="text" name="uStackArea"  size=18/></TD></TR>		            	
+		          <TR>
+		            <TD 
+		              id = "carName1" style="COLOR: #ffffff; BACKGROUND-COLOR: #66cc00; ">车辆-X</TD>
+		            <TD  style="COLOR: #ffffff; BACKGROUND-COLOR: #ffffff; TEXT-ALIGN: center">
+		            	<input type="text" name="uCarPosX"   size=18/></TD></TR>
+		          <TR>
+		            <TD 
+		              id = "carName1" style="COLOR: #ffffff; BACKGROUND-COLOR: #66cc00; ">车辆-Y</TD>
+		            <TD  style="COLOR: #ffffff; BACKGROUND-COLOR: #ffffff; TEXT-ALIGN: center">
+		            	<input type="text" name="uCarPosY"   size=18/></TD></TR>
+    
+				</TBODY>
+			</TABLE> 	
+		 	<p align="center">
 
-			</table>
-		    <p align="center">
-		        <input type="button" value="   " onclick="">
-				<input type="button" value="   " onclick="">
+				<input type="button" value="设置起点" onclick="setAreaStart()">
+				<input type="button" value="设置终点" onclick="javascript:setAreaEnd()">
+				<input type="button" value="保存到数据库" onclick="javascript:saveToDB()">				
 			</p>
+		  </form>
 
 		</div>
 	</div>

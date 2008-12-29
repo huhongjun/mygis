@@ -17,7 +17,7 @@ $svgxml ="";
 
 //try{
 	/*	初始化一个PDO对象，就是创建了数据库连接对象	*/
-	if(!($conn=ora_logon("system@hlgis","system"))) 
+	if(!($conn=ora_logon("cfdgis@XE","cfdgis"))) 
 	{ 
 		echo "Error: Cannot connect to database\n"; 
 		exit; 
