@@ -30,7 +30,8 @@ xmlns:batik="http://xml.apache.org/batik/ext" onload="init(evt);" zoomAndPan="di
 	<script type="text/ecmascript" xlink:href="../gui/checkbox_and_radiobutton/checkbox_and_radiobutton.js"/>
 	<script type="text/ecmascript" xlink:href="navigation.js"/>
 
-	<script type="text/ecmascript" xlink:href="javascript/mapapi.js"/>
+	<script type="text/ecmascript" xlink:href="javascript/svg4html.js"/>
+	<script type="text/ecmascript" xlink:href="javascript/svgcfd.js"/>
 	
 	<script type="text/ecmascript"><![CDATA[
 		//global variables for mapApp and map object
@@ -42,10 +43,10 @@ xmlns:batik="http://xml.apache.org/batik/ext" onload="init(evt);" zoomAndPan="di
 			var dynamicLayers = new Array();
 			//dynamicLayers["背景轮廓线"] = {"key":"背景轮廓线","value":"yes","loaded":"no"};
 			//dynamicLayers.push(dynamicLayers["背景轮廓线"]);
-			//dynamicLayers["垛场"] = {"key":"垛场","value":"yes","loaded":"no"};
-			//dynamicLayers.push(dynamicLayers["垛场"]);
 			dynamicLayers["car"] = {"key":"car","value":"yes","loaded":"no"};
 			dynamicLayers.push(dynamicLayers["car"]);
+			dynamicLayers["stack"] = {"key":"stack","value":"yes","loaded":"no"};
+			dynamicLayers.push(dynamicLayers["stack"]);
 			
 			//initialize digiLayers (layers that allow digitizing)
 			var digiLayers = new Array();
@@ -61,7 +62,7 @@ xmlns:batik="http://xml.apache.org/batik/ext" onload="init(evt);" zoomAndPan="di
 			//create zoom slider
 			//zoom slider styles
 			var sliderStyles={"stroke":"dimgray","stroke-width":2};
-			myMapApp.zoomSlider = new slider("mapZoomSlider","mapZoomSlider",35,75,myMainMap.minWidth,35,165,myMainMap.maxWidth,myMainMap.maxWidth,sliderStyles,10,"sliderSymbol",myMapApp.refMapDragger,true);
+			myMapApp.zoomSlider = new slider("mapZoomSlider","mapZoomSlider",10,4,myMainMap.minWidth,10,94,myMainMap.maxWidth,myMainMap.maxWidth,sliderStyles,10,"sliderSymbol",myMapApp.refMapDragger,true);
 			
 			//now initialize buttons
 			myMapApp.buttons = new Array();
@@ -72,31 +73,30 @@ xmlns:batik="http://xml.apache.org/batik/ext" onload="init(evt);" zoomAndPan="di
 			var shadeDarkStyles = {"fill":"dimgray"};
 			//button instance creation
 			//groupId,functionToCall,buttonType,buttonText,buttonSymbolId,x,y,width,height,textStyles,buttonStyles,shadeLightStyles,shadeDarkStyles,shadowOffset
-			myMapApp.buttons["zoomIn"] = new button("zoomIn","zoomIn",zoomImageButtons,"rect",undefined,"magnifyerZoomIn",26,47,20,20,buttonTextStyles,buttonStyles,shadeLightStyles,shadeDarkStyles,1);
-			myMapApp.buttons["zoomOut"] = new button("zoomOut","zoomOut",zoomImageButtons,"rect",undefined,"magnifyerZoomOut",26,173,20,20,buttonTextStyles,buttonStyles,shadeLightStyles,shadeDarkStyles,1);
+			myMapApp.buttons["zoomIn"] = new button("zoomIn","zoomIn",zoomImageButtons,"rect",undefined,"magnifyerZoomIn",0,0,20,20,buttonTextStyles,buttonStyles,shadeLightStyles,shadeDarkStyles,1);
+			myMapApp.buttons["zoomOut"] = new button("zoomOut","zoomOut",zoomImageButtons,"rect",undefined,"magnifyerZoomOut",0,90,20,20,buttonTextStyles,buttonStyles,shadeLightStyles,shadeDarkStyles,1);
 
-			myMapApp.buttons["infoButton"] = new switchbutton("infoButton","infoButton",zoomImageSwitchButtons,"rect",undefined,"infoBut",746,74,20,20,buttonTextStyles,buttonStyles,shadeLightStyles,shadeDarkStyles,1);
+			myMapApp.buttons["infoButton"] = new switchbutton("infoButton","infoButton",zoomImageSwitchButtons,"rect",undefined,"infoBut",746 - 746,0 ,20,20,buttonTextStyles,buttonStyles,shadeLightStyles,shadeDarkStyles,1);
 			myMapApp.buttons["infoButton"].setSwitchValue(true,false);
 			statusChange("Mode: Infomode");
-			myMapApp.buttons["zoomFull"] = new button("zoomFull","zoomFull",zoomImageButtons,"rect",undefined,"magnifyerFull",771,74,20,20,buttonTextStyles,buttonStyles,shadeLightStyles,shadeDarkStyles,1);
-			myMapApp.buttons["zoomManual"] = new switchbutton("zoomManual","zoomManual",zoomImageSwitchButtons,"rect",undefined,"magnifyerManual",796,74,20,20,buttonTextStyles,buttonStyles,shadeLightStyles,shadeDarkStyles,1);
-			myMapApp.buttons["panManual"] = new switchbutton("panManual","panManual",zoomImageSwitchButtons,"rect",undefined,"symbPan",821,74,20,20,buttonTextStyles,buttonStyles,shadeLightStyles,shadeDarkStyles,1);
-			myMapApp.buttons["recenterMap"] = new switchbutton("recenterMap","recenterMap",zoomImageSwitchButtons,"rect",undefined,"symbRecenter",846,74,20,20,buttonTextStyles,buttonStyles,shadeLightStyles,shadeDarkStyles,1);
-			myMapApp.buttons["backwardExtent"] = new button("backwardExtent","backwardExtent",zoomImageButtons,"rect",undefined,"symbArrowLeft",871,74,20,20,buttonTextStyles,buttonStyles,shadeLightStyles,shadeDarkStyles,1);
-			myMapApp.buttons["forwardExtent"] = new button("forwardExtent","forwardExtent",zoomImageButtons,"rect",undefined,"symbArrowRight",896,74,20,20,buttonTextStyles,buttonStyles,shadeLightStyles,shadeDarkStyles,1);
+			myMapApp.buttons["zoomFull"] = new button("zoomFull","zoomFull",zoomImageButtons,"rect",undefined,"magnifyerFull",771 - 746,0,20,20,buttonTextStyles,buttonStyles,shadeLightStyles,shadeDarkStyles,1);
+			myMapApp.buttons["zoomManual"] = new switchbutton("zoomManual","zoomManual",zoomImageSwitchButtons,"rect",undefined,"magnifyerManual",796 - 746,0,20,20,buttonTextStyles,buttonStyles,shadeLightStyles,shadeDarkStyles,1);
+			myMapApp.buttons["panManual"] = new switchbutton("panManual","panManual",zoomImageSwitchButtons,"rect",undefined,"symbPan",821 - 746,0,20,20,buttonTextStyles,buttonStyles,shadeLightStyles,shadeDarkStyles,1);
+			myMapApp.buttons["recenterMap"] = new switchbutton("recenterMap","recenterMap",zoomImageSwitchButtons,"rect",undefined,"symbRecenter",846 - 746,0,20,20,buttonTextStyles,buttonStyles,shadeLightStyles,shadeDarkStyles,1);
+			myMapApp.buttons["backwardExtent"] = new button("backwardExtent","backwardExtent",zoomImageButtons,"rect",undefined,"symbArrowLeft",871 - 746,0,20,20,buttonTextStyles,buttonStyles,shadeLightStyles,shadeDarkStyles,1);
+			myMapApp.buttons["forwardExtent"] = new button("forwardExtent","forwardExtent",zoomImageButtons,"rect",undefined,"symbArrowRight",896 - 746,0,20,20,buttonTextStyles,buttonStyles,shadeLightStyles,shadeDarkStyles,1);
 			//this button is to demonstrate the highlight feature of the map
-			//huhj myMapApp.buttons["highlightButton"] = new switchbutton("highlightMap","highlightMap",highlightMap,"rect","Show Halfdome",undefined,771,290,100,25,buttonTextStyles,buttonStyles,shadeLightStyles,shadeDarkStyles,1);
+			myMapApp.buttons["highlightButton"] = new switchbutton("highlightMap","highlightMap",highlightMap,"rect","S",undefined,896 - 746 - (-30),0,20,20,buttonTextStyles,buttonStyles,shadeLightStyles,shadeDarkStyles,1);
 			//see if we need to disable buttons
 			myMainMap.checkButtons();
 			
 			//create checkbox array
 			myMapApp.checkBoxes = new Array();
 			//labeltext styles
-			var labeltextStyles = {"font-family":"Arial,Helvetica","fill":"dimgray","font-size":15};
+			var labeltextStyles = {"font-family":"Simhei,Helvetica","fill":"dimgray","font-size":11};
 			//create individual checkboxes
-			myMapApp.checkBoxes["背景轮廓线"] = new checkBox("背景轮廓线","checkBoxes",20,20,"checkBoxRect","checkBoxCross",true,"背景轮廓线",labeltextStyles,12,6,undefined,toggleMapLayer);
-			myMapApp.checkBoxes["垛场"] = new checkBox("垛场","checkBoxes",20,50,"checkBoxRect","checkBoxCross",true,"垛场",labeltextStyles,12,6,undefined,toggleMapLayer);
-			myMapApp.checkBoxes["车辆"] = new checkBox("车辆","checkBoxes",20,80,"checkBoxRect","checkBoxCross",true,"车辆",labeltextStyles,12,6,undefined,toggleMapLayer);
+			myMapApp.checkBoxes["stack"] = new checkBox("stack","checkBoxes",0,25,"checkBoxRect","checkBoxCross",true,"垛场",labeltextStyles,12,6,undefined,toggleMapLayer);
+			myMapApp.checkBoxes["car"] = new checkBox("car","checkBoxes",0,40,"checkBoxRect","checkBoxCross",true,"车辆",labeltextStyles,12,6,undefined,toggleMapLayer);
 			
 			//load function specific to the current map project
 			loadProjectSpecific();
@@ -110,16 +110,16 @@ xmlns:batik="http://xml.apache.org/batik/ext" onload="init(evt);" zoomAndPan="di
 			myMainMap.timestamp = now.getTime();
 			
 			//adopt width and height of map extent
-			//huhj document.getElementById("myScaleTextW").firstChild.nodeValue = formatNumberString(myMainMap.curWidth.toFixed(myMainMap.nrDecimals),",") + myMainMap.units;
-			//huhj document.getElementById("myScaleTextH").firstChild.nodeValue = formatNumberString(myMainMap.curHeight.toFixed(myMainMap.nrDecimals),",") + myMainMap.units;
+			document.getElementById("myScaleTextW").firstChild.nodeValue = formatNumberString(myMainMap.curWidth.toFixed(myMainMap.nrDecimals),",") + myMainMap.units;
+			document.getElementById("myScaleTextH").firstChild.nodeValue = formatNumberString(myMainMap.curHeight.toFixed(myMainMap.nrDecimals),",") + myMainMap.units;
 
 			//adopt line width of park boundary, remove this line if you remove the park boundary
-			//huhj document.getElementById("垛场").setAttributeNS(null,"stroke-width",myMainMap.curWidth*0.005);
+			//huhj document.getElementById("stack").setAttributeNS(null,"stroke-width",myMainMap.curWidth*0.005);
 			
 			//change button state for show halfdome
-			//huhj if (myMapApp.buttons["highlightButton"].getSwitchValue()) {
-			//huhj 	myMapApp.buttons["highlightButton"].setSwitchValue(false,true);
-			//huhj }
+			if (myMapApp.buttons["highlightButton"].getSwitchValue()) {
+			 	myMapApp.buttons["highlightButton"].setSwitchValue(false,true);
+			}
 			
 			//huhj 
 			getLayers();
@@ -156,7 +156,7 @@ xmlns:batik="http://xml.apache.org/batik/ext" onload="init(evt);" zoomAndPan="di
 			//build a url string
 			//var myUrlString = "sendGeom.php?layername="+layerId+"&xmin="+myMainMap.curxOrig+"&ymin="+((myMainMap.curyOrig + myMainMap.curHeight)* -1)+"&xmax="+(myMainMap.curxOrig+myMainMap.curWidth)+"&ymax="+(myMainMap.curyOrig * -1)+"&timestamp="+myMainMap.timestamp;
 			
-			var myUrlString = "http://localhost/cfdgis1225/DBGeo_PDO_Query.php?oid=1&timestamp="+myMainMap.timestamp;//getURL("GET_STACK_INFO.php?oid="+1+1,CallbackStakInfo);
+			var myUrlString = "http://localhost/SVGMapNavigationTools/cfdgis/php/getGeoLayer.php?layer="+layerId+"&timestamp="+myMainMap.timestamp;
 			
 			//call getURL() if available
 			if (window.getURL) {
@@ -240,11 +240,11 @@ xmlns:batik="http://xml.apache.org/batik/ext" onload="init(evt);" zoomAndPan="di
 		//this function demonstrates the highlight mode of the map
 		function highlightMap(id,evt,buttonState,buttonText) {
 			if (buttonState) {
-				myMapApp.buttons["highlightButton"].setTextValue("Hide Halfdome");
+				myMapApp.buttons["highlightButton"].setTextValue("H");
 				myMainMap.highlightPosition(300,500,true);
 			}
 			else {
-				myMapApp.buttons["highlightButton"].setTextValue("Show Halfdome");
+				myMapApp.buttons["highlightButton"].setTextValue("S");
 				myMainMap.hideHighlightCross();
 			}
 		}		
@@ -342,20 +342,18 @@ xmlns:batik="http://xml.apache.org/batik/ext" onload="init(evt);" zoomAndPan="di
    </defs>	
 	<title>Demonstration of the SVG NavigationTools</title>
 	<!-- this is a background rectangle that is used to ensure that the svg root element receives all mouse events, please adopt the fill attribute to match your desired background color -->
-	<rect x="0" y="0" width="1024" height="768" fill="aliceblue" xmlns="http://www.w3.org/2000/svg" />
-	<rect x="0" y="0" width="800" height="600" fill="red" xmlns="http://www.w3.org/2000/svg" />
+	<rect x="0" y="0" width="800" height="600" fill="lightblue" xmlns="http://www.w3.org/2000/svg" />
 
 	<!-- Main Map Frame -->
 	<svg id="mainMap" x="0" y="0" viewBox="0 0 80000 60000" width="800" height="600" cursor="crosshair" fill="purple">
 		<title>CFD 主地图</title>
 		<desc></desc>
 		<!-- this group is necessary for manual panning, it temporarily gets a translate transformation which is later removed on mouseup -->
-		<image x="0" y="0" width="800" height="600" xlink:href="background.svg" />
 		<g id="mainMapGroup" transform="translate(0,0)">
 			<!-- within this group you should place all map layers, usually, if you have more than one element in a map layer, you would use a group instead of a single element, as in this example -->
 			<g id="背景轮廓线">	</g>
 
-			<g id="垛场">	</g>
+			<g id="stack">	</g>
 			<g id="car"></g>		
 		</g>
 	</svg>
@@ -363,43 +361,37 @@ xmlns:batik="http://xml.apache.org/batik/ext" onload="init(evt);" zoomAndPan="di
 	<!-- Loading Data Status -->
 	<g id="loadingData" visibility="hidden">
 		<rect x="200" y="300" width="150" height="35" fill="white" fill-opacity="0.8"/>
-		<text x="275" y="325" font-family="sans-serif" fill="dimgray" font-size="18px" font-weight="bold" text-anchor="middle">Loading Data ...</text>
+		<text x="275" y="325" font-family="sans-serif" fill="dimgray" font-size="18px" font-weight="bold" text-anchor="middle">正在加载数据 ...</text>
 	</g>
 	
 	<!-- this group holds navigation, title and if you like, legend information -->
 	<g>
 	<!-- your map title -->
-	<text font-family="Arial,Helvetica" fill="dimgray" font-size="22" font-weight="bold" x="850" y="30" pointer-events="none" >
-	Map Title</text>
 	<!-- coordinate display -->
-	<g font-family="Arial,Helvetica" fill="dimgray" font-size="15" pointer-events="none">
-		<text id="coordX" x="850" y="145">		X:</text>
-		<text id="coordY" x="920" y="145">		Y:</text>
+	<g font-family="Simsun,Helvetica" fill="dimgray" font-size="11" pointer-events="none" transform="translate(5 595)">
+		<text id="coordX" x="0" y="0">		X:</text>
+		<text id="coordY" x="80" y="0">		Y:</text>
 		<!-- map impressum and status Bar -->
 		<!-- text with this id is required to show help texts -->
-		<text id="statusText" x="850" y="165">		Statusbar:  Your Status Text</text>		
+		<text id="statusText" x="180" y="0">状态: Your Status Text</text>		
 	</g>
 	
 	<!-- display width and height of map extent -->
-	<g>
+	<g transform="translate(435,0)" >
 		<!-- vertical line, displays current height of map extent -->
-		<line stroke="dimgray" stroke-width="1.5" marker-start="url(#myStartArrow)" marker-end="url(#myEndArrow)" x1="775" y1="15" x2="775" y2="465" />
-		<rect fill="aliceblue" x="769" y="330" width="12" height="70" />
-		<text id="myScaleTextH" font-family="Arial,Helvetica" fill="dimgray" font-size="15" text-anchor="middle" transform="translate(769,365),rotate(90)" pointer-events="none">
+		<text id="myScaleTextH" x="0" y="15" font-family="Arial,Helvetica" fill="dimgray" font-size="10" text-anchor="middle" pointer-events="none">
 		81,000 m</text>
 		<!-- horizontal line, displays current width of map extent -->
-		<line stroke="dimgray" stroke-width="1.5" marker-start="url(#myStartArrow)" marker-end="url(#myEndArrow)" x1="0" y1="475" x2="775" y2="475" />
-		<rect fill="aliceblue" x="242" y="769" width="70" height="12" />
-		<text id="myScaleTextW" font-family="Arial,Helvetica" fill="dimgray" font-size="15" text-anchor="middle" transform="translate(385, 472)" pointer-events="none">
+		<text id="myScaleTextW" x="65" y="15" font-family="Arial,Helvetica" fill="dimgray" font-size="10" text-anchor="middle" pointer-events="none">
 		64,000 m</text>
 		<!-- small rectangle in lower right corner, onclick displays current map extent in real world coordinates -->
-		<rect fill="dimgray" x="775" y="472" width="5" height="5" onclick="showExtent()" />
+		<rect fill="dimgray" x="30" y="10" width="5" height="5" onclick="showExtent()" />
 	</g>
 	
 <!-- control map layer visibility with checkBoxes -->
-<g transform="translate(825 325)" id="checkBoxes">
-<text font-family="Arial,Helvetica" fill="dimgray" font-size="18" font-weight="bold" x="-10" y="0" pointer-events="none">
-Map Layer Controls</text>
+<g transform="translate(725 85)" id="checkBoxes">
+<text font-family="Arial,Helvetica" fill="dimgray" font-size="10" font-weight="bold" x="-8" y="0" pointer-events="none">
+图层控制</text>
 <!-- the checkbox geometries will be added here -->
 </g>
 
@@ -407,7 +399,7 @@ Map Layer Controls</text>
 </g>
 
 <!-- empty group where zoomSlider is later appended -->
-<g transform="translate(0,0)">
+<g transform="translate(5,5)">
 	<g id="mapZoomSlider"/>
 	<!-- button for zoom-in, above slider -->
 	<g id="zoomIn" cursor="pointer" />
@@ -416,16 +408,14 @@ Map Layer Controls</text>
 </g>		
 	<!-- small reference map, shares the same coordinate system than the main map -->
 	<!-- it is very recommended that the width and height of the nested svg element has the same ratio as the viewBox width and height -->
-	<svg id="referenceMap" x="826" y="45" viewBox="0 0 800 600" width="80" height="60">
+	<svg id="referenceMap" x="715" y="5" viewBox="0 0 800 600" width="80" height="60">
 		<!-- here you can place any graphical elements for your reference/overview map -->
+		<rect x="0" y="0" width="80" height="60" fill=" aqua" xmlns="http://www.w3.org/2000/svg" />
 
 	</svg>
 	
 	<!-- this group holds the zoom slider and buttons -->
-	<g transform="translate(0 185)">
-		<text fill="dimgray" font-family="Arial,Helvetica" font-weight="bold" font-size="18" x="745" y="60" 
-		pointer-events="none" >Map Navigator</text>
-
+	<g transform="translate(50 5)">
 		<!-- info button -->
 		<g id="infoButton" cursor="pointer" />
 		<!-- button for full view (f) -->

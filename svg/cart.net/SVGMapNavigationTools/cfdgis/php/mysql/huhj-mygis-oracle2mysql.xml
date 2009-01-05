@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="gb2312" ?>
+<replace>
+<item><old>to_date{[(]+}{[^)]*[,]+}</old><new>{2}</new></item>
+<item><old>'dd-mm-yyyy hh24:mi:ss'), </old><new></new></item>
+<item><old>NUMBER{[(]+[0-9]*[,]*[0-9]*[)]+}{[ |n|o|t|u|l]*}</old><new>DECIMAL{1}{2}</new></item>
+<item><old>VARCHAR2</old><new>varchar</new></item>
+</replace>
