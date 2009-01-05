@@ -1,0 +1,446 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" [
+<!ATTLIST svg
+	xmlns:attrib CDATA #IMPLIED
+	xmlns:batik CDATA #IMPLIED
+>
+<!ATTLIST g
+	batik:static CDATA #IMPLIED
+>
+<!ATTLIST image
+	batik:static CDATA #IMPLIED
+>
+<!ATTLIST path
+	batik:static CDATA #IMPLIED
+>
+]>
+<?AdobeSVGViewer save="snapshot"?>
+<svg width="800" height="600" viewBox="0 0 800 600" 
+xmlns="http://www.w3.org/2000/svg" 
+xmlns:xlink="http://www.w3.org/1999/xlink" 
+xmlns:attrib="http://www.carto.net/attrib" 
+xmlns:batik="http://xml.apache.org/batik/ext" onload="init(evt);" zoomAndPan="disable">
+
+	<!-- don't forget to adopt the pathes to the scripts, or you'll receive a plethora of error messages -->
+	<script type="text/ecmascript" xlink:href="../resources/helper_functions.js"/>
+	<script type="text/ecmascript" xlink:href="../resources/mapApp.js"/>
+	<script type="text/ecmascript" xlink:href="../resources/timer.js"/>
+	<script type="text/ecmascript" xlink:href="../gui/slider/slider.js"/>
+	<script type="text/ecmascript" xlink:href="../gui/button/button.js"/>
+	<script type="text/ecmascript" xlink:href="../gui/checkbox_and_radiobutton/checkbox_and_radiobutton.js"/>
+	<script type="text/ecmascript" xlink:href="navigation.js"/>
+
+	<script type="text/ecmascript" xlink:href="javascript/mapapi.js"/>
+	
+	<script type="text/ecmascript"><![CDATA[
+		//global variables for mapApp and map object
+		var myMapApp = new mapApp(false,undefined);
+		var myMainMap;
+
+		function init(evt) {
+			//dynamic layer array that allow loading from database
+			var dynamicLayers = new Array();
+			//dynamicLayers["背景轮廓线"] = {"key":"背景轮廓线","value":"yes","loaded":"no"};
+			//dynamicLayers.push(dynamicLayers["背景轮廓线"]);
+			//dynamicLayers["垛场"] = {"key":"垛场","value":"yes","loaded":"no"};
+			//dynamicLayers.push(dynamicLayers["垛场"]);
+			dynamicLayers["car"] = {"key":"car","value":"yes","loaded":"no"};
+			dynamicLayers.push(dynamicLayers["car"]);
+			
+			//initialize digiLayers (layers that allow digitizing)
+			var digiLayers = new Array();
+			
+			//define some styles for the map object
+			var zoomRectStyles = {"fill":"none","stroke":"crimson","stroke-width":0.002,"stroke-dasharray":"0.012,0.002"};
+			var highlightStyles = {"stroke":"crimson","stroke-width":0.002};
+			var dragRectStyles = {"fill":"lightskyblue","fill-opacity":0.5};
+			
+			//initialize myMainMap object, you need to adopt the parameters here
+			//myMainMap = new map("mainMap",1280,128,0.6,0,26911,"m",1,true,"coordX","coordY",dynamicLayers,digiLayers,"",zoomRectStyles,highlightStyles,dragRectStyles,"referenceMap","myDragCrossSymbol",4750);
+			myMainMap = new map("mainMap",80000,800,0.2,0,26911,"m",1,true,"coordX","coordY",dynamicLayers,digiLayers,"",zoomRectStyles,highlightStyles,dragRectStyles,"referenceMap","myDragCrossSymbol",4750);
+			//create zoom slider
+			//zoom slider styles
+			var sliderStyles={"stroke":"dimgray","stroke-width":2};
+			myMapApp.zoomSlider = new slider("mapZoomSlider","mapZoomSlider",35,75,myMainMap.minWidth,35,165,myMainMap.maxWidth,myMainMap.maxWidth,sliderStyles,10,"sliderSymbol",myMapApp.refMapDragger,true);
+			
+			//now initialize buttons
+			myMapApp.buttons = new Array();
+			//button styles, adopt the style settings to match your needs
+			var buttonTextStyles = {"font-family":"Arial,Helvetica","fill":"dimgray","font-size":10};
+			var buttonStyles = {"fill":"white"};
+			var shadeLightStyles = {"fill":"rgb(235,235,235)"};
+			var shadeDarkStyles = {"fill":"dimgray"};
+			//button instance creation
+			//groupId,functionToCall,buttonType,buttonText,buttonSymbolId,x,y,width,height,textStyles,buttonStyles,shadeLightStyles,shadeDarkStyles,shadowOffset
+			myMapApp.buttons["zoomIn"] = new button("zoomIn","zoomIn",zoomImageButtons,"rect",undefined,"magnifyerZoomIn",26,47,20,20,buttonTextStyles,buttonStyles,shadeLightStyles,shadeDarkStyles,1);
+			myMapApp.buttons["zoomOut"] = new button("zoomOut","zoomOut",zoomImageButtons,"rect",undefined,"magnifyerZoomOut",26,173,20,20,buttonTextStyles,buttonStyles,shadeLightStyles,shadeDarkStyles,1);
+
+			myMapApp.buttons["infoButton"] = new switchbutton("infoButton","infoButton",zoomImageSwitchButtons,"rect",undefined,"infoBut",746,74,20,20,buttonTextStyles,buttonStyles,shadeLightStyles,shadeDarkStyles,1);
+			myMapApp.buttons["infoButton"].setSwitchValue(true,false);
+			statusChange("Mode: Infomode");
+			myMapApp.buttons["zoomFull"] = new button("zoomFull","zoomFull",zoomImageButtons,"rect",undefined,"magnifyerFull",771,74,20,20,buttonTextStyles,buttonStyles,shadeLightStyles,shadeDarkStyles,1);
+			myMapApp.buttons["zoomManual"] = new switchbutton("zoomManual","zoomManual",zoomImageSwitchButtons,"rect",undefined,"magnifyerManual",796,74,20,20,buttonTextStyles,buttonStyles,shadeLightStyles,shadeDarkStyles,1);
+			myMapApp.buttons["panManual"] = new switchbutton("panManual","panManual",zoomImageSwitchButtons,"rect",undefined,"symbPan",821,74,20,20,buttonTextStyles,buttonStyles,shadeLightStyles,shadeDarkStyles,1);
+			myMapApp.buttons["recenterMap"] = new switchbutton("recenterMap","recenterMap",zoomImageSwitchButtons,"rect",undefined,"symbRecenter",846,74,20,20,buttonTextStyles,buttonStyles,shadeLightStyles,shadeDarkStyles,1);
+			myMapApp.buttons["backwardExtent"] = new button("backwardExtent","backwardExtent",zoomImageButtons,"rect",undefined,"symbArrowLeft",871,74,20,20,buttonTextStyles,buttonStyles,shadeLightStyles,shadeDarkStyles,1);
+			myMapApp.buttons["forwardExtent"] = new button("forwardExtent","forwardExtent",zoomImageButtons,"rect",undefined,"symbArrowRight",896,74,20,20,buttonTextStyles,buttonStyles,shadeLightStyles,shadeDarkStyles,1);
+			//this button is to demonstrate the highlight feature of the map
+			//huhj myMapApp.buttons["highlightButton"] = new switchbutton("highlightMap","highlightMap",highlightMap,"rect","Show Halfdome",undefined,771,290,100,25,buttonTextStyles,buttonStyles,shadeLightStyles,shadeDarkStyles,1);
+			//see if we need to disable buttons
+			myMainMap.checkButtons();
+			
+			//create checkbox array
+			myMapApp.checkBoxes = new Array();
+			//labeltext styles
+			var labeltextStyles = {"font-family":"Arial,Helvetica","fill":"dimgray","font-size":15};
+			//create individual checkboxes
+			myMapApp.checkBoxes["背景轮廓线"] = new checkBox("背景轮廓线","checkBoxes",20,20,"checkBoxRect","checkBoxCross",true,"背景轮廓线",labeltextStyles,12,6,undefined,toggleMapLayer);
+			myMapApp.checkBoxes["垛场"] = new checkBox("垛场","checkBoxes",20,50,"checkBoxRect","checkBoxCross",true,"垛场",labeltextStyles,12,6,undefined,toggleMapLayer);
+			myMapApp.checkBoxes["车辆"] = new checkBox("车辆","checkBoxes",20,80,"checkBoxRect","checkBoxCross",true,"车辆",labeltextStyles,12,6,undefined,toggleMapLayer);
+			
+			//load function specific to the current map project
+			loadProjectSpecific();
+		}
+		
+		//this function is called after each pan or zoom or change of map extent
+		//you can place project specific functions here that need to react on the map extent, e.g. adopting line-widths, loading additional data, etc.
+		function loadProjectSpecific() {
+			//generate timestamp
+			var now = new Date();
+			myMainMap.timestamp = now.getTime();
+			
+			//adopt width and height of map extent
+			//huhj document.getElementById("myScaleTextW").firstChild.nodeValue = formatNumberString(myMainMap.curWidth.toFixed(myMainMap.nrDecimals),",") + myMainMap.units;
+			//huhj document.getElementById("myScaleTextH").firstChild.nodeValue = formatNumberString(myMainMap.curHeight.toFixed(myMainMap.nrDecimals),",") + myMainMap.units;
+
+			//adopt line width of park boundary, remove this line if you remove the park boundary
+			//huhj document.getElementById("垛场").setAttributeNS(null,"stroke-width",myMainMap.curWidth*0.005);
+			
+			//change button state for show halfdome
+			//huhj if (myMapApp.buttons["highlightButton"].getSwitchValue()) {
+			//huhj 	myMapApp.buttons["highlightButton"].setSwitchValue(false,true);
+			//huhj }
+			
+			//huhj 
+			getLayers();
+		}
+		
+		//get layers, calls function getSingleLayer() for each individual layer
+		function getLayers() {
+			//loop over all entries in the myMainMap.dynamicLayers array
+			for (i=0;i<myMainMap.dynamicLayers.length;i++) {
+				//see if layer is switched on
+				if (myMainMap.dynamicLayers[i].value == "yes") {
+					//at first dynamic layer add a new nrLayerToLoad/timestamp entry
+					if (myMainMap.nrLayerToLoad[myMainMap.timestamp.toString()]) {
+						//at second or further layer increment the nrLayerToLoad variable
+						myMainMap.nrLayerToLoad[myMainMap.timestamp.toString()]++;
+					}
+					else {
+						//start a new entry for this timestamp
+						myMainMap.nrLayerToLoad[myMainMap.timestamp.toString()] = 1;
+					}
+					//call getSingleLayer() which makes the individual network requests
+					getSingleLayer(myMainMap.dynamicLayers[i].key);
+					//set visibility of loadData text
+					if (myMainMap.nrLayerToLoad[myMainMap.timestamp.toString()] == 1) {
+						document.getElementById("loadingData").setAttributeNS(null,"visibility","visible");
+					}
+				}
+			}
+		}
+		
+		//get a single layer
+		//this function makes the actual network requests using either getURL() or XMLHttpRequest()
+		function getSingleLayer(layerId) {
+			//build a url string
+			//var myUrlString = "sendGeom.php?layername="+layerId+"&xmin="+myMainMap.curxOrig+"&ymin="+((myMainMap.curyOrig + myMainMap.curHeight)* -1)+"&xmax="+(myMainMap.curxOrig+myMainMap.curWidth)+"&ymax="+(myMainMap.curyOrig * -1)+"&timestamp="+myMainMap.timestamp;
+			
+			var myUrlString = "http://localhost/cfdgis1225/DBGeo_PDO_Query.php?oid=1&timestamp="+myMainMap.timestamp;//getURL("GET_STACK_INFO.php?oid="+1+1,CallbackStakInfo);
+			
+			//call getURL() if available
+			if (window.getURL) {
+				getURL(myUrlString,addGeomGetURL);
+			}
+			//call XMLHttpRequest() if available
+			else if (window.XMLHttpRequest) {
+				function XMLHttpRequestCallback() {
+					if (xmlRequest.readyState == 4) {
+						if (xmlRequest.status == 200) {
+							//parse and import the SVG fragment
+							var importedNode = document.importNode(xmlRequest.responseXML.documentElement,true);
+							//call function addGeom
+							addGeom(importedNode);
+						}
+					}
+				}
+				var xmlRequest = null;
+				xmlRequest = new XMLHttpRequest();
+				xmlRequest.open("GET",myUrlString,true);
+				xmlRequest.onreadystatechange = XMLHttpRequestCallback;
+				xmlRequest.send(null);
+			}
+			//write an error message if either method is not available
+			else {
+				alert("your browser/svg viewer neither supports window.getURL nor window.XMLHttpRequest!");
+			}		
+		}
+		
+		//this function is only necessary for getURL()
+		function addGeomGetURL(data) {
+			//check if data has a success property
+			if (data.success) {
+				//parse content of the XML format to the variable "node"
+				var node = parseXML(data.content, document);
+				addGeom(node.firstChild);
+			}
+			else {
+				alert("something went wrong with dynamic loading of geometry!");
+			}
+		}
+	
+		//add the geometry to the application
+		//note that empty groups in the main-map have to exist
+		function addGeom(node) {
+			//extract id of the layer
+			var curDynLayer = node.getAttributeNS(null,"id").replace(/_tempGeometry/,"");
+			//extract timestamp
+			var timestamp = parseInt(node.getAttributeNS(attribNS,"timestamp"));
+			//compare current timestamp with timestamp of the node data
+			if (timestamp == myMainMap.timestamp) {
+				var myGeometryToAdd = document.getElementById(curDynLayer);
+				//remove previous content
+				if (myMainMap.dynamicLayers[curDynLayer].loaded == "yes") {
+					var tempGeometry = document.getElementById(curDynLayer+"_tempGeometry");
+					myGeometryToAdd.removeChild(tempGeometry);
+				}
+				//append new content
+				myGeometryToAdd.appendChild(node);
+				//set loaded flag to "yes"
+				myMainMap.dynamicLayers[curDynLayer].loaded = "yes";
+			}
+			//decrement layers to load
+			myMainMap.nrLayerToLoad[myMainMap.timestamp.toString()]--;
+			//set loadData text to hidden after last layer was loaded
+			if (myMainMap.nrLayerToLoad[myMainMap.timestamp.toString()] == 0) {
+				document.getElementById("loadingData").setAttributeNS(null,"visibility","hidden");
+			}
+		}
+		
+		//this function toggles the visibility of a map layer
+		function toggleMapLayer(id,checkStatus,labelText) {
+			var mapLayer = document.getElementById(id);
+			var visibleStatus = "hidden";
+			if (checkStatus) {
+				visibleStatus = "visible";
+			}
+			mapLayer.setAttributeNS(null,"visibility",visibleStatus);
+		}
+		
+		//this function demonstrates the highlight mode of the map
+		function highlightMap(id,evt,buttonState,buttonText) {
+			if (buttonState) {
+				myMapApp.buttons["highlightButton"].setTextValue("Hide Halfdome");
+				myMainMap.highlightPosition(300,500,true);
+			}
+			else {
+				myMapApp.buttons["highlightButton"].setTextValue("Show Halfdome");
+				myMainMap.hideHighlightCross();
+			}
+		}		
+]]></script>
+	<defs>
+		<!-- Symbols for checkboxes -->
+		<symbol id="checkBoxRect" overflow="visible">
+			<rect x="-6" y="-6" width="12" height="12" fill="white" stroke="dimgray" stroke-width="1.5"/>
+		</symbol>
+		<symbol id="checkBoxCross" overflow="visible" fill="none" stroke="dimgray" stroke-width="1" pointer-events="none">
+			<line x1="-5" y1="-5" x2="5" y2="5"/>
+			<line x1="-5" y1="5" x2="5" y2="-5"/>
+		</symbol>
+		<!-- Symbols for Zoom Magnifyer glasses -->
+		<symbol id="magnifyerFull" overflow="visible">
+			<text y="7.5" font-family="Arial,Helvetica" fill="dimgray" font-size="18" font-weight="bold" text-anchor="middle" pointer-events="none">F</text>
+		</symbol>
+		<symbol id="infoBut" overflow="visible">
+			<circle fill="none" stroke="dimgray" stroke-width="1.5" r="7.5" />
+			<text y="5" font-family="Arial,Helvetica" font-size="13" font-weight="bold" fill="dimgray" text-anchor="middle" pointer-events="none">i</text>
+		</symbol>
+		<symbol id="magnifyerManual" overflow="visible" fill="none" stroke="dimgray" stroke-width="1.5">
+			<rect x="-6" y="-6" width="12" height="12" stroke-dasharray="1.5,1.5"/>
+			<line x1="-3" y1="0" x2="3" y2="0" />
+			<line x1="0" y1="-3" x2="0" y2="3" />
+		</symbol>
+		<symbol id="magnifyerZoomIn" overflow="visible" fill="none" stroke="dimgray" stroke-width="2">
+			<line x1="-4" y1="0" x2="4" y2="0"/>
+			<line x1="0" y1="-4" x2="0" y2="4"/>
+		</symbol>
+		<symbol id="magnifyerZoomOut" overflow="visible">
+			<line x1="-4" y1="0" x2="4" y2="0" fill="none" stroke="dimgray" stroke-width="2" />
+		</symbol>
+		<!-- hand symbol for panning -->
+		<symbol id="symbPan" overflow="visible">
+			<path transform="scale(1.2)" fill="none" stroke="dimgray" stroke-width="1" d="M-2 6 C -2.2 2.5 -8.0 -0 -5.7 -1.9 C -4.3 -2.5 -3.3 -0.5 -2.5 0.7 C -3.2 -2.1 -5.5 -5.2 -3.6 -5.8 C -2.1 -6.3 -1.6 -3.6 -1.1 -1.9 C -0.9 -4.2 -1.6 -6.4 -0.2 -6.6 C 1.4 -6.8 0.9 -3 1.1 -1.9 C 1.5 -3.5 1.2 -6.1 2.5 -6.1 C 3.9 -6.1 3.5 -3.2 3.6 -1.6 C 4 -2.9 4.1 -4.3 5.3 -4.4 C 7.3 -3.5 4 2.2 3 6z"/>
+		</symbol>
+		<!-- Symbol for Arrows -->
+		<symbol id="symbArrow" overflow="visible">
+			<polyline fill="none" stroke="dimgray" stroke-width="1" points="-3,-6 3,-6 3,1 5,1 0,7 -5,1 -3,1 -3,-5"/>
+		</symbol>
+		<symbol id="symbArrowLeft" overflow="visible">
+			<use xlink:href="#symbArrow" transform="rotate(90)" />
+		</symbol>
+		<symbol id="symbArrowRight" overflow="visible">
+			<use xlink:href="#symbArrow" transform="rotate(-90)" />
+		</symbol>
+		<!-- Symbol for Recentering Map -->
+		<symbol id="symbRecenter" overflow="visible">
+			<circle fill="dimgray" cx="0" cy="0" r="1" pointer-events="none"/>
+			<g fill="none" stroke="dimgray" stroke-width="1.5" pointer-events="none">
+				<line x1="-7" y1="-7" x2="-3" y2="-3"/>
+				<line x1="7" y1="7" x2="3" y2="3"/>
+				<line x1="-7" y1="7" x2="-3" y2="3"/>
+				<line x1="7" y1="-7" x2="3" y2="-3"/>
+			</g>
+		</symbol>
+		<!-- Symbol for Slider -->
+		<symbol id="sliderSymbol" overflow="visible" pointer-events="none">
+			<line x1="0" y1="-5" x2="0" y2="5" fill="none" stroke="dimgray" stroke-width="5"/>
+		</symbol>
+		<!-- Symbol for Dragging if zoomed in far -->
+		<symbol id="myDragCrossSymbol" overflow="visible" stroke-width="2000" fill="none" stroke="darkblue" pointer-events="none">
+			<line x1="-7000" y1="0" x2="-2500" y2="0"/>
+			<line x1="7000" y1="0" x2="2500" y2="0"/>
+			<line x1="0" y1="-3300" x2="0" y2="-7800"/>
+			<line x1="0" y1="3300" x2="0" y2="7800"/>
+		</symbol>
+		<!-- Marker for Extent-Arrows -->
+		<marker id="myStartArrow" overflow="visible" orient="auto">
+			<polyline fill="dimgray" points="-0.5,0 8,-2 8,2"/>
+		</marker>
+		<marker id="myEndArrow" overflow="visible" orient="auto">
+			<polyline fill="dimgray" points="0.5,0 -8,-2 -8,2"/>
+		</marker>
+	</defs>
+
+   <defs>
+      <g id="ballGroupJiaoChe" stroke-width="5">
+         <image  y="1"  x="1"   id="image2486"  height="140"  width="400"  xlink:href="jiaochefushi.jpg" />
+      </g>
+      <g id="ballGroup1" stroke-width="5">
+         <polygon points="0,0 20,0 20,-20 60,-20 60,20 0,20" fill="lime" stroke="lime" stroke-width="2" stroke-linejoin="round"/>
+         <circle cx="15" cy="20" r="5"/>
+         <circle cx="45" cy="15" r="10"/>
+         <image  y="1"  x="1"   id="image2486"  height="20"  width="20"  xlink:href="gongchengshe.jpg" />
+      </g>
+      <g id="ballGroup" stroke-width="5" >
+         <path
+            d="M 313.61796,336.73558 L 282.76857,294.00941 L 296.65006,264.75226 C 304.28487,248.65702 310.53157,235.01905 310.53157,234.45077 C 310.53157,233.88256 295.88797,221.31197 277.99021,206.50678 C 260.09248,191.70158 245.4511,179.30761 245.45357,178.94671 C 245.45618,178.60115 246.43403,176.85033 247.62664,175.07647 L 249.79507,171.85127 L 281.05805,196.49331 L 312.321,221.13533 L 318.86426,219.13111 C 322.46312,218.02534 325.39802,216.61239 325.38636,215.98272 C 325.37467,215.35302 324.63524,211.44438 323.74316,207.29772 L 322.1213,199.74922 L 275.72461,163.31986 L 229.3279,126.89052 L 226.58418,132.19673 C 225.07521,135.12244 222.74043,138.0328 221.39576,138.67016 C 220.05121,139.29984 216.85056,140.82798 214.28315,142.06429 C 209.70317,144.26818 209.57452,144.26818 207.45147,142.21787 C 205.69552,140.52849 205.08572,138.33996 204.21644,130.62253 L 203.14533,121.10052 L 167.48533,97.326226 L 131.82539,73.551926 L 127.57287,75.279711 C 125.23399,76.22423 122.9927,77.007489 122.59222,77.007489 C 122.19181,77.007489 121.23403,74.481089 120.4639,71.394116 C 119.11151,65.965039 119.14626,65.535008 121.48142,58.585482 C 122.85041,54.515592 123.54297,51.006274 123.07802,50.499457 C 122.62644,50.007999 119.4429,48.502907 116.00346,47.174432 C 110.7055,45.108771 109.48854,44.955192 108.03906,46.199196 C 107.09802,47.005495 97.504029,55.790314 86.719107,65.711631 L 67.110156,83.757367 L 65.342018,95.045551 L 63.573896,106.34909 L 57.552348,110.49578 C 52.388037,114.05117 50.085245,114.86515 41.378087,116.23201 C 26.948408,118.48965 26.445217,117.49138 36.74255,107.04021 C 40.565257,103.1623 43.669379,99.422602 43.640493,98.739168 C 43.611605,98.055731 40.577115,81.31543 36.897325,61.557269 L 30.206666,25.627056 L 15.10066,21.173211 C 6.7923843,18.73896 0.010974091,16.465962 0.030941805,16.14344 C 0.065714293,15.582873 2.934282,13.002716 12.135096,5.2315325 L 16.372735,1.6531 L 31.133533,2.82799 C 44.42889,3.8800215 47.198402,4.4866653 59.031433,8.8637146 C 70.174053,12.979684 74.265195,15.183563 85.978857,23.354058 C 99.164196,32.553549 123.19901,45.607908 123.98365,43.995309 C 124.1881,43.580644 124.88795,38.911788 125.53897,33.620933 C 126.18997,28.330073 126.97294,23.576754 127.279,23.069932 C 128.93025,20.274764 133.56936,17.218509 136.14639,17.218509 C 139.08148,17.218509 139.1034,17.264581 141.83191,28.445258 L 144.57101,39.67969 L 180.16171,64.521378 L 215.75243,89.355381 L 223.88294,86.114831 L 232.01353,82.866596 L 235.01229,87.520091 C 236.89904,90.445807 238.01099,93.432954 238.01099,95.58309 C 238.01099,98.869708 239.89368,100.48999 286.35805,137.22651 L 334.70513,175.45276 L 334.70513,183.69235 L 334.70513,191.93196 L 340.28354,192.69987 L 345.86211,193.47546 L 345.85862,202.49831 L 345.85515,211.52121 L 340.37309,216.79669 C 335.05526,221.91094 334.85821,222.29486 333.79421,229.52851 L 332.69736,236.98488 L 336.72289,241.13922 C 340.58802,245.11696 341.02151,245.28593 347.5975,245.28593 L 354.44648,245.28593 L 353.86805,238.37477 L 353.2896,231.4483 L 360.73292,224.97485 L 368.17612,218.50912 L 368.17612,163.81133 L 368.17612,109.11355 L 386.61854,109.11355 C 396.76184,109.11355 423.95706,109.44375 447.05232,109.85074 L 489.0438,110.58025 L 489.0438,120.36333 L 489.0438,130.14643 L 483.78498,130.14643 L 478.52615,130.14643 L 479.13627,146.92513 C 479.47172,156.16301 479.74622,166.18414 479.74622,169.19433 L 479.74622,174.67717 L 483.00039,174.22412 L 486.25446,173.77104 L 486.25446,185.17442 L 486.25446,196.57009 L 493.92492,196.57777 C 498.14371,196.57777 510.06775,196.90798 520.42283,197.30728 L 539.25033,198.0368 L 539.25033,180.69753 L 539.25033,163.35826 L 549.47762,163.35826 L 559.70487,163.35826 L 559.70487,184.52938 L 559.70487,205.6928 L 589.22447,204.89417 L 618.74413,204.09557 L 627.0647,255.69104 L 635.38532,307.29414 L 639.73984,307.29414 L 644.09438,307.29414 L 644.77849,332.80389 C 645.15479,346.83348 645.18924,358.64384 644.85542,359.05084 C 643.79379,360.31023 590.01939,365.94662 589.45185,364.84855 C 588.79725,363.58917 458.16328,375.62989 457.44283,377.0198 C 457.16548,377.54967 431.63262,378.32522 400.70305,378.72456 L 344.46753,379.46169 L 313.61796,336.73558 z M 472.3082,175.70616 L 472.3082,130.48431 L 450.36,129.69337 C 438.28848,129.25566 428.24169,129.10976 428.03374,129.35549 C 427.82588,129.60122 428.24639,131.50562 428.96813,133.57896 C 429.97027,136.45092 430.44172,147.08639 430.96239,178.5474 L 431.64427,219.7608 L 442.44634,220.10635 C 448.38745,220.29834 457.53683,220.55942 462.77823,220.69764 L 472.3082,220.928 L 472.3082,175.70616 z M 417.1173,202.39081 C 416.80181,192.79969 416.2729,173.0492 415.94195,158.48975 L 415.3401,132.03548 L 404.16373,132.75731 C 398.01675,133.14893 390.17775,133.47146 386.74362,133.47146 L 380.49996,133.47146 L 379.90723,155.88657 C 379.58127,168.21909 379.05626,187.65474 378.7404,199.06579 L 378.16613,219.82221 L 397.92853,219.82221 L 417.69081,219.82221 L 417.1173,202.39081 z"
+            id="path2554" />
+         <circle cx="315" cy="345" r="60"/>
+         <circle cx="555" cy="345" r="60"/>
+      </g>
+   </defs>	
+	<title>Demonstration of the SVG NavigationTools</title>
+	<!-- this is a background rectangle that is used to ensure that the svg root element receives all mouse events, please adopt the fill attribute to match your desired background color -->
+	<rect x="0" y="0" width="1024" height="768" fill="aliceblue" xmlns="http://www.w3.org/2000/svg" />
+	<rect x="0" y="0" width="800" height="600" fill="red" xmlns="http://www.w3.org/2000/svg" />
+
+	<!-- Main Map Frame -->
+	<svg id="mainMap" x="0" y="0" viewBox="0 0 80000 60000" width="800" height="600" cursor="crosshair" fill="purple">
+		<title>CFD 主地图</title>
+		<desc></desc>
+		<!-- this group is necessary for manual panning, it temporarily gets a translate transformation which is later removed on mouseup -->
+		<image x="0" y="0" width="800" height="600" xlink:href="background.svg" />
+		<g id="mainMapGroup" transform="translate(0,0)">
+			<!-- within this group you should place all map layers, usually, if you have more than one element in a map layer, you would use a group instead of a single element, as in this example -->
+			<g id="背景轮廓线">	</g>
+
+			<g id="垛场">	</g>
+			<g id="car"></g>		
+		</g>
+	</svg>
+	
+	<!-- Loading Data Status -->
+	<g id="loadingData" visibility="hidden">
+		<rect x="200" y="300" width="150" height="35" fill="white" fill-opacity="0.8"/>
+		<text x="275" y="325" font-family="sans-serif" fill="dimgray" font-size="18px" font-weight="bold" text-anchor="middle">Loading Data ...</text>
+	</g>
+	
+	<!-- this group holds navigation, title and if you like, legend information -->
+	<g>
+	<!-- your map title -->
+	<text font-family="Arial,Helvetica" fill="dimgray" font-size="22" font-weight="bold" x="850" y="30" pointer-events="none" >
+	Map Title</text>
+	<!-- coordinate display -->
+	<g font-family="Arial,Helvetica" fill="dimgray" font-size="15" pointer-events="none">
+		<text id="coordX" x="850" y="145">		X:</text>
+		<text id="coordY" x="920" y="145">		Y:</text>
+		<!-- map impressum and status Bar -->
+		<!-- text with this id is required to show help texts -->
+		<text id="statusText" x="850" y="165">		Statusbar:  Your Status Text</text>		
+	</g>
+	
+	<!-- display width and height of map extent -->
+	<g>
+		<!-- vertical line, displays current height of map extent -->
+		<line stroke="dimgray" stroke-width="1.5" marker-start="url(#myStartArrow)" marker-end="url(#myEndArrow)" x1="775" y1="15" x2="775" y2="465" />
+		<rect fill="aliceblue" x="769" y="330" width="12" height="70" />
+		<text id="myScaleTextH" font-family="Arial,Helvetica" fill="dimgray" font-size="15" text-anchor="middle" transform="translate(769,365),rotate(90)" pointer-events="none">
+		81,000 m</text>
+		<!-- horizontal line, displays current width of map extent -->
+		<line stroke="dimgray" stroke-width="1.5" marker-start="url(#myStartArrow)" marker-end="url(#myEndArrow)" x1="0" y1="475" x2="775" y2="475" />
+		<rect fill="aliceblue" x="242" y="769" width="70" height="12" />
+		<text id="myScaleTextW" font-family="Arial,Helvetica" fill="dimgray" font-size="15" text-anchor="middle" transform="translate(385, 472)" pointer-events="none">
+		64,000 m</text>
+		<!-- small rectangle in lower right corner, onclick displays current map extent in real world coordinates -->
+		<rect fill="dimgray" x="775" y="472" width="5" height="5" onclick="showExtent()" />
+	</g>
+	
+<!-- control map layer visibility with checkBoxes -->
+<g transform="translate(825 325)" id="checkBoxes">
+<text font-family="Arial,Helvetica" fill="dimgray" font-size="18" font-weight="bold" x="-10" y="0" pointer-events="none">
+Map Layer Controls</text>
+<!-- the checkbox geometries will be added here -->
+</g>
+
+
+</g>
+
+<!-- empty group where zoomSlider is later appended -->
+<g transform="translate(0,0)">
+	<g id="mapZoomSlider"/>
+	<!-- button for zoom-in, above slider -->
+	<g id="zoomIn" cursor="pointer" />
+	<!-- button for zoom-out, below slider -->
+	<g id="zoomOut" cursor="pointer" />
+</g>		
+	<!-- small reference map, shares the same coordinate system than the main map -->
+	<!-- it is very recommended that the width and height of the nested svg element has the same ratio as the viewBox width and height -->
+	<svg id="referenceMap" x="826" y="45" viewBox="0 0 800 600" width="80" height="60">
+		<!-- here you can place any graphical elements for your reference/overview map -->
+
+	</svg>
+	
+	<!-- this group holds the zoom slider and buttons -->
+	<g transform="translate(0 185)">
+		<text fill="dimgray" font-family="Arial,Helvetica" font-weight="bold" font-size="18" x="745" y="60" 
+		pointer-events="none" >Map Navigator</text>
+
+		<!-- info button -->
+		<g id="infoButton" cursor="pointer" />
+		<!-- button for full view (f) -->
+		<g id="zoomFull" cursor="pointer" />
+		<!-- button for manual zoom (rectangle) -->
+		<g id="zoomManual" cursor="pointer" />
+		<!-- button for manual pan -->
+		<g id="panManual" cursor="pointer" />
+		<!-- button for redefining map center -->
+		<g id="recenterMap" cursor="pointer" />
+		<!-- button for backwarding map extent (extent history) -->
+		<g id="backwardExtent" cursor="pointer" />
+		<!-- button for forwarding map extent (extent history) -->
+		<g id="forwardExtent" cursor="pointer" />
+		<!-- button for demonstrating highlight feature of the map -->
+		<g id="highlightMap" cursor="pointer" />		
+	</g>
+</svg>
