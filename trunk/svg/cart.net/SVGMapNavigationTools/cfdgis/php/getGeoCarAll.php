@@ -29,14 +29,14 @@ try{
 		$car->CAR_OWNER	= $row[6];
 		
 		//拼装全部circle的SVG XML定义
-		$svgxml = $svgxml .  $car->tosvg() . ';' ;
+		$svgxml = $svgxml .  $car->tosvg() ;
 		//	echo $svgxml;
 	}
 	
 	//输出给浏览器端的内容
 	$svgxml = mb_convert_encoding($svgxml, "UTF-8", "GB2312" );
 	
-	header("Content-type: text/xml");
+	header("Content-type: text/xml;charset=UTF-8");
 	echo '<g id="' . $myId. '" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"  
 	xmlns:attrib="http://www.carto.net/attrib"  attrib:timestamp="'. $timestamp.'">';
 	echo $svgxml;
