@@ -15,7 +15,7 @@
 >
 ]>
 <?AdobeSVGViewer save="snapshot"?>
-<svg width="800" height="600" viewBox="0 0 800 600" 
+<svg width="800" height="600" viewBox="0 0 800 600" version="1.1" 
 xmlns="http://www.w3.org/2000/svg" 
 xmlns:xlink="http://www.w3.org/1999/xlink" 
 xmlns:attrib="http://www.carto.net/attrib" 
@@ -97,6 +97,14 @@ xmlns:batik="http://xml.apache.org/batik/ext" onload="init(evt);" zoomAndPan="di
 			//create individual checkboxes
 			myMapApp.checkBoxes["stack"] = new checkBox("stack","checkBoxes",0,25,"checkBoxRect","checkBoxCross",true,"垛场",labeltextStyles,12,6,undefined,toggleMapLayer);
 			myMapApp.checkBoxes["car"] = new checkBox("car","checkBoxes",0,40,"checkBoxRect","checkBoxCross",true,"车辆",labeltextStyles,12,6,undefined,toggleMapLayer);
+			
+			//tooltip styles
+			var tooltipTextStyles = {"font-family":"Arial,Helvetica","fill":"dimgray","font-size":12};
+			var tooltipRectStyles = {"fill":"white","stroke":"dimgray"};
+			myMapApp.initTooltips("toolTip",tooltipTextStyles,tooltipRectStyles,10,20,3);	
+			
+			myMapApp.addTooltip("yellowRect",undefined,false,false,"currentTarget",undefined);
+			myMapApp.enableTooltips();
 			
 			//load function specific to the current map project
 			loadProjectSpecific();
@@ -432,5 +440,10 @@ xmlns:batik="http://xml.apache.org/batik/ext" onload="init(evt);" zoomAndPan="di
 		<g id="forwardExtent" cursor="pointer" />
 		<!-- button for demonstrating highlight feature of the map -->
 		<g id="highlightMap" cursor="pointer" />		
+	</g>
+	
+	<!-- tooltips  -->
+	<g id="toolTip">
+		<g id="yellowRect"></g>
 	</g>
 </svg>

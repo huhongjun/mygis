@@ -10,9 +10,17 @@ Class Stack{
 	public $COUSTOMER_NAME1="";
 	public $GOODS_NAME="";
 		
-	public function toStr()
+	public function tostr()
 	{
-		$str = $this->STOWid.":".$this->STOW_NAME.":".$this->BOAT_NAME.":".$this->COUSTOMER_NAME.":".$this->COUSTOMER_NAME1.":".$this->GOODS_NAME;;
+		$str = $this->STOWid.":".$this->STOW_NAME.":".$this->BOAT_NAME.":".$this->COUSTOMER_NAME.":".$this->COUSTOMER_NAME1.":".$this->GOODS_NAME;
+		return $str;
+	}
+	
+	public function toxml()
+	{
+		$str = "<stack STOWid='".$this->STOWid."' STOW_NAME='".$this->STOW_NAME."' BOAT_NAME='".$this->BOAT_NAME.
+		"' COUSTOMER_NAME='".$this->COUSTOMER_NAME.
+		"' COUSTOMER_NAME1='".$this->COUSTOMER_NAME1."' GOODS_NAME='".$this->GOODS_NAME."'/>";
 		return $str;
 	}
 	

@@ -22,7 +22,7 @@ try{
 		foreach($dbh->query($sql) as $row)
 		{
 			$TYPE_ID = $row[0]; 
-			$TYPE_NAME = $row[0]; 
+			$TYPE_NAME = $row[1]; 
 		        $typexml = '<item child="1" id="'.$TYPE_ID.'" text="'.$TYPE_NAME.'">
 							<userdata name="ud_block">ud_data</userdata>
 							</item>';

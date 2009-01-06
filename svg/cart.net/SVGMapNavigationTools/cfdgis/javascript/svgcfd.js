@@ -8,14 +8,14 @@ styles["stack"] = {"highcolor":"fill:#00FF00;stroke:#00ff00;stroke-width:0","nor
 function setHighColor(obj)
 {
 
-	var style = styles[obj.getAttribute("type")];
+	var style = styles[obj.getAttributeNS(null, "type")];
 	obj.setAttributeNS(null,"style",style["highcolor"]);
 
 }
 
 function setNormalColor(obj)
 {
-	var style = styles[obj.getAttribute("type")];
+	var style = styles[obj.getAttributeNS(null, "type")];
 	obj.setAttributeNS(null,"style",style["normalcolor"]);
 }
 
@@ -23,7 +23,7 @@ function objectMouseOver(evt)
 {
 	obj = evt.target;
 	setHighColor(obj);
-	statusChange("对象: " + obj.getAttribute("infotip"));
+	statusChange("对象: " + obj.getAttributeNS(null, "infotip"));
 }
 
 function objectMouseOut(evt)
