@@ -58,7 +58,7 @@ xmlns:batik="http://xml.apache.org/batik/ext" onload="init(evt);" zoomAndPan="di
 			
 			//initialize myMainMap object, you need to adopt the parameters here
 			//myMainMap = new map("mainMap",1280,128,0.6,0,26911,"m",1,true,"coordX","coordY",dynamicLayers,digiLayers,"",zoomRectStyles,highlightStyles,dragRectStyles,"referenceMap","myDragCrossSymbol",4750);
-			myMainMap = new map("mainMap",80000,800,0.2,0,26911,"m",1,true,"coordX","coordY",dynamicLayers,digiLayers,"",zoomRectStyles,highlightStyles,dragRectStyles,"referenceMap","myDragCrossSymbol",4750);
+			myMainMap = new map("mainMap",800,800,0.2,0,26911,"m",1,true,"coordX","coordY",dynamicLayers,digiLayers,"",zoomRectStyles,highlightStyles,dragRectStyles,"referenceMap","myDragCrossSymbol",4750);
 			//create zoom slider
 			//zoom slider styles
 			var sliderStyles={"stroke":"dimgray","stroke-width":2};
@@ -353,7 +353,7 @@ xmlns:batik="http://xml.apache.org/batik/ext" onload="init(evt);" zoomAndPan="di
 	<rect x="0" y="0" width="800" height="600" fill="lightblue" xmlns="http://www.w3.org/2000/svg" />
 
 	<!-- Main Map Frame -->
-	<svg id="mainMap" x="0" y="0" viewBox="0 0 80000 60000" width="800" height="600" cursor="crosshair" fill="purple">
+	<svg id="mainMap" x="0" y="0" viewBox="0 0 800 600" width="800" height="600" cursor="crosshair" fill="purple">
 		<title>CFD 主地图</title>
 		<desc></desc>
 		<!-- this group is necessary for manual panning, it temporarily gets a translate transformation which is later removed on mouseup -->
