@@ -1,0 +1,2 @@
+iframe方式嵌入svg
+	firefox中可以直接访问svg的函数，ie中不行
