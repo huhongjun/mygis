@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" width="200" height="600" applicationComplete="init()">
+	<mx:Style  source="css/Yahoo/SkinYahoo.css"/>
+	<mx:Accordion x="0" y="40" width="200" height="443">
+		<mx:Canvas label="垛位更新" width="100%" height="100%">
+		</mx:Canvas>
+		<mx:VBox label="车辆监控" width="100%" height="100%">
+			<mx:Tree height="320" width="197" dataProvider="{dpCarTree}" labelFunction="treeLabel" id="carTree"></mx:Tree>
+			<mx:Button label="地图定位" width="195" click="highLightCar(event)"/>
+		</mx:VBox>
+		<mx:Canvas label="堆场信息" width="100%" height="100%">
+			<mx:DataGrid x="0" y="0" width="198" height="211" id="stackDataGrid" dataProvider="{dpstack}" click="selectStack(event)">
+				<mx:columns>
+					<mx:DataGridColumn headerText="区域" dataField="STOW_NAME" width="85" sortable="false" resizable="true"/>
+					<mx:DataGridColumn headerText="船商" dataField="BOAT_NAME" sortable="true"/>
+					<mx:DataGridColumn headerText="ID" dataField="STOWid" visible="false"/>					
+					<mx:DataGridColumn headerText="客户" dataField="COUSTOMER_NAME" visible="false"/>					
+					<mx:DataGridColumn headerText="客户1" dataField="COUSTOMER_NAME1" visible="false"/>					
+					<mx:DataGridColumn headerText="货物" dataField="GOODS_NAME"/>					
+				</mx:columns>
+			</mx:DataGrid>
+			<mx:Text x="38" y="217" text="Text" width="150" id="txtSTOWid"/>
+			<mx:Label x="2" y="243" text="区域："/>
+			<mx:Label x="2" y="269" text="船商："/>
+			<mx:Label x="2" y="321" text="货物："/>
+			<mx:Label x="2" y="295" text="客户："/>
+			<mx:Label x="2" y="217" text="ID：" width="35"/>
+			<mx:Label x="87" y="295" text="客户1："/>
+			<mx:Button x="137" y="330" label="定位" width="51" height="18" click="highLightStack(event)"/>
+			<mx:Text x="38" y="243" text="Text" width="91" id="txtSTOW_NAME"/>
+			<mx:Text x="38" y="269" text="Text" width="91" id="txtBOAT_NAME"/>
+			<mx:Text x="38" y="295" text="Text" width="41" id="txtCOUSTOMER_NAME"/>
+			<mx:Text x="38" y="321" text="Text" id="txtGOODS_NAME"/>
+			<mx:Text x="126" y="295" text="Text" width="54" id="txtCOUSTOMER_NAME1"/>
+		</mx:Canvas>
+		<mx:Canvas label="车辆轨迹回放" width="100%" height="100%">
+			<mx:Button x="21" y="310" label="Button"/>
+			<mx:Button x="105" y="310" label="Button"/>
+			<mx:Label x="32" y="34" text="Label"/>
+			<mx:Text x="87" y="34" text="Text" width="94"/>
+			<mx:Label x="32" y="60" text="Label"/>
+			<mx:Text x="87" y="60" text="Text" width="94"/>
+			<mx:Label x="32" y="86" text="Label"/>
+			<mx:Text x="87" y="86" text="Text" width="94"/>
+			<mx:Label x="32" y="112" text="Label"/>
+			<mx:Text x="87" y="112" text="Text" width="94"/>
+			<mx:Label x="32" y="138" text="Label"/>
+			<mx:Text x="87" y="138" text="Text" width="94"/>
+		</mx:Canvas>
+	</mx:Accordion>
+	<mx:Button label="39" width="48" x="4" y="7" click="highLightObject('39')"/>
+	<mx:Button label="Button" width="38" x="56" y="7"/>
+	<mx:Button label="Button" width="38" x="148" y="7"/>
+	<mx:Button label="Button" width="38" x="102" y="7"/>
+	<mx:ArrayCollection id="dpstack">
+	</mx:ArrayCollection>
+	<mx:Script>
+		<![CDATA[
+			import flash.external.ExternalInterface;
+			import mx.collections.XMLListCollection;
+			import mx.collections.ArrayCollection;
+            
+            private var loader:URLLoader;
+            
+           	[Bindable]
+			private var carDemoData:XML = 
+			   <list>
+			     <type name="Finance" code="200">
+			         <car name="John H" code=""/> 
+			         <car name="Sam K" code=""/>
+			     </type>
+			     <type name="Operations" code="400"> 
+			         <car name="Bill C" code=""/>
+			         <car name="Jill W" code=""/>
+			     </type>                   
+			   </list>;			
+           	[Bindable] 
+            private var dpCarTree:XMLListCollection = new XMLListCollection(carDemoData.type);
+                       
+            private function treeLabel(item:Object):String
+            { 
+                var node:XML = XML(item);
+                return node.@name;
+            }            		
+			private function init():void
+			{
+				// 声明HTML Javascript可调用的函数,必须在浏览器中运行
+				ExternalInterface.addCallback("notifySWF",notifySWF);
+				
+				//获取车辆信息
+				var urlCar:URLRequest = new URLRequest("http://localhost/SVGMapNavigationTools/cfdgis/php/getCarTreeXML.php");
+				loader = new URLLoader(urlCar);
+				loader.dataFormat = "xml";
+				loader.addEventListener(Event.COMPLETE, refreshCarTree);
+				
+				//获取垛位信息
+				var urlStack:URLRequest = new URLRequest("http://localhost/SVGMapNavigationTools/cfdgis/php/getStackXML.php");
+				loader = new URLLoader(urlStack);
+				loader.dataFormat = "xml";
+				loader.addEventListener(Event.COMPLETE, refreshStackGrid);
+				
+				
+			}
+			
+			private function refreshCarTree(evt:Event):void
+			{
+				var list:XML = new XML(evt.target.data);
+				dpCarTree = new XMLListCollection(list.type);
+			}
+			
+			private function refreshStackGrid(evt:Event):void
+			{
+				var xml1:XML = new XML(evt.target.data);
+				var stacklist:XMLList = xml1.stack;
+				var item:XML;
+            	for each(item in stacklist) {
+					dpstack.addItem(
+						{	"STOWid":item.@STOWid.toString(),
+							"STOW_NAME":item.@STOW_NAME.toString(),
+							"BOAT_NAME":item.@BOAT_NAME.toString(),
+							"COUSTOMER_NAME":item.@COUSTOMER_NAME.toString(),
+							"COUSTOMER_NAME1":item.@COUSTOMER_NAME1.toString(),
+							"GOODS_NAME":item.@GOODS_NAME.toString()
+						});
+            	}
+   			}
+   			
+   			private function selectStack(event:MouseEvent):void
+   			{
+   				txtSTOWid.text = event.currentTarget.selectedItem.STOWid;
+   				txtSTOW_NAME.text = event.currentTarget.selectedItem.STOW_NAME;
+   				txtBOAT_NAME.text = event.currentTarget.selectedItem.BOAT_NAME;
+   				txtCOUSTOMER_NAME.text = event.currentTarget.selectedItem.COUSTOMER_NAME;
+   				txtCOUSTOMER_NAME1.text = event.currentTarget.selectedItem.COUSTOMER_NAME1;
+   				txtGOODS_NAME.text = event.currentTarget.selectedItem.GOODS_NAME;   				   				
+   				
+   			}
+   			
+   			private function highLightCar(evt:Event):void
+   			{
+   				
+   				highLightObject(carTree.selectedItem.code);
+   			}   			
+   			private function highLightStack(evt:Event):void
+   			{
+   				highLightObject(txtSTOWid.text);
+   			}
+			private function highLightObject(objectid:String):void
+			{
+				if (ExternalInterface.available) {
+                     logdp.addItem({label:"测试JS",url:"可用"});
+                 } else {
+                     logdp.addItem({label:"测试JS",url:"不可用"});
+                 }
+				ExternalInterface.call("highLightObject", "39"); 
+			}
+			
+			private function notifySWF(type:String, msg:String):void{
+				logdp.addItem({label:type,url:msg});
+			}
+		]]>
+	</mx:Script>
+	<mx:TabNavigator x="0" y="490" width="200" height="110">
+		<mx:VBox label="通讯" width="100%" height="100%">
+			<mx:List width="193" height="63" id="logList">
+            <mx:dataProvider>
+                <mx:ArrayCollection id="logdp">
+                    <mx:Object label="Andy Budd" url="http://andybudd.com"/>
+
+                    <mx:Object label="Grant Skinner" url="http://gskinner.com"/>
+                    <mx:Object label="Paul Booth" url="http://paulbooth.com"/>
+
+                </mx:ArrayCollection>
+            </mx:dataProvider>			
+			</mx:List>
+		</mx:VBox>
+		<mx:VBox label="配置" width="100%" height="100%">
+		</mx:VBox>
+	</mx:TabNavigator>
+	
+</mx:Application>
