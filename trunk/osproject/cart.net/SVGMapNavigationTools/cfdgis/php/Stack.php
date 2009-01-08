@@ -26,6 +26,28 @@ Class Stack{
 		return $str;
 	}
 	
+	public function toareasvg()
+	{
+		$stacknames 	= array('-A区', 'A区',   'B区',   'C区',   'D区',   'E区',  'F区',  '-F区',  '1区',   '2区',  '3区',   '4区',  '5区', '6区', '7区', '8区','9区');
+		$stackxs 		= array(0,  		25,     50,  75,  0,  25, 50,  75, 0,     25,      50,    75,    0,    25,  50,   75,  0);
+		$stackys 		= array(0,  		0,     0,  0,   25,  25,  25,  25, 110,     120,      130,    140,150,160,170,180,  190);
+		$stackrotates = array(136.1, 136.1,   136.1,   136.1,   136.1,   136.1,  136.1,   136.1, 316.1,   316.1,316.1,316.1,316.1,316.1,316.1,316.1,316.1,316.1,316.1,316.1,316.1,316.1,46.1,136.1,136.1,136.1,136.1,136.1,136.1,136.1,136.1,136.1);
+		$stackwidth 	= array(20,   20,   20,   20,   136.1,   136.1,  136.1,   136.1, 316.1,   316.1,316.1,316.1,316.1,316.1,316.1,316.1,316.1,316.1,316.1,316.1,316.1,316.1,46.1,136.1,136.1,136.1,136.1,136.1,136.1,136.1,136.1,136.1);
+		$stackheight	= array(20,   	20,   		20,   20,   20,   20,  20,   20, 20,   20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20);
+
+		$svg1 = "";
+		foreach ((array)$stacknames as $key=>$value)
+		{
+			$svgrect1 = "<rect id='".$stacknames[$key]."' x='".$stackxs[$key]."' y='".$stackys[$key]."' width='".$stackwidth[$key]."' height='".$stackheight[$key]."' style='stroke:#000000;stroke-width:1' 
+				rx= '2' ry = '2' 
+				onclick='objectMouseClick(evt)' onmouseout='objectMouseOut(evt)' onmouseover='objectMouseOver(evt)' 
+				transform='rotate(".$stackrotates[$key]." ".$stackxs[$key].",".$stackys[$key].")' type='area' attrib:tooltip='".$stacknames[$key]."'/>";
+			$svg1 = $svg1.$svgrect1;
+		}
+		
+		return $svg1;
+	}
+	
 	public function tosvg()
 	{
 		$stacknames = array('-A区', 'A区',   'B区',   'C区',   'D区',   'E区',  'F区',  '-F区',  '1区',   '2区',  '3区',   '4区',  '5区', '6区', '7区', '8区','9区');
