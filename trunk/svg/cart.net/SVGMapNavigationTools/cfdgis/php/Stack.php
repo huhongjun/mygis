@@ -60,9 +60,9 @@ Class Stack{
 		$x = $a0x - ( $widthstart * 350 / 1500 ) * cos( (pi()/180) * (180 - $a0rotate));
 		$y = $a0y + ( $widthstart * 350 / 1500 ) * sin( (pi()/180) * (180 - $a0rotate));
 		
-		$svgrect = "<rect x='" . $x ."' y='".$y."' width='".$width."' height='8' "." STOWid='".$this->STOWid."' STOW_NAME='".$this->STOW_NAME."' BOAT_NAME='".$this->BOAT_NAME."' GOODS_NAME='".$this->GOODS_NAME."' COUSTOMER_NAME='".$this->COUSTOMER_NAME.
-		"' style='fill:#00FFFF;stroke:#000000;stroke-width:1' rx= '2' ry = '2' onclick='objectMouseClick(evt)' onmouseout='objectMouseOut(evt)' onmouseover='objectMouseOver(evt)' transform='rotate(" .$a0rotate." ".$x ."," . $y . ")' type='stack'/>";
-		$svgtext = "<text  x='".($x-10)."' y='".$y."' fill='red' stroke='red' stroke-width='0.02' font-size='1'  font-family='SimSun'> ".$this->BOAT_NAME." </text>";
+		$svgrect = "<rect x='" . $x ."' y='".$y."' width='".$width."' height='8' "." id='".$this->STOWid."'"." STOWid='".$this->STOWid."' STOW_NAME='".$this->STOW_NAME."' BOAT_NAME='".$this->BOAT_NAME."' GOODS_NAME='".$this->GOODS_NAME."' COUSTOMER_NAME='".$this->COUSTOMER_NAME.
+		"' style='fill:#00FFFF;stroke:#000000;stroke-width:1' rx= '2' ry = '2' onclick='objectMouseClick(evt)' onmouseout='objectMouseOut(evt)' onmouseover='objectMouseOver(evt)' transform='rotate(" .$a0rotate." ".$x ."," . $y . ")' type='stack' attrib:tooltip='".$this->tostr()."'/>";
+		$svgtext = "<text  x='".($x-10)."' y='".$y."' fill='red' stroke='red' stroke-width='0.02' font-size='9'  font-family='SimSun'> ".$this->BOAT_NAME." </text>";
 		
 		$svgelement = $svgrect . ";" . $svgtext;
 		

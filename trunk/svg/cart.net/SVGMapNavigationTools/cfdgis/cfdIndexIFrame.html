@@ -1,19 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 
 <title> CFD SVG GIS </title>
-<link rel="stylesheet" href="styles/main.css" type="text/css" />
-<script type="text/ecmascript" src="javascript/html4swf.js"/>
-<script type="text/ecmascript" src="javascript/html4svg.js"/>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 
+<link rel="stylesheet" href="styles/main.css" type="text/css" />
+
+</head>
 <script language="javascript">
 
+function svgNotification(type,message)
+{
+	document["MapControl"].notifySWF(type, message);
+}
+
+
+function highLightObject(objectId)
+{
+	document["svg"].highLightObject(objectId);
+}
 
 </script>
-
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-</head>
 <body>
 	<table boder="1">
 	<tbody>
