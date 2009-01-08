@@ -28,7 +28,11 @@ if ($layer == 'car')
 else if($layer == 'stack')
 {
 	include "getGeoStackAll.php";
-}
+} 
+else if($layer == 'area')
+{
+	include "getGeoareaAll.php";
+} 
 else
 {
 	//include "getOther.php";	

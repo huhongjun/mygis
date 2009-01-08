@@ -41,12 +41,12 @@ xmlns:batik="http://xml.apache.org/batik/ext" onload="init(evt);" zoomAndPan="di
 		function init(evt) {
 			//dynamic layer array that allow loading from database
 			var dynamicLayers = new Array();
-			//dynamicLayers["背景轮廓线"] = {"key":"背景轮廓线","value":"yes","loaded":"no"};
-			//dynamicLayers.push(dynamicLayers["背景轮廓线"]);
-			dynamicLayers["car"] = {"key":"car","value":"yes","loaded":"no"};
+			dynamicLayers["car"] = {"key":"car","value":"no","loaded":"no"};
 			dynamicLayers.push(dynamicLayers["car"]);
-			dynamicLayers["stack"] = {"key":"stack","value":"yes","loaded":"no"};
+			dynamicLayers["stack"] = {"key":"stack","value":"no","loaded":"no"};
 			dynamicLayers.push(dynamicLayers["stack"]);
+			dynamicLayers["area"] = {"key":"area","value":"yes","loaded":"no"};
+			dynamicLayers.push(dynamicLayers["area"]);
 			
 			//initialize digiLayers (layers that allow digitizing)
 			var digiLayers = new Array();
@@ -97,6 +97,7 @@ xmlns:batik="http://xml.apache.org/batik/ext" onload="init(evt);" zoomAndPan="di
 			//create individual checkboxes
 			myMapApp.checkBoxes["stack"] = new checkBox("stack","checkBoxes",0,25,"checkBoxRect","checkBoxCross",true,"垛场",labeltextStyles,12,6,undefined,toggleMapLayer);
 			myMapApp.checkBoxes["car"] = new checkBox("car","checkBoxes",0,40,"checkBoxRect","checkBoxCross",true,"车辆",labeltextStyles,12,6,undefined,toggleMapLayer);
+			myMapApp.checkBoxes["area"] = new checkBox("area","checkBoxes",0,55,"checkBoxRect","checkBoxCross",true,"分区",labeltextStyles,12,6,undefined,toggleMapLayer);
 			
 			//tooltip styles
 			var tooltipTextStyles = {"font-family":"Arial,Helvetica","fill":"dimgray","font-size":12};
@@ -359,9 +360,8 @@ xmlns:batik="http://xml.apache.org/batik/ext" onload="init(evt);" zoomAndPan="di
 		<!-- this group is necessary for manual panning, it temporarily gets a translate transformation which is later removed on mouseup -->
 		<g id="mainMapGroup" transform="translate(0,0)">
 			<!-- within this group you should place all map layers, usually, if you have more than one element in a map layer, you would use a group instead of a single element, as in this example -->
-			<g id="背景轮廓线">	</g>
-
-			<g id="stack">	</g>
+			<g id="area" transform="translate(600,500)">	</g>
+			<g id="stack" transform="translate(-100,0)">	</g>
 			<g id="car"></g>		
 		</g>
 	</svg>

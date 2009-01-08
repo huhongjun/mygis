@@ -3,6 +3,7 @@
 var styles = new Array();
 styles["car"] 	= {"highcolor":"fill:red","normalcolor":"fill:#ffff00"};
 styles["stack"] = {"highcolor":"fill:#00FF00;stroke:#00ff00;stroke-width:0","normalcolor":"ffill:#00FFFF;stroke:#000000;stroke-width:1"};
+styles["area"] = {"highcolor":"fill:#00FF00;stroke:#00ff00;stroke-width:0","normalcolor":"ffill:#00FFFF;stroke:#000000;stroke-width:1"};
 
 function objectMouseHandle(evt)
 {
