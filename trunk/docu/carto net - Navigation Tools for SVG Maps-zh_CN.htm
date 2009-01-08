@@ -224,13 +224,12 @@ Yosemite map as a reference. In order to toggle layer visibility, it is
 necessary to set a unique id to the group or elements within the main
 maps. (see step 6)</p>
 
- <h5>Step 4: Adjusting the init function in the javascript</h5>
+ <h5>步骤四: 调整JavaScript中的init函数</h5>
 <p>Next we'll have a look into the script section of the file
 index.svg. The two global variable definitions as listed here need to
 stay there, otherwise the script is not guaranteed to work. Within the <tt>init</tt> function, the two lines <tt>var dynamicLayers = new Array();</tt> and <tt>var digiLayers = new Array();</tt>
 need to stay there. These are currently empty arrays that can later be
-used, if you want to add dynamic layers (loaded from a database) or
-editable layers for digitizing. Currently, we'll leave them as empty
+used, 如果你想添加动态层 (从数据库加载) 或用于数字标注的可编辑层。现在，we'll leave them as empty
 arrays, that are handed over to the <tt>map</tt> object (<tt>mainMap</tt>)
 defined in the next line. The map object holds various data on the map
 and also enables the zooming and panning tools. As parameters we send
@@ -387,7 +386,7 @@ This is described in the tutorial <a href="http://www.carto.net/papers/svg/postg
 again. If you receive error messages, or something behaves strange,
 please check back with the instructions above.</p>
 
-<h5>Step 5: Adjusting checkBoxes to toggle layer visibility</h5>
+<h5>步骤五: 调整可控制图层可见性的选择按钮Adjusting checkBoxes to toggle layer visibility</h5>
 <p>In a next step we want to toggle the visibility of our map layers.
 Within "index.svg" search for the section containing the checkboxes.
 You should find something similar to the following:</p>
@@ -414,7 +413,7 @@ global myMapApp object instance. Next you define the styles, similar to
 what we have discussed above, and finally you add checkBox instances
 following the instructions at <a href="http://www.carto.net/papers/svg/gui/checkbox_and_radiobutton/" class="inpage">the checkbox and radiobutton tutorial</a>.</p>
 
-<h5>Step 6: Final layout and styling</h5>
+<h5>步骤六：最终的布局与样式</h5>
 <p>In this last step you need to work on the styling of the map layout.
 Simply replace all the fill, stroke, opacity, font-attributes, etc. as
 you like. Next to these XML attributes you might want to adjust
