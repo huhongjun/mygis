@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="800"
+   height="300"
+   viewBox="0 0 400 200"
+   id="mainview"
+   sodipodi:version="0.32"
+   inkscape:version="0.46"
+   sodipodi:docname="test.svg"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape" onload="init(evt)">
+  <metadata
+     id="metadata11">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs9">
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 150 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="800 : 150 : 1"
+       inkscape:persp3d-origin="400 : 100 : 1"
+       id="perspective13" />
+  </defs>
+  <sodipodi:namedview
+     inkscape:window-height="742"
+     inkscape:window-width="1024"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     guidetolerance="10.0"
+     gridtolerance="10.0"
+     objecttolerance="10.0"
+     borderopacity="1.0"
+     bordercolor="#666666"
+     pagecolor="#ffffff"
+     id="base"
+     showgrid="false"
+     inkscape:zoom="0.68"
+     inkscape:cx="400"
+     inkscape:cy="150"
+     inkscape:window-x="-4"
+     inkscape:window-y="-4"
+     inkscape:current-layer="mainview" />
+  <script type="text/javascript"     id="script3">
+	var map;
+	function init(evt){
+		map = evt.target.ownerDocument;
+	}
+
+	var stackStyleOriginal;
+	function stackMouseOver(evt){
+		map = evt.target.ownerDocument;
+		var obj1 = evt.target.ownerDocument;
+		stackstyleOriginal = obj1.getAttributeNS(null,"style");
+		alert(stackstyleOriginal);
+		obj1.setAttributeNS(null,"style","fill:red");
+
+		//var txt1 = map.getElementById("mtext");
+		//txt1.setAttribute("text", "X="+evt.clientX+";Y="+evt.clientY);
+		//txt1.setAttribute("text", "abc");
+	}
+	
+	function stackMouseOut(evt){
+		var obj1 = evt.target;
+		obj1.setAttributeNS(null,"style",stackStyleOriginal);
+		
+	}
+	
+	function stackMouseDown(evt){
+			
+		var node1 = evt.target.ownerDocument.createElement("rect");
+		
+		node1.setAttribute("id","stackAction");
+		node1.setAttribute("x","50");
+		node1.setAttribute("y","50");
+		node1.setAttribute("height","50");
+		node1.setAttribute("width","50");
+		node1.setAttribute("style","fill:red");		
+
+	}
+     function mouseClick1(evt)
+     {
+        var rect     = evt.target;
+        var parent   = rect.parentNode;
+        var svgDocument = parent.getOwnerDocument();
+
+        var rectID = rect.getAttribute("id");
+        var xPos   = rect.getAttribute("x");
+        var yPos   = rect.getAttribute("y");
+        var width  = rect.getAttribute("width");
+        var height = rect.getAttribute("height");
+		alert(rectID);
+        var cx    = 1.*xPos;
+        var cy    = 1.*yPos;
+
+        cx        += 1.*width/2;
+        cy        += 1.*height/2;
+
+        var style = "";
+
+        var idVal = 1.*rectID.substr(4);
+
+        if(idVal % 2 == 0) { style = "fill:red"; }
+        else               { style = "fill:yellow"; }
+
+        circleNode = svgDocument.createElement("circle");
+
+        circleNode.setAttribute("x",     xPos);
+        circleNode.setAttribute("y",     yPos);
+        circleNode.setAttribute("cx",    cx);
+        circleNode.setAttribute("cy",    cy);
+        circleNode.setAttribute("style", style);
+        circleNode.setAttribute("r",     width/2);
+
+        parent.appendChild(circleNode);
+     }
+	
+	</script>
+
+  <g
+     id="g5">
+    <text
+       id="mtext"
+       x="200"
+       y="100"
+       style="text-anchor:middle;font-size:24;font-family:Simhei;fill:red">
+非实时数据显示
+</text>
+  </g>
+ 
+<g transform="translate(100,100)">
+<rect onmouseover="stackMouseOver(evt)" onclick="mouseclick1(evt)"
+   x="0" y="0" width="200" height="100"
+   style="fill:red;stroke:blue;stroke-width:4;">
+
+	
+</rect>
+</g>
+  
+</svg>
