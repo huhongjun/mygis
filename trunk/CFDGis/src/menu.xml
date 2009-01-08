@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<menu id="myCustomMenu">
+ 
+ <item action="ZoomIn" id="ZoomIn">放大图像</item>
+ <item action="ZoomOut" id="ZoomOut">缩小图像</item>
+ <item action="OriginalView" id="OriginalView">原始尺寸</item>
+ <separator/>
+ <item action="Find" id="Find">查找文字</item>
+ <item action="Copy" id="Copy">复制文字</item>
+ <separator/>
+        　　　<item >LWJ</item>
+ 
+</menu>
