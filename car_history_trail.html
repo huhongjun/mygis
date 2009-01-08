@@ -1,0 +1,462 @@
+
+<script type="text/javascript">
+
+function createXmlHttp(){
+ var xmlHttp;
+ 
+ try
+    {
+   // Firefox, Opera 8.0+, Safari
+    xmlHttp=new XMLHttpRequest();
+    }
+ catch (e)
+    {
+
+  // Internet Explorer
+   try
+      {
+      xmlHttp=new ActiveXObject("Msxml2.XMLHTTP");
+      }
+   catch (e)
+      {
+
+      try
+         {
+         xmlHttp=new ActiveXObject("Microsoft.XMLHTTP");
+         }
+      catch (e)
+         {
+         alert("您的浏览器不支持AJAX！");
+         return false;
+         }
+      }
+    }
+
+  return xmlHttp;
+}
+
+function ajaxFunction()
+ {
+
+
+	
+    xmlHttp.onreadystatechange=function()
+      {
+      if(xmlHttp.readyState==4)
+        {
+		var carinfolist = xmlHttp.responseText;
+		//document.write(carinfolist);
+		//alert(carinfolist);
+		showCarInfoToList(carinfolist);
+        }
+      }
+
+    xmlHttp.open("GET","GetCarList.php",true);
+    xmlHttp.send(null);
+	
+ }
+
+
+
+function showCarInfoToList(CarInfo)
+{
+	// 显示车辆的列表
+	// CarInfo 为php返回的
+	var arrayCarInfo = CarInfo.split(";");
+	var  car_field_values;
+
+	var car_info_obj = document.getElementById("car_info_list");
+
+	//alert(CarInfo);
+	//alert(arrayCarInfo.length);
+
+	var i = 0;
+	for(i=1; i < arrayCarInfo.length - 1; i++)
+	{
+		car_field_values = arrayCarInfo[i].split(":");
+		var car_id = car_field_values[0];
+		var car_code = car_field_values[1];
+		var car_name = car_field_values[2];
+
+		//alert(car_name);
+
+		var car_item = document.createElement("OPTION");
+		car_info_obj.options.add(car_item);
+
+		car_item.innerText = car_name;
+		car_item.value = car_code;
+
+		
+	}
+}
+	
+
+// 选择速度时
+function onSelectShowSpeed(){
+	//alert("fadfs");
+}
+
+var g_time_seg_strs; // 时间字符串数组
+var g_total_seconds; // 总的显示时间
+
+var g_pos_segs; // 坐标的分段
+
+var g_seg_index; // 段号
+
+var g_timer; // 定时器
+
+// 点击开始回放历史轨迹的按钮
+function onStart(){
+	// 判断是否有正确输入
+	var oCarIDText = document.getElementById("car_id");
+	var nCarID = oCarIDText.value;
+	if(nCarID == "") {
+		alert("请输入车辆编号！");
+		return;
+		}
+	
+	var oFromTimeText = document.getElementById("from_time");
+	var strFromTime = oFromTimeText.value;
+	if(strFromTime == "") {
+		alert("请输入开始时间！");
+		return;
+	}
+	
+	var oToTimeText = document.getElementById("to_time");
+	var strToTime = oToTimeText.value;
+	if(strToTime == ""){
+		 alert("请输入终止时间！");
+		 return;
+	}
+	
+	// 获取选择的速度
+	var dur = 10; // 持续时间
+	if(animate_speed[0].checked) 
+		dur = 100;
+	else if (animate_speed[1].checked)
+		dur = 50;
+	else if(animate_speed[2].checked)
+		dur = 10;
+		
+	g_total_seconds = dur;
+		
+	var dur_str = dur + "s";
+	
+	//alert(1 + dur_str);
+	
+	//alert(dur);
+
+	// 创建ajax对象
+    var xmlHttp = createXmlHttp();
+    if(!xmlHttp) return;
+
+    xmlHttp.onreadystatechange=function()
+      {
+      if(xmlHttp.readyState==4)
+        {
+        	// 从Oracle读到时间和坐标
+        	var car_hist_info = xmlHttp.responseText;
+        	var segs = car_hist_info.split("&");
+        	
+        	var time_segs = segs[0]; // 时间部分
+        	g_time_seg_strs = time_segs.split("/"); // 放到全局变量
+        	
+        	//alert(g_time_seg_strs.length);
+        	
+			var car_hist_pos = segs[1]; // 坐标信息部分
+			//var pos_seg_strs = car_hist_pos.split(";");
+			//alert(car_hist_pos + " =====  " + dur);
+			g_pos_segs = getPosSegStringArray(car_hist_pos, dur); // 每部分的坐标字符串，放到全局变量
+			
+			// 设置滑动条的最大和最小范围值
+			sld3.MinValue = 0;
+			sld3.MaxValue = dur;
+			
+			// 初始
+			g_seg_index = 0;
+			g_timer = window.setInterval("doAnimateCar()", 1000);
+			//alert(g_timer);
+			
+			//alert(car_hist_pos);
+		
+			// 返回车辆的历史轨迹坐标序列
+			//var path_coords = getSvgPathCoordsString(car_hist_pos);
+			
+			// 轨迹的第一个坐标，为数值数组
+			//var first_xy = getCarHistoryFirstCoordStr(car_hist_pos);
+
+			// 动画显示车辆的轨迹
+			//animateHistoryTrail(car_hist_pos, dur_str, first_xy);
+        }
+      }
+      
+    var url = "GetCarHistoryPos.php?car_id=" + nCarID + "&from_time=" + strFromTime + "&to_time=" + strToTime + "&total_seconds=" + dur;
+    
+    //alert(url);
+
+    xmlHttp.open("GET", url, true);
+    xmlHttp.send(null);
+
+}
+
+function doAnimateCar(){
+	
+	// curSegPosStrs: "x1:y1;x2:y2;...."
+	if(g_seg_index >=0 && g_seg_index < g_pos_segs.length){
+		var curSegPosStrs = g_pos_segs[g_seg_index];
+		
+		//alert(g_pos_segs.length + "  ======= " + curSegPosStrs);
+		
+		animateHistoryTrail(curSegPosStrs, "1s");
+		g_seg_index++;
+	}
+}
+
+function getPosSegStringArray(pos_strs, count){
+	var result = new Array;
+	var pos_segs_strs = pos_strs.split(";");
+	var one_seg_str = "";
+	var index = 0;
+	var len = Math.ceil(pos_segs_strs.length / count);
+	for(var i = 1; i < pos_segs_strs.length; i++){
+		if((i % len) == 1)
+			one_seg_str = pos_segs_strs[i];
+		else{
+			one_seg_str = one_seg_str + ";" + pos_segs_strs[i];
+			if((i % len) == 0) {
+				result[index] = one_seg_str;
+				index++;
+				}
+			}
+	}
+	
+	//alert(pos_segs_strs.length + "  +++++  " + result.length + "     ===    " + count);
+	
+	return result;
+}
+
+// 根据历史坐标，动态显示起轨迹
+function animateHistoryTrail(car_hist_pos, dur){
+	// dur 为时间长度
+	
+	// SVG 控件对象
+	var svgControl = window.parent.svgmapctrl;
+	var svgDoc = svgControl.getSVGDocument();
+	var Map = svgDoc.getElementById("map");
+
+	// 先画轨迹的path坐标，在SVG控件中增加path
+	var path_coords = getSvgPathCoordsString(car_hist_pos);
+	/*
+	var path_node=svgDoc.createElement("path");  
+	path_node.setAttribute("d",path_coords );  
+	path_node.setAttribute("transform","scale(0.01)");  
+    Map.appendChild(path_node);
+    */
+
+	//alert(path_coords);
+	// 沿轨迹移动车辆图标
+	moveAniCar(path_coords, dur);
+}
+
+function moveAniCar(car_hist_pos, dur)
+{
+	// 动画的显示车辆轨迹
+	svgDoc = window.parent.svgmapctrl.getSVGDocument();
+	
+	/*
+	oCarImg = svgDoc.getElementById("car_img");
+	first_x_str = first_xy[0].toString();
+	first_y_str = first_xy[1].toString();
+    oCarImg.setAttributeNS(null, "x", first_x_str);
+    oCarImg.setAttributeNS(null, "y", first_y_str);
+    */
+    
+	oCarAni = svgDoc.getElementById("car_ani");
+	//oCarAni.setAttributeNS(null, "path", "M0,0 L10, 10");
+	oCarAni.setAttributeNS(null,"path", car_hist_pos); // 轨迹
+	oCarAni.setAttributeNS(null, "dur", dur); // 动画持续时间
+	oCarAni.beginElement(); // 开始动画
+}
+
+
+function getSvgPathCoordsString(car_hist_pos){
+	// 解析获取车辆的轨迹坐标
+	// 参数：;x1:y1;x2:y2;.......
+	// 返回 Mx1,y1 Lx2,y2 L....
+    var coords_strs = car_hist_pos.split(';');
+
+	var one_coords_str;
+	var xy_str;
+	var x, y;
+	var x_str;
+	var y_str;
+
+	var svg_path_str = "";
+ 
+        for(var i=0; i < coords_strs.length - 1;i++){
+		one_coords_str = coords_strs[i];
+		xy_str = one_coords_str.split(":")
+		x_str = xy_str[0];
+		y_str = xy_str[1];
+
+		x = parseInt(x_str) * 0.01; // 需求乘以0.01
+		y = parseInt(y_str) * 0.01;
+
+		x_str = x.toFixed(0);
+		y_str = y.toFixed(0);
+
+		if(i == 1)
+			svg_path_str = "M" + x_str + "," + y_str;
+		else
+			svg_path_str = svg_path_str + " L" + x_str + "," + y_str;
+	}
+
+	return svg_path_str;
+
+}
+
+function getCarHistoryFirstCoordStr(car_hist_pos){
+	//  获取车辆历史轨迹的第一个点坐标
+	// 参数：;x1:y1;x2:y2;.......
+	// 返回 array[x, y]
+	var xy = new Array;
+	
+	var coords_strs = car_hist_pos.split(';');
+	var first_coord_str = coords_strs[0];
+	var xy_strs = first_coord_str.split(":");
+	var x_str = xy_strs[0];
+	var y_str = xy_strs[1];
+	xy[0] = parseInt(x_str) * 0.01;
+	xy[1] = parseInt(y_str) * 0.01;
+	
+	return xy;
+}
+
+function onInterrup(){
+	//var oCarIDText = document.getElementById("car_id");
+	window.clearInterval(g_timer);
+}
+
+</script>
+
+<!-- 包括进时间选择控件 -->
+<script src="Calendar.js">
+</script>
+
+<script>
+function inputFromTime(){
+	var oFromTimeText = document.getElementById("from_time");
+	setDayHM(oFromTimeText);
+}
+
+function inputToTime(){
+	var oToTimeText = document.getElementById("to_time");
+	setDayHM(oToTimeText);
+}
+</script>
+
+<script >
+function onNodeSelect(nodeId)
+{
+	// 点击树状列表的节点时
+	
+	if(nodeId < 5) return;
+	//
+	svgDoc = window.parent.svgmapctrl.getSVGDocument();
+	cBtn = svgDoc.getElementById(nodeId);
+	att = cBtn.attributes;
+	
+	// 把车辆的编号获取并显示到文本框
+	var oCarIDText = document.getElementById("car_id");
+	oCarIDText.value = att.item(0).value;	
+} 
+</script>
+
+<html>
+<body>
+
+<link rel="stylesheet" href="styles/maps.css" type="text/css" />
+<link rel="stylesheet" href="styles/fontandcolor.css" type="text/css" />
+<link rel="StyleSheet" href="dtree.css" type="text/css" />
+<link rel="STYLESHEET" type="text/css" href="dhtmlxtree.css">
+<script  src="dhtmlxcommon.js"></script>
+<script  src="dhtmlxtree.js"></script>
+
+
+<script type="text/javascript" src="Slider.js"></script>
+<script type="text/javascript" src="Drag.js"></script>
+<style type="text/css">
+.slider3{height:19px; width:250px; background-color:#eee; border:2px solid #EAE6DD; margin:10px 0;}
+.bar3 {height:15px; width:10px; border:2px outset buttonhighlight; background-color:#D4D0C8;_font-size:0; }
+</style>
+
+<span>车辆列表：</span>
+<div id="treeboxbox_tree" style="width:100%;height:180;border:1;"></div>	
+<script>
+	tree=new dhtmlXTreeObject("treeboxbox_tree","100%","100%",0);
+	tree.setImagePath("imgs/");
+	//link tree to asp script
+	tree.setXMLAutoLoading("Get_Car_TreeView.php"); 
+							
+	//load first level of tree
+	tree.loadXML("Get_Car_TreeView.php?id=0");
+	tree.enableThreeStateCheckboxes(true);//false to disable 
+	tree.attachEvent("onClick",onNodeSelect);//set function object to call on node select //see other available event handlers in API documentation 
+</script>
+
+<table border="0">
+	<tr><td align="right">车辆编号：</td><td><input type="text" id="car_id"></td></tr>
+	<tr><td align="right">起始时间：</td><td><input type="text" id="from_time">
+											 <input type="button" id="input_from_time" value="..." onClick="javascript:inputFromTime();"/>
+										</td></tr>
+	<tr><td align="right">终止时间：</td><td><input type="text" id="to_time">
+											 <input type="button" id="input_to_time" value="..." onClick="javascript:inputToTime();"/>
+										</td></tr>
+	<tr><td align="right">显示速度：</td>
+        <td>
+			<input type="radio" name="animate_speed" onclick="onSelectShowSpeed();">慢
+			<input type="radio" name="animate_speed" checked onclick="onSelectShowSpeed();">中
+			<input type="radio" name="animate_speed" onclick="onSelectShowSpeed();">快
+	    </td>
+	</tr>
+</table>
+
+<table border="0">
+<tr>
+<td>
+	时间尺度：<br>
+	<div id="idSlider3" class="slider3">
+  		<div id="idBar3" class="bar3"></div>
+	</div>
+	当前时间：<span id="idCurrentValue"></span>
+</td>
+</tr>
+</table>
+
+<script>
+
+var sld3 = new Slider("idSlider3", "idBar3", {
+	onMin: function(){ },
+	onMax: function(){ },
+	onMid: function(){ },
+	onMove: function(){
+		var curValue = Math.round(this.GetValue());
+		//alert();
+		if(curValue >=0 && curValue < g_time_seg_strs.length){
+			window.clearInterval(g_timer);
+			g_seg_index = curValue;
+						g_timer = window.setInterval("doAnimateCar()", 1000);
+			var cur_time_seg_str = g_time_seg_strs[curValue];
+			$("idCurrentValue").innerHTML = cur_time_seg_str;
+		}
+	}
+});
+</script>
+
+<form name="form1" method="post" action="">
+	<input type="button" id="start" value="开始回放" onclick="onStart()">
+	<input type="button" id="interrup" value="停止回放" onclick="onInterrup()">
+</form>
+
+</body>
+</html>
