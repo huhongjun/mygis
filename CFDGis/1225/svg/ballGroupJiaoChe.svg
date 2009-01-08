@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd" >
-
-<svg id="map" overflow="hidden" xml:space="preserve" width="1280px" height="780px" viewBox="100 0 1280 750" zoomAndPan="magnify" style="shape-rendering:geometricPrecision;text-rendering:geometricPrecision;image-rendering:optimizeQuality;color-interpolation:sRGB" xmlns:dbxns="http://www.dbxgeomatics.com/ns">
-
-	<g id="ballGroupJiaoChe" stroke-width="5">
-		<image  y="1"  x="1"   id="image2486"  height="140"  width="400"  xlink:href="jiaochefushi.jpg" />
-	</g>
-</svg>
