@@ -9,3 +9,7 @@ function pixToReal(ax,str_area)
 	result=(a0x-ax)/(widthscale*Math.cos((Math.PI / 180)*(180-a0rotate)));
     return result;
 }
+
+XAMPP
+	php.ini 加载oracle驱动：ora_, oci_
+	安装Oracle客户端驱动
