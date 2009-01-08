@@ -10,7 +10,7 @@ Class Car{
 		
 	public function tosvg()
 	{
-		$svgelement = "<use id='". $this->oid."' x='". $this->cx."' y='" .  $this->cy ."' CAR_CODE='". $this->CAR_CODE."' CAR_NAME='". $this->CAR_NAME."' CAR_TYPE='". $this->CAR_TYPE."' xlink:href='#ballGroup' stroke='red' fill='#ffff00' onclick='objectMouseClick(evt)' onmouseout='objectMouseOut(evt)' onmouseover='objectMouseOver(evt)' transform='rotate(0 ".$this->cx.",".$this->cy.") scale(0.01)' type='car' infotip='" .
+		$svgelement = "<use id='". $this->CAR_CODE."' x='". $this->cx."' y='" .  $this->cy ."' CAR_CODE='". $this->CAR_CODE."' CAR_NAME='". $this->CAR_NAME."' CAR_TYPE='". $this->CAR_TYPE."' xlink:href='#ballGroup' stroke='red' fill='#ffff00' onclick='objectMouseClick(evt)' onmouseout='objectMouseOut(evt)' onmouseover='objectMouseOver(evt)' transform='rotate(0 ".$this->cx.",".$this->cy.") scale(0.01)' type='car' attrib:tooltip='" .
 		$this->tostring(). "'/>";
 		return $svgelement;
 	}
