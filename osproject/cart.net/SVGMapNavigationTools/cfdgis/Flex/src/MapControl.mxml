@@ -105,13 +105,13 @@
                  }
 				
 				//获取车辆信息
-				var urlCar:URLRequest = new URLRequest("http://localhost/SVGMapNavigationTools/cfdgis/php/getCarTreeXML.php");
+				var urlCar:URLRequest = new URLRequest("php/getCarTreeXML.php");
 				loader = new URLLoader(urlCar);
 				loader.dataFormat = "xml";
 				loader.addEventListener(Event.COMPLETE, refreshCarTree);
 				
 				//获取垛位信息
-				var urlStack:URLRequest = new URLRequest("http://localhost/SVGMapNavigationTools/cfdgis/php/getStackXML.php");
+				var urlStack:URLRequest = new URLRequest("php/getStackXML.php");
 				loader = new URLLoader(urlStack);
 				loader.dataFormat = "xml";
 				loader.addEventListener(Event.COMPLETE, refreshStackGrid);

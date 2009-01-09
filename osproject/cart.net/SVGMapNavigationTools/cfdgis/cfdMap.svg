@@ -41,9 +41,9 @@ xmlns:batik="http://xml.apache.org/batik/ext" onload="init(evt);" zoomAndPan="di
 		function init(evt) {
 			//dynamic layer array that allow loading from database
 			var dynamicLayers = new Array();
-			dynamicLayers["car"] = {"key":"car","value":"no","loaded":"no"};
+			dynamicLayers["car"] = {"key":"car","value":"yes","loaded":"no"};
 			dynamicLayers.push(dynamicLayers["car"]);
-			dynamicLayers["stack"] = {"key":"stack","value":"no","loaded":"no"};
+			dynamicLayers["stack"] = {"key":"stack","value":"yes","loaded":"no"};
 			dynamicLayers.push(dynamicLayers["stack"]);
 			dynamicLayers["area"] = {"key":"area","value":"yes","loaded":"no"};
 			dynamicLayers.push(dynamicLayers["area"]);
@@ -165,7 +165,7 @@ xmlns:batik="http://xml.apache.org/batik/ext" onload="init(evt);" zoomAndPan="di
 			//build a url string
 			//var myUrlString = "sendGeom.php?layername="+layerId+"&xmin="+myMainMap.curxOrig+"&ymin="+((myMainMap.curyOrig + myMainMap.curHeight)* -1)+"&xmax="+(myMainMap.curxOrig+myMainMap.curWidth)+"&ymax="+(myMainMap.curyOrig * -1)+"&timestamp="+myMainMap.timestamp;
 			
-			var myUrlString = "http://localhost/SVGMapNavigationTools/cfdgis/php/getGeoLayer.php?layer="+layerId+"&timestamp="+myMainMap.timestamp;
+			var myUrlString = "php/getGeoLayer.php?layer="+layerId+"&timestamp="+myMainMap.timestamp;
 			
 			//call getURL() if available
 			if (window.getURL) {
