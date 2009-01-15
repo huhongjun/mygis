@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute"
+	 creationComplete="init()">
+
+	<mx:Canvas id="mapCanvas" x="21" y="26" width="588" height="475" borderStyle="solid" borderColor="#05166D">
+	</mx:Canvas>
+
+	<mx:Script>
+		<![CDATA[
+			import mx.core.UIComponent;
+			import flash.display.MovieClip;
+			import info.osmatrix.map.*;
+
+			var mapMC:MovieClip;
+			var maskShape:Shape;
+
+			private function init():void{
+				
+				mapMC = new MovieClip();
+				mapMC.graphics.beginFill(0x5e5f9c, 0);
+				mapMC.graphics.drawRect(0,0,400, 300);
+				mapMC.graphics.endFill();	
+				
+				//zoomIn.addEventListener(MouseEvent.CLICK, setZoomIn);
+
+				maskShape = new Shape();
+				maskShape.width = mapMC.width;
+				maskShape.height = mapMC.height;
+				maskShape.x = mapMC.x;
+				maskShape.y = mapMC.y;
+				maskShape.graphics.beginFill(0xffffff, 0);
+				maskShape.graphics.drawRect(0,0,mapMC.width, mapMC.height);
+				maskShape.graphics.endFill();	
+				
+				//mapMC.mask = maskShape;
+				var uiCont:UIComponent = new UIComponent();
+				uiCont.addChild(mapMC);
+				//uiCont.addChild(maskShape);
+				//ui.setChildIndex(maskShape, 0);
+				uiCont.setActualSize(mapMC.width, mapMC.height);
+				uiCont.move(0,0);
+				mapCanvas.addChild(uiCont);
+				//this.setChildIndex(uiCont, 0);
+				
+			}
+		]]>
+	</mx:Script>
+</mx:Application>
