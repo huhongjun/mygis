@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx" minWidth="955" minHeight="600" applicationComplete="initApp()" width="1194">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+		<fx:XML source="asset/TBL_THUNDER.xml" id="thunder" />
+		
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+						
+			private function initApp():void
+			{
+				
+				// 计算准备数据
+				var i:Number = 0;
+				var xml01:XML = <rowdata/>;
+				for each(var x:XML in thunder.ROW.(FLASHTIME.toString().substr(0,9) == "2009-6-16"))
+				{
+					i = i + 1;
+					
+					var x1:XML = <row/>;
+					x1.@idx = i;
+					x1.@INTENSION = Math.abs(x.INTENSION*10);
+					x1.@FLASHTIME = x.FLASHTIME;
+					x1.@period = x.FLASHTIME.substr(10,2);	
+					x1.@XIAN = x.XIAN;
+					x1.@phase = Math.floor((x1.@INTENSION - x1.@INTENSION%50)/10);				// 用5分段
+					xml01.appendChild(x1);
+				}
+				
+				txt.text = xml01.toXMLString();
+				dataGrid1.dataProvider = xml01.row;
+				
+			}
+						
+		]]>
+	</fx:Script>
+			
+	<s:TextArea x="892.6" y="10.15" id="txt" width="281" height="580"/>
+	<mx:DataGrid id="dataGrid" dataProvider="{thunder.ROW}" width="451.3" height="575.65" x="410.15" y="13.1">
+		<mx:columns>
+			<mx:DataGridColumn headerText="放电" dataField="INTENSION"/>
+			<mx:DataGridColumn headerText="时间" dataField="FLASHTIME"/>
+			<mx:DataGridColumn headerText="区县" dataField="XIAN"/>
+		</mx:columns>
+	</mx:DataGrid>
+	<mx:DataGrid id="dataGrid1" width="392.3" height="579.65" x="10.45" y="12.6">
+		<mx:columns>
+			<mx:DataGridColumn headerText="序号" dataField="@idx"/>
+			<mx:DataGridColumn headerText="放电" dataField="@phase"/>
+			<mx:DataGridColumn headerText="时间" dataField="@period"/>
+			<mx:DataGridColumn headerText="区县" dataField="@XIAN"/>
+		</mx:columns>
+	</mx:DataGrid>
+</s:Application>
