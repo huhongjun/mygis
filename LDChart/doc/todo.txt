@@ -1,0 +1,5 @@
+Category的dataProvider从数据库取数据，实现按区县的数量排序；
+
+PHP访问，PHP接口实现
+
+如何定义外观
