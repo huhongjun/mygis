@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx" minWidth="955" minHeight="600" applicationComplete="initApp()">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+		<fx:XML source="asset/TBL_THUNDER.xml" id="thunder" />
+		<mx:XMLListCollection id="cubedp"/>
+		
+		<mx:OLAPCube name="FlatSchemaCube" id="myMXMLCube" dataProvider="{cubedp}" complete="">  
+			<mx:OLAPDimension name="TimeDim">  
+				<mx:OLAPAttribute name="Period" dataField="Period" displayName="时段"/>  
+				<mx:OLAPHierarchy name="Time-PeriodHier" hasAll="true">  
+					<mx:OLAPLevel attributeName="Period"/>  
+				</mx:OLAPHierarchy>   
+			</mx:OLAPDimension>
+			
+			<mx:OLAPDimension name="AreaDim">  
+				<mx:OLAPAttribute name="Area" dataField="Area" displayName="区县"/>  
+				<mx:OLAPHierarchy name="Power-PeriodHier" hasAll="true">  
+					<mx:OLAPLevel attributeName="Area"/>  
+				</mx:OLAPHierarchy>   
+			</mx:OLAPDimension>  
+			
+			<mx:OLAPMeasure name="QCountForPeriod" dataField="INTENSION" aggregator="COUNT"/>
+			<mx:OLAPMeasure name="QCountForArea" dataField="INTENSION" aggregator="COUNT"/>
+			
+		</mx:OLAPCube>		
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			import mx.events.CubeEvent;
+			import mx.messaging.messages.ErrorMessage;
+			import mx.olap.IOLAPCube;
+			import mx.olap.IOLAPQuery;
+			import mx.olap.IOLAPQueryAxis;
+			import mx.olap.OLAPQuery;
+			import mx.olap.OLAPResult;
+			import mx.olap.OLAPSet;
+			import mx.rpc.AsyncResponder;
+			import mx.rpc.AsyncToken;
+
+			
+						
+			private function initApp():void
+			{
+				
+				// 计算准备数据
+				for each(var x:XML in thunder.ROW)
+				{
+					x.PERIOD = 12;				// 50个工频周期
+					x.FlashArea = Math.floor(x.INTENSION/5);			// 100个相位
+					
+				}
+				
+				dataGrid.dataProvider = thunder.ROW;
+				
+				// 设置OLAP Cube数据源，将会触发OLAP的建模与查询
+				//cubedp.source = thunder.ROW;
+				//myMXMLCube.refresh();				
+			}
+			
+			private function runQuery(event:CubeEvent):void { 
+				// Get cube. 
+				var cube:IOLAPCube = IOLAPCube(event.currentTarget); 
+				// Create a query instance. 
+				var query:IOLAPQuery = getQuery(cube); 
+				// Execute the query. 
+				var token:AsyncToken = cube.execute(query); 
+				// Set up handlers for the query results. 
+				token.addResponder(new AsyncResponder(showResult, showFault)); 
+			} 
+
+			// Create the OLAP query. 
+			private function getQuery(cube:IOLAPCube):IOLAPQuery { 
+				// Create an instance of OLAPQuery to represent the query.  
+				var query:OLAPQuery = new OLAPQuery; 
+				
+				// Get the row axis from the query instance. 
+				var rowQueryAxis:IOLAPQueryAxis = query.getAxis(OLAPQuery.ROW_AXIS); 
+				
+				// Create an OLAPSet instance to configure the axis. 
+				var qphaseSet:OLAPSet = new OLAPSet; 
+				qphaseSet.addElements( cube.findDimension("AreaDim").findAttribute("Area").members); 	// 包括All，children不还All
+				
+				// Get the column axis from the query instance, and configure it 
+				// to aggregate the columns by the Quarter dimension.  
+				var colQueryAxis:IOLAPQueryAxis = query.getAxis(OLAPQuery.COLUMN_AXIS); 
+				
+				var phaseSet:OLAPSet= new OLAPSet; 
+				phaseSet.addElements(cube.findDimension("TimeDim").findAttribute("Period").members); 
+				
+				
+				rowQueryAxis.addSet(phaseSet); 
+				colQueryAxis.addSet(qphaseSet); 
+				
+				// 使用默认计算
+				// Create the slicer axis.   
+				var slicerQueryAxis:IOLAPQueryAxis = query.getAxis(OLAPQuery.SLICER_AXIS);     
+				// Create an OLAPSet instance to configure the axis.  
+				var cthreshholdSet:OLAPSet= new OLAPSet;  
+				// Use OLAPDimension.findMember() to add the Cost measure.  
+				cthreshholdSet.addElement(cube.findDimension("Measures").findMember("QCountForArea"));  
+				slicerQueryAxis.addSet(cthreshholdSet);  
+				
+				return query;        
+			}
+			
+			// Handle a query fault. 
+			private function showFault(error:ErrorMessage, token:Object):void { 
+				Alert.show(error.faultString); 
+			} 
+			
+			// Handle a successful query by passing the query results to  
+			// the OLAPDataGrid control.. 
+			private var cubeResult:OLAPResult;
+			private function showResult(result:Object, token:Object):void { 
+				if (!result) { 
+					Alert.show("No results from query."); 
+					return; 
+				} 
+				
+				cubeResult = result as OLAPResult;
+				myOLAPDGCount.dataProvider= cubeResult; 
+
+			}
+						
+		]]>
+	</fx:Script>
+			
+	<mx:TabNavigator x="9.7" y="51.35" width="872" height="461">
+		<s:NavigatorContent label="按行政区显示" width="100%" height="100%">
+			<mx:ColumnChart id="AreaChart" width="100%" height="100%" dataProvider="{thunder.ROW}">
+				<mx:series>
+					<mx:ColumnSeries displayName="Series 1" yField=""/>
+				</mx:series>
+			</mx:ColumnChart>
+			<mx:Legend dataProvider="{AreaChart}"/>
+		</s:NavigatorContent>
+		<s:NavigatorContent label="按时间显示" width="100%" height="100%">
+		</s:NavigatorContent>
+		<s:NavigatorContent label="按强度显示" width="100%" height="100%">
+		</s:NavigatorContent>
+		<s:NavigatorContent label="原始数据" width="100%" height="100%">
+			<mx:DataGrid id="dataGrid" dataProvider="{thunder.ROW}" width="100%" height="100%">
+				<mx:columns>
+					<mx:DataGridColumn headerText="放电" dataField="INTENSION"/>
+					<mx:DataGridColumn headerText="时间" dataField="FLASHTIME"/>
+					<mx:DataGridColumn headerText="区县" dataField="XIAN"/>
+					<mx:DataGridColumn headerText="时段" dataField="Period"/>
+				</mx:columns>
+			</mx:DataGrid>
+		</s:NavigatorContent>
+		<s:NavigatorContent label="OLAPGrid" width="100%" height="100%">
+			<mx:OLAPDataGrid id="myOLAPDGCount" x="0" y="0"/>
+		</s:NavigatorContent>
+	</mx:TabNavigator>
+</s:Application>

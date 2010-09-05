@@ -1,0 +1,11 @@
+/* CSS file */
+@namespace s "library://ns.adobe.com/flex/spark";
+@namespace mx "library://ns.adobe.com/flex/mx";
+
+.accHeader { 
+	fillColors: red, yellow; 
+	fillAlphas: 1.0, 0.5; 
+	selectedFillColors: black, black; 
+	chromeColor: white;
+} 
+
