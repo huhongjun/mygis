@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<kml xmlns="http://earth.google.com/kml/2.0">
+<Document>
+  <name>北京</name>
+  <description><![CDATA[Carte des stations V�lib' � Paris]]></description>
+  <Style id="style_velib">
+    <IconStyle>
+      <Icon>
+        <href>http://maps.google.com/mapfiles/ms/icons/red-dot.png</href>
+      </Icon>
+    </IconStyle>
+  </Style>
+
+  <Placemark>
+    <name>Ile de la cite pont neuf</name>
+    <description><![CDATA[Station n� 1001<br />41 quai de l'horloge 75001 paris]]></description>
+    <styleUrl>#style_velib</styleUrl>
+    <Point>
+      <coordinates>116.20283,40.12832,0.000000</coordinates>
+    </Point>
+  </Placemark>
+	
+	
+</Document>
+</kml>

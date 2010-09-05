@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx" minWidth="955" minHeight="600" xmlns:thunderservice="services.thunderservice.*">
+	<fx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			
+			protected function dataGrid_creationCompleteHandler(event:FlexEvent):void
+			{
+				getThunderForChartAllResult.token = thunderService.getThunderForChartAll("20090613","20090613");
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<s:CallResponder id="getThunderForChartAllResult" />
+		<thunderservice:ThunderService id="thunderService" fault="Alert.show(event.fault.faultString + '\n' + event.fault.faultDetail)" showBusyCursor="true"/>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<mx:DataGrid x="26" y="31" id="dataGrid" creationComplete="dataGrid_creationCompleteHandler(event)" dataProvider="{getThunderForChartAllResult.lastResult}" width="473" height="544">
+		<mx:columns>
+			<mx:DataGridColumn headerText="idx" dataField="idx"/>
+			<mx:DataGridColumn headerText="xian" dataField="xian"/>
+			<mx:DataGridColumn headerText="ftime" dataField="ftime"/>
+			<mx:DataGridColumn headerText="period" dataField="period"/>
+			<mx:DataGridColumn headerText="phase" dataField="phase"/>
+		</mx:columns>
+	</mx:DataGrid>
+</s:Application>
