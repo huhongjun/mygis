@@ -15,4 +15,16 @@
 		<nature>com.adobe.flexbuilder.project.flexnature</nature>
 		<nature>com.adobe.flexbuilder.project.actionscriptnature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>bin-debug</name>
+			<type>2</type>
+			<location>E:/xampplite/htdocs/LDChart</location>
+		</link>
+		<link>
+			<name>services/ThunderService.php</name>
+			<type>1</type>
+			<location>E:/xampplite/htdocs/LDChart/php/ThunderService.php</location>
+		</link>
+	</linkedResources>
 </projectDescription>
