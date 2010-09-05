@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns="*" xmlns:mx="http://www.adobe.com/2006/mxml" 
+		   xmlns:os="http://openscales.org" creationComplete="initMap();">
+
+	<os:Map id="fxmap" width="100%" height="100%" zoom="12" centerLonLat="116.20283,40.12832">
+
+		<os:TraceInfo x="{width-200}" y="0" visible="{displayTrace}"/>
+
+		<!-- OpenStreetMap EPSG:900913 -->
+		<os:Mapnik name="Mapnik" isBaseLayer="true" proxy="http://openscales.org/proxy.php?url="/>
+
+		<os:KML url="http://code.google.com/intl/fr/apis/kml/documentation/KML_Samples.kml" 
+				proxy="http://openscales.org/proxy.php?url=" 
+				numZoomLevels="20" style="{Style.getDefaultLineStyle()}"/>
+
+		<os:DragHandler/>
+		<os:WheelHandler/>
+
+		<os:Spinner id="spinner" x="{width / 2}" y="{height / 2}"/>
+		<os:MousePosition x="10" y="{height-20}" displayProjection="EPSG:4326"/>
+		<os:ScaleLine x="{width-100-10}" y="{height-80}"/>
+
+		<!-- Specific layers and handlers of this example -->
+		<!-- none -->
+
+	</os:Map>
+
+	<!-- Specific tools of this example -->
+	<os:ControlPanel title="Layers Manager"  x="110" y="10" width="230">
+		<os:LayerSwitcherComponent map="{map}" />
+	</os:ControlPanel>
+	
+	<os:ControlPanel x="5" y="5" width="75" title="导航">
+		<mx:VBox width="100%" horizontalAlign="center">
+			<os:PanComponent map="{map}"/>
+			<os:ZoomComponent map="{map}"/>
+		</mx:VBox>
+	</os:ControlPanel>
+
+	<mx:HBox horizontalAlign="left" x="540" y="5" width="200" height="50" borderColor="red">
+		<os:ZoomBoxComponent map="{map}" width="32" height="32"/>
+	</mx:HBox>
+
+	<mx:Script>
+		<![CDATA[
+			import org.openscales.basetypes.Location;
+			import org.openscales.core.Map;
+			import org.openscales.core.Trace;
+			import org.openscales.core.events.FeatureEvent;
+			import org.openscales.core.feature.CustomMarker;
+			import org.openscales.core.feature.PointFeature;
+			import org.openscales.core.layer.FeatureLayer;
+			import org.openscales.core.popup.Anchored;
+			import org.openscales.core.style.Style;
+			import org.openscales.proj4as.ProjProjection;
+
+			private var popup:Anchored;
+
+			[Bindable]
+			private var map:Map=null;
+			[Bindable]
+			public var displayTrace:Boolean=false;
+			[Bindable]
+			public var displayFirebugTrace:Boolean=false;
+
+			private function initMap():void
+			{
+				Trace.useFireBugConsole=displayFirebugTrace;
+				map=fxmap.map;
+
+				map.addEventListener(FeatureEvent.FEATURE_CLICK, onFeatureClick);
+				addFeatureLayer();
+			}
+
+			private function onFeatureClick(event:FeatureEvent):void
+			{
+				if (popup)
+				{
+					popup.destroy();
+				}
+				popup=null;
+				popup=new Anchored();
+				popup.feature=event.feature;
+				map.addPopup(popup, true);
+			}
+
+			private function addFeatureLayer()
+			{
+				var markers:FeatureLayer=new FeatureLayer("ThunderMarkers");
+				markers.projection=new ProjProjection("EPSG:4326");
+				markers.generateResolutions(19);
+				markers.style=Style.getDefaultPointStyle();
+
+				//add the first marker
+				var marker:PointFeature=PointFeature.createPointFeature(new Location(116.20026, 40.13606));
+				markers.addFeature(marker);
+
+				//add a second marker
+				marker=PointFeature.createPointFeature(new Location(4.85780, 45.75336));
+				markers.addFeature(marker);
+
+				//add marker with different symbol, writing url address
+				markers.addFeature(CustomMarker.createUrlBasedMarker("asset/images/add_placemark.png", new Location(116.24283, 40.13606)));
+
+				//add the layer
+				map.addLayer(markers);
+
+			}
+		]]>
+	</mx:Script>
+
+</mx:Canvas>

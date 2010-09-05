@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" applicationComplete="application1_applicationCompleteHandler(event)" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" backgroundColor="#6ED0B9" styleName="">
+	<s:layout>
+		<s:BasicLayout/>
+	</s:layout>
+	<fx:Style source="asset/LDChart.css"/>
+	<fx:Style>
+		@namespace s "library://ns.adobe.com/flex/spark";
+		@namespace mx "library://ns.adobe.com/flex/mx";
+		.accHeaderMain { 
+			fillColors: red, yellow; 
+			fillAlphas: 1.0, 0.5; 
+			selectedFillColors: black, black; 
+			chromeColor: #6ED0B9;
+			focusColor: #AFD6CD;
+		} 
+		.accHeaderSub { 
+			fillColors: red, yellow; 
+			fillAlphas: 1.0, 0.5; 
+			selectedFillColors: black, black; 
+			chromeColor: white;
+			focusColor: #AFD6CD;
+		} 
+		
+	</fx:Style>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+
+			private function showAllArea():void
+			{
+				var qsDate:Date = DateField.stringToDate(qsDateField.text, "YYYY-MMDD");
+				var zzDate:Date = new Date(qsDate.fullYear,qsDate.month,qsDate.date + 1);
+				
+				
+				ExternalInterface.call("showAllArea", DateField.dateToString(qsDate, "YYYY-MM-DD"), 	DateField.dateToString(zzDate, "YYYY-MM-DD"));
+			}					
+
+			protected function application1_applicationCompleteHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				qsDateField.selectedDate = DateField.stringToDate("2009-06-13", "YYYY-MM-DD");
+
+			}
+
+		]]>
+	</fx:Script>
+	<mx:Accordion x="0.7" y="0.25" width="175" height="100%" headerStyleName="accHeaderMain"  fontFamily="中易黑体" fontSize="13" fontWeight="bold">
+		<s:NavigatorContent label="雷电可视化监测" width="100%" height="100%" icon="@Embed(source='asset/images/grid.gif')">
+			<mx:Accordion id="accordion1" width="100%" height="100%" headerStyleName="accHeaderSub" >
+				<s:NavigatorContent label="北京市全区雷电监视" width="100%" height="100%" icon="@Embed(source='asset/images/thunder.gif')">
+					<mx:DateField id="qsDateField" x="54" y="3" width="106" text="2009-0613"  />
+					<s:Button x="87" y="31" label="确定" click="showAllArea()" focusColor="#5C8DBA"/>
+					<s:Label x="22" y="10" text="日期"/>
+				</s:NavigatorContent>
+				<s:NavigatorContent label="按行政区雷电监视" width="100%" height="100%" icon="@Embed(source='asset/images/thunder.gif')">
+				</s:NavigatorContent>
+				<s:NavigatorContent label="按线路雷电监视" width="100%" height="100%" icon="@Embed(source='asset/images/thunder.gif')">
+				</s:NavigatorContent>
+			</mx:Accordion>
+		</s:NavigatorContent>
+		<s:NavigatorContent label="线路事故雷击查询" width="100%" height="100%" icon="@Embed(source='asset/images/grid.gif')">
+		</s:NavigatorContent>
+		<s:NavigatorContent label="雷电趋势查询" width="100%" height="100%" icon="@Embed(source='asset/images/grid.gif')">
+		</s:NavigatorContent>
+		<s:NavigatorContent label="统计报表" width="100%" height="100%" icon="@Embed(source='asset/images/grid.gif')">
+		</s:NavigatorContent>
+		<s:NavigatorContent label="系统帮助" width="100%" height="100%" icon="@Embed(source='asset/images/grid.gif')">
+		</s:NavigatorContent>
+	</mx:Accordion>	
+</s:Application>
