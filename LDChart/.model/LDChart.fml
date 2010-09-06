@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<model xmlns="http://ns.adobe.com/Fiber/1.0">
+  <annotation name="ActionScriptGeneration">
+    <item name="FullyQualifyReferences">true</item>
+  </annotation>
+  <entity name="ThunderForChart">
+    <annotation name="EntityProperties">
+      <item name="EntityOriginalName">ThunderForChart</item>
+    </annotation>
+    <annotation name="service Group">
+      <item name="service">ThunderService,ThunderServiceDummy</item>
+    </annotation>
+    <annotation name="ServerProperties">
+      <item name="IncludeRemoteClass">nonempty</item>
+    </annotation>
+    <annotation name="getThunderForChartAll">
+      <item name="propertySpecifier">idx,xian,ftime,period,phase</item>
+    </annotation>
+    <annotation name="ActionScriptGeneration">
+      <item name="Package">valueObjects</item>
+    </annotation>
+    <property name="idx" type="integer" required="true"/>
+    <property name="xian" type="string" required="true"/>
+    <property name="ftime" type="string" required="true"/>
+    <property name="period" type="string" required="true"/>
+    <property name="phase" type="string" required="true"/>
+  </entity>
+  <service name="ThunderService">
+    <annotation name="ActionScriptGeneration">
+      <item name="Source">ThunderService</item>
+      <item name="ServiceType">RemoteObject</item>
+      <item name="Package">services.thunderservice</item>
+      <item name="Endpoint">gateway.php</item>
+      <item name="Destination">ThunderService</item>
+    </annotation>
+    <annotation name="ServiceTypeGroup">
+      <item name="ServiceBackendType">PHP</item>
+    </annotation>
+    <annotation name="ServiceConfig">
+      <item name="PHP_RELATIVE_LOCATION">LDChart/php/ThunderService.php</item>
+      <item name="PHP_SERVER_ROOT">E:\xampplite\htdocs</item>
+      <item name="DEFAULT_ENTITY_PACKAGE">valueObjects</item>
+      <item name="PHP_SERVICES_FOLDER">E:\xampplite\htdocs\LDChart\services</item>
+      <item name="PHP_LOCATION">E:/xampplite/htdocs/LDChart/php/ThunderService.php</item>
+      <item name="LINKED_FILE">ThunderService.php</item>
+      <item name="PHP_SERVER_ROOT_URL">http://localhost/</item>
+      <item name="ABSOLUTE_ENDPOINT">http://localhost/LDChart/gateway.php</item>
+      <item name="PHP_CLASS_NAME">ThunderService</item>
+    </annotation>
+    <function name="getThunderForChartAll" arguments="dateQSStr:opaque,dateZZStr:opaque" return-type="opaque">
+      <annotation name="analyze group">
+        <item name="analyzed">false</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="returnType">opaque</item>
+        <item name="inputParams">opaque,opaque</item>
+        <item name="inputParamNames">dateStr</item>
+      </annotation>
+      <annotation name="ValidProperties">
+        <item name="propertySpecifier">idx,xian,ftime,period,phase</item>
+      </annotation>
+    </function>
+  </service>
+</model>
