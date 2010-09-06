@@ -22,6 +22,11 @@
 			<location>E:/xampplite/htdocs/LDChart</location>
 		</link>
 		<link>
+			<name>services/AreaService.php</name>
+			<type>1</type>
+			<location>E:/xampplite/htdocs/LDChart/php/AreaService.php</location>
+		</link>
+		<link>
 			<name>services/ThunderService.php</name>
 			<type>1</type>
 			<location>E:/xampplite/htdocs/LDChart/php/ThunderService.php</location>

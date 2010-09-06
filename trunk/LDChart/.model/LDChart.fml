@@ -62,4 +62,59 @@
       </annotation>
     </function>
   </service>
+  <service name="AreaService">
+    <annotation name="ActionScriptGeneration">
+      <item name="Source">AreaService</item>
+      <item name="ServiceType">RemoteObject</item>
+      <item name="Package">services.areaservice</item>
+      <item name="Endpoint">gateway.php</item>
+      <item name="Destination">AreaService</item>
+    </annotation>
+    <annotation name="ServiceTypeGroup">
+      <item name="ServiceBackendType">PHP</item>
+    </annotation>
+    <annotation name="ServiceConfig">
+      <item name="PHP_RELATIVE_LOCATION">LDChart/php/AreaService.php</item>
+      <item name="PHP_SERVER_ROOT">E:/xampplite/htdocs</item>
+      <item name="DEFAULT_ENTITY_PACKAGE">valueObjects</item>
+      <item name="PHP_SERVICES_FOLDER">E:/xampplite/htdocs/LDChart/services</item>
+      <item name="PHP_LOCATION">E:/xampplite/htdocs/LDChart/php/AreaService.php</item>
+      <item name="LINKED_FILE">AreaService.php</item>
+      <item name="PHP_SERVER_ROOT_URL">http://localhost/</item>
+      <item name="ABSOLUTE_ENDPOINT">http://localhost/LDChart/gateway.php</item>
+      <item name="PHP_CLASS_NAME">AreaService</item>
+    </annotation>
+    <function name="getAreaAll" return-type="Area[]">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="ValidProperties">
+        <item name="propertySpecifier">idx,aid,aname,acolor</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="returnType">opaque</item>
+      </annotation>
+    </function>
+  </service>
+  <entity name="Area">
+    <annotation name="EntityProperties">
+      <item name="EntityOriginalName">Area</item>
+    </annotation>
+    <annotation name="service Group">
+      <item name="service">AreaService,AreaServiceDummy</item>
+    </annotation>
+    <annotation name="ServerProperties">
+      <item name="IncludeRemoteClass">nonempty</item>
+    </annotation>
+    <annotation name="getAreaAll">
+      <item name="propertySpecifier">idx,aid,aname,acolor</item>
+    </annotation>
+    <annotation name="ActionScriptGeneration">
+      <item name="Package">valueObjects</item>
+    </annotation>
+    <property name="idx" type="integer" required="true"/>
+    <property name="aid" type="string" required="true"/>
+    <property name="aname" type="string" required="true"/>
+    <property name="acolor" type="string" required="true"/>
+  </entity>
 </model>

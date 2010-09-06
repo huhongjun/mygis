@@ -3,3 +3,8 @@ Category的dataProvider从数据库取数据，实现按区县的数量排序；
 PHP访问，PHP接口实现
 
 如何定义外观
+
+
+/////////////////////////////////////////////////////////
+Oracle Instant Client的系统环境变量配置似乎需要重启系统
+NLS_LANG = american_america.AL32UTF8

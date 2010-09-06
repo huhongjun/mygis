@@ -2,7 +2,7 @@
 
 require_once("inc/Configuration.inc.php");
 
-class ThunderService
+class AreaService
 {
 	var $conn;
 	
@@ -20,19 +20,14 @@ class ThunderService
 			
 	}
 
-	public function getThunderForChartAll($dateQSStr,$dateZZStr) 
+	public function getAreaAll() 
 	{
 		$sql ="select 
-				t2.name xian,
-				to_char(flashtime,'yyyy-mm-dd') ftime,
-				to_char(flashtime,'hh24') period ,
-				(abs(t1.intension)*10 - MOD(abs(t1.intension)*10,50))/10 phase,
-				t1.longitude longitude,
-				t1.latitude latitude
-			from tbl_thunder t1,TBL_AREA t2  
-			where t1.xian = t2.id  and to_char(t1.flashtime,'yyyy-mm-dd')>='".$dateQSStr."' and to_char(t1.flashtime,'yyyy-mm-dd')<='".$dateZZStr."'";
+				id aid,
+				name aname,
+				'#FFFF' acolor
+			from TBL_AREA";
 
-		//echo $sql;
 		// Prepare the statement
 		$stid = oci_parse($this->conn, $sql);
 		if (!$stid) {
@@ -52,16 +47,13 @@ class ThunderService
 		
 		while ( ($row = oci_fetch_array($stid, OCI_BOTH))) {
 			
-			$thunderRow = new stdClass();
-			$thunderRow->idx 	= $idx ;
-			$thunderRow->xian 	= $row[0];//mb_convert_encoding($row[0],   "UTF-8","GB2312");
-			$thunderRow->ftime 	= $row[1];
-			$thunderRow->period = $row[2] ;
-			$thunderRow->phase 	= $row[3] ;
-			$thunderRow->longitude 	= $row[4] ;
-			$thunderRow->latitude 	= $row[5] ;
+			$areaRow = new stdClass();
+			$areaRow->idx 	= $idx ;
+			$areaRow->aid 	= $row[0];//mb_convert_encoding($row[0],   "UTF-8","GB2312");
+			$areaRow->aname	= $row[1];
+			$areaRow->acolor= $row[2] ;
 
-			$rows[$idx] = $thunderRow;
+			$rows[$idx] = $areaRow;
 
 			$idx = $idx + 1;
 		}
