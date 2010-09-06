@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
 			   xmlns:s="library://ns.adobe.com/flex/spark" 
-			   xmlns:mx="library://ns.adobe.com/flex/mx" minWidth="955" xmlns:menu="menu.*" 
-			   xmlns:chart="chart.*" xmlns:mapext="mapext.*" height="100%" width="100%">
+			   xmlns:mx="library://ns.adobe.com/flex/mx" minWidth="955" xmlns:menu="component.menu.*" 
+			   xmlns:chart="component.chart.*" xmlns:mapext="component.mapext.*" height="100%" width="100%">
 	<fx:Declarations>
 		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
 	</fx:Declarations>
 	<s:HGroup height="100%" width="100%" >
-		<menu:LDMenu x="10" width="176" chart="{chart}" bottom="10" top="10" height="100%"/>
+		<menu:CMenu id="menu" x="10" width="250" chart="{chart}" map="{map}" bottom="10" top="10" height="100%"/>
 		<s:VGroup horizontalAlign="left" height="100%" width="100%">
-			<mapext:ThunderMap x="194" width="751" height="80%" top="10" displayTrace="true" displayFirebugTrace="true"/>
-			<chart:Navigator id="chart" x="192" width="753" height="20%" bottom="10"/>
+			<mapext:ThunderMap id="map" chart="{chart}" menu="{menu}" x="194" width="751" height="80%" top="10" displayTrace="false" displayFirebugTrace="true"/>
+			<chart:Navigator id="chart" map="{map}" x="192" width="753" height="20%" bottom="10"/>
 		</s:VGroup>
 		
 	</s:HGroup>

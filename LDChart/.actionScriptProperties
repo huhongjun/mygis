@@ -15,6 +15,7 @@
       <libraryPathEntry kind="3" linkType="1" path="${DCD_FIBER_LOCALE_LOCATION}/fiber_rb.swc" useDefaultLinkType="false"/>
       <libraryPathEntry kind="3" linkType="1" path="${DCD_FIBER_LOCATION}/playerfds.swc" useDefaultLinkType="false"/>
       <libraryPathEntry kind="3" linkType="1" path="/openscales-fx/bin/openscales-fx.swc" useDefaultLinkType="false"/>
+      <libraryPathEntry kind="3" linkType="1" path="/openscales-core/bin/openscales-core.swc" useDefaultLinkType="false"/>
     </libraryPath>
     <sourceAttachmentPath/>
   </compiler>

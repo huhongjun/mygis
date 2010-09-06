@@ -1,0 +1,160 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+	"http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+<script type="text/javascript" src="scripts/globals.js"></script>
+<script type="text/javascript" src="scripts/wz_jsgraphics.js"></script> 
+<meta http-equiv="Page-Enter" content="revealTrans(Duration=2.0,Transition=23)">
+	
+<head>
+<title>雷电GIS</title>
+<META http-equiv=Content-Type content="text/html; charset=gb2312">
+<META http-equiv=imagetoolbar content=no>
+<META content="MSHTML 6.00.2900.2180" name=GENERATOR>
+
+<script type="text/javascript" src="FlexChart/swfobject.js"></script>
+<script type="text/javascript">
+	<!-- For version detection, set to min. required Flash Player version, or 0 (or 0.0.0), for no version detection. --> 
+	var swfVersionStr = "10.0.0";
+	<!-- To use express install, set to playerProductInstall.swf, otherwise the empty string. -->
+	var xiSwfUrlStr = "playerProductInstall.swf";
+	var flashvars = {};
+	var params = {};
+	params.quality = "high";
+	params.bgcolor = "#ffffff";
+	params.allowscriptaccess = "sameDomain";
+	params.allowfullscreen = "true";
+	var attributes = {};
+	attributes.id = "LDMenu";
+	attributes.name = "LDMenu";
+	attributes.align = "middle";
+	swfobject.embedSWF(
+		"FlexChart/LDMenu.swf", "flashMenu", "100%", "100%", 
+		swfVersionStr, xiSwfUrlStr, flashvars, params, attributes);
+	<!-- JavaScript enabled so display the flashContent div in case it is not replaced with a swf object. -->
+	//swfobject.createCSS("#flashMenu", "display:block;text-align:left;");
+	
+	swfobject.embedSWF("FlexChart/LDChartComposite.swf", "flashChart", "100%", "100%","9.0.0", "expressInstall.swf");
+	//swfobject.createCSS("#flashChart", "display:block;text-align:left;");
+</script>
+
+<style type="text/css">
+	html { border:0;	}
+	body { border: 0; margin: 0px; padding: 0px; background-color:#6ED0B9; }
+	#cbanner{ float:left; width:100%; background-color:#0099FF }
+	
+	#cmenu{float:left; width:18%; height:585px;overflow: hidden;background-color: #6ED0B9}
+	#csplitter{
+		float:left;
+		width:1%;
+		background-color: #0033FF;
+		overflow: auto;
+	}
+	#cright{float:left; width:80%;background-color:#6ED0B9}
+
+	#ctoolbar{
+		float:left;
+		height:40px;
+		width:80%;
+		background-color:#00FF66;
+	}
+	
+	#cmap{
+		float:left;
+		height:370px;
+		width:80%;
+		background-color:#00FF66;
+		overflow: scroll;
+	}
+	#cchart{
+	float:left;
+	height:175px;
+	width:80%;
+	overflow: hidden;
+	}
+		
+</style>
+</head>
+
+<body >
+    
+<div id="cbanner">
+        <div style="width: 100%; height: 61px; background: url(mig/yeding.gif); overflow: hidden;">
+            <div style="width: 183px; height: 61px; background: url(mig/logo.gif) no-repeat;
+                float: left; margin-left: 20px">
+            </div>
+            <div style="width: 432px; height: 61px; background: url(mig/biaoti.gif) no-repeat;
+                float: left; margin-left: 20px">
+            </div>
+        </div>
+    </div>
+    
+    <div id="ccontent" >
+    
+      <div id="cmenu" >
+        <div id="flashMenu" ></div>
+            
+        </div>
+    
+        <div id="csplitter" >
+            <img src="mig/zhedie.gif" align="middle" style="magin-top:350px"> 
+      </div>
+    
+        <div id="cright" >
+          <div id="ctoolbar">
+                <table >
+                  <tr align="right">
+                    <td tabIndex="1"> <img src="images/map/home.gif" align="absmiddle" id="全图"> </td>
+                    <td class="coolButton" tabIndex="1"> <img src="images/map/zoomout.gif" align="absmiddle" > </td>
+                    <td class="coolButton" tabIndex="1"> <img src="images/map/zoomin.gif" align="absmiddle"> </td>
+                    <td class="coolButton" tabIndex="1"> <img src="images/map/move.gif" align="absmiddle"> </td>
+                    <td class="coolButton" tabIndex="1"> <img src="images/map/ployline.gif" align="absmiddle"> </td>
+                    <td class="coolButton" tabIndex="1"> <img src="images/map/cejuchi.gif" align="absmiddle"> </td>
+                    <td class="coolButton" tabIndex="1"> <img src="images/map/maperr.gif" align="absmiddle"> </td>
+                    <td class="coolButton" tabIndex="1"> <img src="images/map/cleanLd.gif" align="absmiddle"> </td>
+                    <td class="coolButton" tabIndex="1"> <img src="images/map/clean.gif" align="absmiddle"> </td>
+                    <td class="coolButton" tabIndex="1"> <img src="images/map/select.gif" align="absmiddle"> </td>
+                  </tr>
+          </table>
+       	</div>
+            
+        <div id="cmap" >
+            <table width="100%"  height="100%"  border="0" cellpadding="0" cellspacing="0">
+                <tr>
+                    <td id="content_panles" align="center"  valign="top">
+                    <iframe name="hcf_content"   framespacing="0" frameborder="0" border="0" scrolling="no" width="520" height="460"
+                         src="http://localhost/LDGIS/start.htm"></iframe>	
+                  </td>
+                </tr>
+            </table>
+      </div>
+        <div id="cchart" >
+            <div id="flashChart" ></div>
+      </div>
+    </div>
+<script>
+	function showAllArea(qsDate, zzDate)
+	{
+		//alert("showAllArea:" + qsDate +","+ zzDate);
+
+		document.getElementById("flashChart").setQueryFlexFunc(qsDate);
+	
+		hcf_content.showHistoryOnMainViewForFlex(qsDate, zzDate);
+	
+	}
+	
+   function fnVisControl() {
+	
+		var strDisp = "";
+		document.getElementById("cmenu").style.display== "none" ? strDisp = "block" : strDisp = "none";
+	
+		document.getElementById("cmenu").style.display = strDisp;
+		
+		var strWidth ="";
+		document.getElementById("cright").style.width == "99%"?strWidth = "80%":strWidth = "99%";
+		
+		document.getElementById("cright").style.width = strWidth;
+	}	
+</script>
+</body>
+</html>

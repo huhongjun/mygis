@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns="*" xmlns:mx="http://www.adobe.com/2006/mxml" 
+		   xmlns:os="http://openscales.org" creationComplete="initMap();">
+
+	<os:Map id="fxmap" width="100%" height="100%" zoom="9" centerLonLat="116.20283,40.12832">
+
+
+		<!-- OpenStreetMap EPSG:900913 -->
+		<os:ImageLayer name="City Lights" 
+					   url="asset/images/beijing_map.gif"
+					   bounds="115,39,118,42"/>
+
+		<os:DragHandler/>
+		<os:WheelHandler/>
+
+		<os:Spinner id="spinner" x="{width / 2}" y="{height / 2}"/>
+		<os:MousePosition x="10" y="{height-20}" displayProjection="EPSG:4326"/>
+		<os:ScaleLine x="{width-100-10}" y="{height-80}"/>
+
+		<!-- Specific layers and handlers of this example -->
+		<!-- none -->
+
+	</os:Map>
+
+	<!-- Specific tools of this example -->
+
+	<os:ControlPanel x="5" y="5" width="75" title="导航">
+		<mx:VBox width="100%" horizontalAlign="center">
+			<os:PanComponent map="{map}"/>
+			<os:ZoomComponent map="{map}"/>
+		</mx:VBox>
+	</os:ControlPanel>
+
+	<mx:HBox horizontalAlign="left" x="489" y="2" width="251" borderColor="red">
+		<os:ZoomBoxComponent map="{map}" width="32" height="32"/>
+		
+	</mx:HBox>
+
+	<mx:Script>
+		<![CDATA[
+			import component.chart.Navigator;
+			import component.menu.CMenu;
+			
+			import mx.collections.ArrayCollection;
+			
+			import org.openscales.basetypes.Location;
+			import org.openscales.basetypes.Size;
+			import org.openscales.core.Map;
+			import org.openscales.core.Trace;
+			import org.openscales.core.events.FeatureEvent;
+			import org.openscales.core.feature.CustomMarker;
+			import org.openscales.core.feature.Feature;
+			import org.openscales.core.feature.PointFeature;
+			import org.openscales.core.handler.feature.SelectFeaturesHandler;
+			import org.openscales.core.layer.FeatureLayer;
+			import org.openscales.core.layer.Layer;
+			import org.openscales.core.popup.Anchored;
+			import org.openscales.core.style.Style;
+			import org.openscales.proj4as.ProjProjection;
+			
+			private var popup:Anchored;
+			private var thunderLayer:Layer;
+
+			[Bindable]
+			public var map:Map=null;
+			[Bindable]
+			public var displayTrace:Boolean=false;
+			[Bindable]
+			public var displayFirebugTrace:Boolean=false;
+
+			[Bindable]
+			public var chart:Navigator;
+			
+			public var menu:CMenu;
+			
+			private function initMap():void
+			{
+				Trace.useFireBugConsole=displayFirebugTrace;
+				map=fxmap.map;
+
+				map.addEventListener(FeatureEvent.FEATURE_CLICK, onFeatureClick);
+				addFeatureLayer();
+				
+			}
+
+			private function onFeatureClick(event:FeatureEvent):void
+			{
+				if (popup)
+				{
+					popup.destroy();
+				}
+
+				var theFeature:Feature = event.feature;
+				var featureTxet:String = "";
+				var properties:Array = [];
+				
+				for (var key:String in theFeature.attributes) {	
+					var property:Object = {};
+					property.Name = key;
+					property.Value = theFeature.attributes[key];
+					properties.push(property);
+					featureTxet = featureTxet + property.Name +":" + property.Value +"<br>";
+				}
+				
+				popup = null;
+				popup = new Anchored();
+				popup.size = new Size(150,180);
+				popup.htmlText = featureTxet;
+				popup.feature = theFeature;
+				
+				map.addPopup(popup, true);
+			}
+
+			private function addFeatureLayer()
+			{
+				var markers:FeatureLayer=new FeatureLayer("测试");
+				markers.projection=new ProjProjection("EPSG:4326");
+				markers.generateResolutions(19);
+				markers.style=Style.getDefaultPointStyle();
+
+				//add the first marker
+				var marker:PointFeature=PointFeature.createPointFeature(new Location(116.20026, 40.13606));
+				marker.attributes = {Longitude:'116.20026',Latitude:'40.13606'};
+				markers.addFeature(marker);
+
+				//add a second marker
+				marker=PointFeature.createPointFeature(new Location(116.22026, 40.13606));
+				markers.addFeature(marker);
+
+				//add marker with different symbol, writing url address
+				markers.addFeature(CustomMarker.createUrlBasedMarker("asset/images/add_placemark.png", new Location(116.24283, 40.13606)));
+
+				//add the layer
+				map.addLayer(markers);
+
+			}
+
+			public function addFeatureLayerThunder(queryDateStr:String):void
+			{
+				if(thunderLayer)
+				{
+					map.removeLayer(thunderLayer,false);
+					thunderLayer = null;
+				}
+				
+				var markers:FeatureLayer=new FeatureLayer("雷击("+queryDateStr+")");
+				markers.projection=new ProjProjection("EPSG:4326");
+				markers.generateResolutions(19);
+				markers.style=Style.getDefaultPointStyle();
+				
+				// TODO Auto-generated method stub
+				var xAC:ArrayCollection = this.chart.cubedp;
+				for each(var xRow:Object in xAC)
+				{
+					var loc:Location = new Location(xRow["longitude"], xRow["latitude"]);
+					var marker:PointFeature=PointFeature.createPointFeature(loc);
+					var xml:XMLList = menu.qianduXML.row.(@phase == xRow["phase"]);
+					var col:uint = xml.@color;
+					marker.style = Style.getDefaultPointStyle(col);
+					marker.attributes = xRow;
+					markers.addFeature(marker);
+					
+				}
+
+				//add the layer
+				map.addLayer(markers);
+				thunderLayer = markers;
+			}
+
+		]]>
+	</mx:Script>
+
+</mx:Canvas>

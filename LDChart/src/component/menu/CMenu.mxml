@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="400" height="300" creationComplete="initComponent(event)" xmlns:areaservice="services.areaservice.*" xmlns:org="http://openscales.org">
+	<fx:Style source="asset/LDChart.css"/>
+	<fx:Style>
+		@namespace s "library://ns.adobe.com/flex/spark";
+		@namespace mx "library://ns.adobe.com/flex/mx";
+		.accHeaderMain { 
+			fillColors: red, yellow; 
+			fillAlphas: 1.0, 0.5; 
+			selectedFillColors: black, black; 
+			chromeColor: #6ED0B9;
+			focusColor: #AFD6CD;
+		} 
+		.accHeaderSub { 
+			fillColors: red, yellow; 
+			fillAlphas: 1.0, 0.5; 
+			selectedFillColors: black, black; 
+			chromeColor: white;
+			focusColor: #AFD6CD;
+		} 
+		
+	</fx:Style>
+	<fx:Declarations>
+		<s:CallResponder id="getAreaAllResult"/>
+		<areaservice:AreaService id="areaService" fault="Alert.show(event.fault.faultString + '\n' + event.fault.faultDetail)" showBusyCursor="true"/>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+		<fx:XML id="qianduXML" xmlns="">
+			<rowdata>
+				<row phase="1" color="0x9ACD32" />
+				<row phase="5" color="0xFFFF00" />
+				<row phase="10" color="0xF5F5F5" />
+				<row phase="15" color="0xD8BFD8" />
+				<row phase="20" color="0xD8BFD8" />
+				<row phase="25" color="0xD8BFD8" />
+				<row phase="30" color="0xD8BFD8" />
+				<row phase="35" color="0xD8BFD8" />
+				<row phase="40" color="0xD8BFD8" />
+				<row phase="45" color="0xD8BFD8" />
+				<row phase="50" color="0xD8BFD8" />
+				<row phase="55" color="0xD8BFD8" />
+				<row phase="60" color="0xD8BFD8" />
+				<row phase="65" color="0xD8BFD8" />
+				<row phase="70" color="0xD8BFD8" />
+				<row phase="75" color="0xD8BFD8" />
+				<row phase="80" color="0xD8BFD8" />
+				<row phase="85" color="0xD8BFD8" />
+				<row phase="90" color="0xD8BFD8" />
+			</rowdata>
+		</fx:XML>
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import component.chart.Navigator;
+			import component.mapext.ThunderMap;
+			
+			import mx.controls.Alert;
+			import mx.events.CalendarLayoutChangeEvent;
+			import mx.events.FlexEvent;
+			
+			[Bindable]
+			public var chart:Navigator;
+			[Bindable]
+			public var map:ThunderMap;
+			
+			private function showAllArea():void
+			{
+				var qsDate:Date = DateField.stringToDate(qsDateField.text, "YYYY-MMDD");
+				var zzDate:Date = DateField.stringToDate(zzDateField.text, "YYYY-MMDD");
+				//var zzDate:Date = new Date(qsDate.fullYear,qsDate.month,qsDate.date + 1);
+				
+				
+				chart.setQuery(DateField.dateToString(qsDate, "YYYY-MM-DD"), 	DateField.dateToString(zzDate, "YYYY-MM-DD"));
+			}					
+			
+			protected function initComponent(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				qsDateField.selectedDate = DateField.stringToDate("2009-06-13", "YYYY-MM-DD");
+				zzDateField.selectedDate = DateField.stringToDate("2009-06-13", "YYYY-MM-DD");
+				
+			}
+			
+			
+			protected function dataGrid_creationCompleteHandler(event:FlexEvent):void
+			{
+				getAreaAllResult.token = areaService.getAreaAll();
+			}
+			
+
+			protected function qsDateField_changeHandler(event:CalendarLayoutChangeEvent):void
+			{
+				// TODO Auto-generated method stub
+				zzDateField.selectedDate = DateField.stringToDate(qsDateField.text, "YYYY-MMDD");
+			}
+
+		]]>
+	</fx:Script>
+	<mx:Accordion x="0" y="0" width="100%" height="100%" headerStyleName="accHeaderMain"  fontFamily="中易黑体" fontSize="13" fontWeight="bold" creationPolicy="all">
+		<s:NavigatorContent label="雷电可视化监测" width="100%" height="100%" icon="@Embed(source='asset/images/grid.gif')">
+			<mx:Accordion id="accordion1" width="100%" height="100%" headerStyleName="accHeaderSub" >
+				<s:NavigatorContent label="北京市全区雷电监视" width="100%" height="100%" icon="@Embed(source='asset/images/thunder.gif')">
+					<mx:DateField id="qsDateField" x="52" y="3" width="98" change="qsDateField_changeHandler(event)"/>
+					<mx:DateField id="zzDateField" x="52" y="33" width="98"/>
+					<s:Label x="16" y="39" text="结束："/>
+					<s:Button x="78" y="64" label="确定" click="showAllArea()" focusColor="#5C8DBA"/>
+					<s:Label x="16" y="10" text="开始："/>
+				</s:NavigatorContent>
+				<s:NavigatorContent label="按行政区雷电监视" width="100%" height="100%" icon="@Embed(source='asset/images/thunder.gif')">
+					<mx:DataGrid x="4" y="4" height="90%" id="dataGrid" creationComplete="dataGrid_creationCompleteHandler(event)" dataProvider="{getAreaAllResult.lastResult}" width="142">
+						<mx:columns>
+							<mx:DataGridColumn headerText="编码" dataField="aid" width="35"/>
+							<mx:DataGridColumn headerText="名称" dataField="aname" width="60"/>
+							<mx:DataGridColumn headerText="颜色" dataField="acolor" width="40" itemRenderer="component.menu.itemrenderer.AreaColorItemRenderer"/>
+						</mx:columns>
+					</mx:DataGrid>
+					<mx:DataGrid height="90%" id="dataGridQiandu" dataProvider="{this.qianduXML.row}" width="86" x="151" y="4">
+						<mx:columns>
+							<mx:DataGridColumn headerText="强度" dataField="@phase" width="35"/>
+							<mx:DataGridColumn headerText="颜色" dataField="@color" width="40" itemRenderer="component.menu.itemrenderer.PhaseColorItemRenderer"/>
+						</mx:columns>
+					</mx:DataGrid>
+				</s:NavigatorContent>
+				<s:NavigatorContent label="按线路雷电监视" width="100%" height="100%" icon="@Embed(source='asset/images/thunder.gif')">
+					<org:LayerSwitcherComponent id="mapLayerSwitcher" width="100%" height="100%" map="{map.map}" >
+					</org:LayerSwitcherComponent>
+					
+				</s:NavigatorContent>
+			</mx:Accordion>
+		</s:NavigatorContent>
+		<s:NavigatorContent label="线路事故雷击查询" width="100%" height="100%" icon="@Embed(source='asset/images/grid.gif')">
+		</s:NavigatorContent>
+		<s:NavigatorContent label="雷电趋势查询" width="100%" height="100%" icon="@Embed(source='asset/images/grid.gif')">
+		</s:NavigatorContent>
+		<s:NavigatorContent label="统计报表" width="100%" height="100%" icon="@Embed(source='asset/images/grid.gif')">
+		</s:NavigatorContent>
+		<s:NavigatorContent label="系统帮助" width="100%" height="100%" icon="@Embed(source='asset/images/grid.gif')">
+		</s:NavigatorContent>
+	</mx:Accordion>	
+</s:Group>
