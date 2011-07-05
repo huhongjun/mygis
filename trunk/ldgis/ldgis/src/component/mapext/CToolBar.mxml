@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 width="100%" 
+		 xmlns:os="http://openscales.org">
+	<s:layout>
+		<s:HorizontalLayout/>
+	</s:layout>
+	
+	<fx:Script>
+		<![CDATA[
+			import org.openscales.core.handler.feature.SelectFeaturesHandler;
+			
+			import spark.components.Button;
+			
+			[Bindable]
+			private var _thunderMap:ThunderMap;
+			private var posComp:CPosition;
+			
+			protected function navigationButtonBar_changeHandler(event:IndexChangeEvent):void
+			{
+				// TODO Auto-generated method stub
+				if (_thunderMap != null) {
+					switch(navigationButtonBar.selectedIndex) {
+						case 0:
+							_thunderMap.zoomToOriginal();
+							break;
+						case 1:
+							//mapControl.map.previous();
+							
+							break;
+						case 2:
+							//mapControl.map.next();
+							
+							break;
+					}			 	
+				}				
+			}
+			
+			[Bindable]
+			public function get thunderMap(): ThunderMap {
+				return _thunderMap;
+			}
+			
+			public function set thunderMap(aMapControl: ThunderMap): void {
+				_thunderMap = aMapControl;
+			}
+			
+			protected function button1_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				posComp = new CPosition();
+				var but:Button = event.target as Button;
+				posComp.x = this.x + but.x;
+				posComp.y = this.y + but.y + but.height; 
+				posComp.map = this._thunderMap.map;
+				
+				this.addChild(posComp);
+				
+			}
+			
+			
+			protected function button1_focusOutHandler(event:FocusEvent):void
+			{
+				// TODO Auto-generated method stub
+				this.removeChild(posComp);
+			}
+						
+		]]>
+	</fx:Script>
+	
+	<fx:Script>
+		<![CDATA[
+			import spark.events.IndexChangeEvent;
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<s:HGroup width="100%" />
+	<s:HGroup gap="0" height="22">
+		<os:ZoomBox map="{_thunderMap.map}" width="32" height="22" toolTip="拉框放大"/>
+	</s:HGroup>
+	<s:ButtonBar  id="navigationButtonBar" change="navigationButtonBar_changeHandler(event)">
+		<s:dataProvider>
+			<s:ArrayList id="navigationButtonBarArrayCollection">
+				<fx:Object id="zoomToFullButton" icon="@Embed('/asset/images/globe.png')" label="复位"/>
+				<fx:Object id="zoomToPreviousButton" icon="@Embed('/asset/images/previous.png')" label="前一位置" />
+				<fx:Object id="zoomToNextButton" icon="@Embed('/asset/images/next.png')"  label="后一位置"/>
+			</s:ArrayList>
+		</s:dataProvider>
+	</s:ButtonBar>
+	<mx:ToggleButtonBar id="navigationToggleButtonBar" buttonHeight="22" buttonWidth="39"
+						paddingRight="0">
+		<mx:dataProvider>
+			<mx:ArrayCollection id="navigationToggleButtonBarArrayCollection">
+				<fx:Object id="activatePanTool"	icon="@Embed('/asset/images/pan.png')" toolTip="漫游" />
+				<fx:Object id="activateSwipeTool" icon="@Embed('/asset/images/mark.png')" toolTip="标注" />
+				<fx:Object id="clearFeatureTool" icon="@Embed('/asset/images/delete.png')" toolTip="清除" />
+			</mx:ArrayCollection>
+		</mx:dataProvider>
+		<mx:itemClick>
+			<![CDATA[
+			switch (navigationToggleButtonBar.selectedIndex) {
+			case 0 :
+				_thunderMap.selectFeaturesHandler.handler.active = false;
+				_thunderMap.dragHandler.handler.active = true;
+				break;
+			case 1 :
+				_thunderMap.dragHandler.handler.active = false;
+				_thunderMap.selectFeaturesHandler.handler.active = true;
+				break;
+			case 2 :
+				(_thunderMap.selectFeaturesHandler.handler as SelectFeaturesHandler).clearSelection();
+				// Once the selection is cleared, return in previous mode
+				if (_thunderMap.dragHandler.handler.active) 
+				{
+					navigationToggleButtonBar.selectedIndex = 0;
+				} 
+				else if (_thunderMap.selectFeaturesHandler.handler.active) 
+				{
+					navigationToggleButtonBar.selectedIndex = 1;
+				}
+				break;
+			default:
+				//Trace.info("unknown mode");
+			}
+			]]>
+		</mx:itemClick>
+		
+	</mx:ToggleButtonBar>
+</s:Group>

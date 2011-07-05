@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns="*" xmlns:mx="http://www.adobe.com/2006/mxml" 
+		   xmlns:os="http://openscales.org" 
+		   creationComplete="initMap();" 
+		   xmlns:s="library://ns.adobe.com/flex/spark" 
+		   xmlns:mapext="component.mapext.*" 
+		   xmlns:control="org.openscales.core.control.*" 
+		   xmlns:layer="org.openscales.core.layer.*" 
+		   xmlns:core="org.openscales.core.*">
+
+	<os:Map id="fxmap" width="100%" height="100%" zoom="9" 
+			center="116.20283,40.12832">
+		
+		<os:WMS name="北京" url="http://192.168.1.5:8080/geoserver/huhongjun/wms?service=WMS"
+			 layers="area,line" format="image/jpeg" projection="EPSG:4326"/>
+		
+		<os:DragHandler id="dragHandler"/>
+		<os:WheelHandler/>
+		<os:SelectFeaturesHandler id="selectFeaturesHandler"  creationComplete="{selectFeaturesHandler.handler.active=false;}"/>
+		<os:PanZoom top="10" left="5"/>
+		<os:Spinner id="spinner" x="{width / 2}" y="{height / 2}"/>
+		<os:MousePosition x="10" y="{height-20}" displayProjection="EPSG:4326"/>
+		<os:ScaleLine x="{width-100-10}" y="{height-80}"/>
+
+		<!-- Specific layers and handlers of this example -->
+		<!-- none -->
+		
+	</os:Map>
+	
+	<mx:Script>
+		<![CDATA[
+			import component.chart.Navigator;
+			import component.menu.CMenu;
+			
+			import mx.collections.ArrayCollection;
+			
+			import org.openscales.core.Map;
+			import org.openscales.core.Trace;
+			import org.openscales.core.events.FeatureEvent;
+			import org.openscales.core.feature.CustomMarker;
+			import org.openscales.core.feature.Feature;
+			import org.openscales.core.feature.PointFeature;
+			import org.openscales.core.layer.FeatureLayer;
+			import org.openscales.core.popup.Anchored;
+			import org.openscales.core.style.Style;
+			import org.openscales.geometry.basetypes.Bounds;
+			import org.openscales.geometry.basetypes.Location;
+			import org.openscales.geometry.basetypes.Size;
+			import org.openscales.proj4as.ProjProjection;
+			
+			private var popup:Anchored;
+			private var thunderLayer:FeatureLayer = null;
+			private var circleLayer:FeatureLayer = null;
+			
+
+			private var curMarker:PointFeature = null;
+			private var originalBounds:Bounds;
+
+			[Bindable]
+			public var map:Map=null;
+			[Bindable]
+			public var displayTrace:Boolean=false;
+			[Bindable]
+			public var displayFirebugTrace:Boolean=false;
+			
+			[Bindable]
+			public var chart:Navigator;
+			
+			public var menu:CMenu;
+			
+			private function initMap():void
+			{
+				Trace.useFireBugConsole=displayFirebugTrace;
+				map=fxmap.map;
+				originalBounds = map.extent;
+				
+				map.addEventListener(FeatureEvent.FEATURE_CLICK, onFeatureClick);
+				
+			}
+
+			// 点击标注
+			private function onFeatureClick(event:FeatureEvent):void
+			{
+				if (popup)
+				{
+					popup.destroy();
+				}
+
+				var theFeature:Feature = event.feature;
+				var featureTxet:String = "";
+				var properties:Array = [];
+				
+				for (var key:String in theFeature.attributes) {	
+					var property:Object = {};
+					property.Name = key;
+					property.Value = theFeature.attributes[key];
+					properties.push(property);
+					featureTxet = featureTxet + property.Name +":" + property.Value +"<br>";
+				}
+				
+				popup = null;
+				popup = new Anchored();
+				popup.size = new Size(150,180);
+				popup.htmlText = featureTxet;
+				popup.feature = theFeature;
+				
+				map.addPopup(popup, true);
+			}
+
+			// 添加雷击标注层
+			public function addFeatureLayerThunder(queryDateStr:String):void
+			{
+				if(thunderLayer)
+				{
+					map.removeLayer(thunderLayer,false);
+					thunderLayer = null;
+				}
+				
+				var markers:FeatureLayer=new FeatureLayer("雷击["+queryDateStr+"]");
+				markers.projection=new ProjProjection("EPSG:4326");
+				markers.generateResolutions(19);
+				markers.style=Style.getDefaultPointStyle();
+				
+				// TODO Auto-generated method stub
+				var xAC:ArrayCollection = this.chart.cubedp;
+				for each(var xRow:Object in xAC)
+				{
+					var loc:Location = new Location(xRow["longitude"], xRow["latitude"]);
+					var marker:PointFeature=PointFeature.createPointFeature(loc);
+					var xml:XMLList = menu.qianduXML.row.(@phase == xRow["phase"]);
+					//var col:uint = xml.@color;
+					marker.style = Style.getDefaultPointStyle();
+					marker.attributes = xRow;
+					markers.addFeature(marker);
+					
+				}
+
+				//add the layer
+				map.addLayer(markers);
+				thunderLayer = markers;
+			}
+			
+			//添加样例标注层
+			public function addFeatureSamplae():void
+			{
+				// Specific initialize for this example
+				var layer1:FeatureLayer = SampleLayers.features();
+				// Usefull to test selection when a layer is not displayed
+				layer1.minZoomLevel = 5;
+
+				fxmap.map.addLayer(layer1);				
+				
+			}
+			
+			//特别显示某次雷击
+			public function setMarker(locStr:String,obj:Object):void
+			{
+				if(curMarker)thunderLayer.removeChild(curMarker);
+				
+				//add marker with different symbol, writing url address
+				curMarker = CustomMarker.createUrlBasedMarker("asset/images/add_placemark.png", Location.getLocationFromString(locStr));
+				curMarker.attributes = obj;
+				thunderLayer.addFeature(curMarker);
+				
+			}
+
+			public function zoomToOriginal():void
+			{
+				// TODO Auto-generated method stub
+				map.zoomToExtent(originalBounds);
+			}
+
+			public function activateSelectFeatureHandler():void
+			{
+				// TODO Auto-generated method stub
+				dragHandler.active = false;
+				selectFeaturesHandler.active = true;
+			}
+			
+			public function activateDragHandler():void
+			{
+				// TODO Auto-generated method stub
+				selectFeaturesHandler.active = false;
+				dragHandler.active = true;
+			}
+
+		]]>
+	</mx:Script>
+
+</mx:Canvas>

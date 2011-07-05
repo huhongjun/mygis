@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx" minWidth="955" 
+			   xmlns:menu="component.menu.*" 
+			   xmlns:chart="component.chart.*" 
+			   xmlns:mapext="component.mapext.*" height="100%" width="100%" creationComplete="application1_creationCompleteHandler(event)">
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			
+			protected function application1_creationCompleteHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				//flash.system.Security.allowDomain("192.168.1.5");
+				flash.system.Security.loadPolicyFile("http://192.168.1.5:8080/crossdomain.xml");
+				
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<s:VGroup width="100%" height="100%" gap="1">
+		<s:HGroup gap="0" width="100%">
+			<s:Image source="asset/images/dianli/logo.gif" />
+			<s:Image source="asset/images/dianli/biaoti.gif" />
+			<s:Image width="100%" scaleMode="stretch" source="asset/images/dianli/yeding.gif"/>
+			<s:VGroup height="100%" gap="0">
+				<s:Image width="100%" height="50%" scaleMode="stretch"
+						 source="asset/images/dianli/sysman.gif"/>
+				<s:Image width="100%" height="50%" scaleMode="stretch"
+						 source="asset/images/dianli/exit.gif"/>
+			</s:VGroup>
+		</s:HGroup>
+		<mx:HDividedBox height="100%" width="100%">
+			<menu:CMenu id="menu" width="250" chart="{chart}" map="{map}" height="100%"/>
+			<s:VGroup horizontalAlign="left" height="100%" width="100%">
+				<mapext:CToolBar thunderMap = "{map}" width="100%" right="3" top="5"/>		
+				<mapext:ThunderMap id="map" chart="{chart}" menu="{menu}"  width="100%" height="75%" displayTrace="false" displayFirebugTrace="true"/>
+				<chart:Navigator id="chart" map="{map}" width="100%" height="25%"/>
+			</s:VGroup>
+			
+		</mx:HDividedBox>
+	</s:VGroup>
+</s:Application>

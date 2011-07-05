@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009"
+			   xmlns:s="library://ns.adobe.com/flex/spark"
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   width="669" height="416" minWidth="955" minHeight="600" creationComplete="application1_creationCompleteHandler(event)">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+		<s:RemoteObject id="areaService" fault="areaService_faultHandler(event)" showBusyCursor="true" source="AreaService" destination="amfphp">
+			<s:method name="getAreaAll" result="getAreaAll_resultHandler(event)" />
+		</s:RemoteObject>
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.collections.XMLListCollection;
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			import mx.managers.CursorManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			protected function application1_creationCompleteHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				qsDateField.selectedDate = DateField.stringToDate("2009-06-13", "YYYY-MM-DD");
+				zzDateField.selectedDate = DateField.stringToDate("2009-06-13", "YYYY-MM-DD");
+				
+			}
+			
+			protected function areaService_faultHandler(fault:FaultEvent):void
+			{
+				// TODO Auto-generated method stub
+				
+				CursorManager.removeBusyCursor();
+				var errorMessage:String = "code:\n" + fault.fault.faultCode + "\n\nMessage:\n" 
+					+ fault.fault.faultString + "\n\nDetail:\n" + fault.fault.faultDetail;
+				trace(errorMessage);
+			}
+			
+			protected function getAreaAll_resultHandler(event:ResultEvent):void
+			{
+				// TODO Auto-generated method stub
+				datagrid.dataProvider = new ArrayList(event.result as Array);
+			}
+			
+			protected function button1_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				areaService.getAreaAll();
+			}
+			
+		]]>
+	</fx:Script>
+	<mx:DateField id="qsDateField" x="52" y="3" width="98"/>
+	<mx:DateField id="zzDateField" x="52" y="33" width="98"/>
+	<s:Label x="16" y="39" text="结束："/>
+	<s:Button x="78" y="64" label="确定" click="button1_clickHandler(event)" focusColor="#5C8DBA"/>
+	<s:Label x="16" y="10" text="开始："/>
+	<s:DataGrid id="datagrid" x="16" y="134" width="625" height="259" requestedRowCount="4">
+		<s:columns>
+			<s:ArrayList>
+				<s:GridColumn dataField="aid" headerText="Column 1"></s:GridColumn>
+				<s:GridColumn dataField="aname" headerText="Column 2"></s:GridColumn>
+				<s:GridColumn dataField="acolor" headerText="Column 3"></s:GridColumn>
+			</s:ArrayList>
+		</s:columns>
+	</s:DataGrid>
+</s:Application>

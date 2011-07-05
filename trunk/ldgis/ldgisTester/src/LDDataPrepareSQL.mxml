@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx" minWidth="955" minHeight="600" applicationComplete="initApp(event)">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+		<fx:XML id="xmlSource" source="asset/thunder2010.xml"/>
+			
+	</fx:Declarations>
+	
+	<s:TextArea id="xmlDestinationTextArea" x="39" y="29" width="917" height="521"/>
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			
+			protected function initApp(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				// 计算准备数据
+				var xmlDestination:XML = <rowdata/>;
+				
+				var i:Number = 0;
+				for each(var x:XML in xmlSource.ROW)
+				{
+					i = i + 1;
+					
+					// 转换代码开始
+					var xDestRow:XML = <row/>;
+					
+					xDestRow.@idx 		= i;
+					xDestRow.@xian 		= x.NAME;
+					xDestRow.@ftime 	= x.FLASHTIME;
+					xDestRow.@period 	= x.PERIOD;	
+					xDestRow.@phase 	= Math.abs(x.INTENS);
+					// 转换代码结束
+					
+					xmlDestination.appendChild(xDestRow);
+				}
+				
+				xmlDestinationTextArea.text = xmlDestination.toXMLString();				
+			}
+			
+		]]>
+	</fx:Script>
+	
+</s:Application>
