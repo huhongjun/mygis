@@ -8,6 +8,9 @@ $conn = oci_connect(
 
 $query = 'select table_name from user_tables';
 
+echo "User: ".constant('db_user').", Password: ".constant('db_password').", Host: ".constant('db_host');
+echo "<br>\n";
+
 $stid = oci_parse($conn, $query);
 oci_execute($stid, OCI_DEFAULT);
 while ($row = oci_fetch_array($stid, OCI_ASSOC)) {

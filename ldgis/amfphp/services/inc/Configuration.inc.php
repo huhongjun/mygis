@@ -10,7 +10,7 @@
 //   数据库连接字符串
 //============================================================================
 
-define("db_host","//192.168.1.2/XE",FALSE);
+define("db_host","//192.168.1.5/XE",FALSE);
 define("db_user","sde",FALSE);
 define("db_password","sde",FALSE);
 
