@@ -1,0 +1,56 @@
+
+<model xmlns="http://ns.adobe.com/Fiber/1.0">
+  <annotation name="ActionScriptGeneration">
+    <item name="FullyQualifyReferences">true</item>
+  </annotation>
+  <service name="ThunderService">
+    <annotation name="ActionScriptGeneration">
+      <item name="Source">php_ThunderService</item>
+      <item name="ServiceType">RemoteObject</item>
+      <item name="Package">services.thunderservice</item>
+      <item name="Endpoint">http://localhost/gateway.php</item>
+      <item name="Destination">php_ThunderService</item>
+    </annotation>
+    <annotation name="ServiceTypeGroup">
+      <item name="ServiceBackendType">com.zend.php.flashbuilder.php</item>
+    </annotation>
+    <annotation name="ServiceConfig">
+      <item name="PHP_RELATIVE_LOCATION"></item>
+      <item name="PHP_SERVER_ROOT">E:/xampplite/htdocs</item>
+      <item name="PHP_WORKSPACE_LOCATION">/LDAMF/php/ThunderService.php</item>
+      <item name="DEFAULT_ENTITY_PACKAGE">valueObjects</item>
+      <item name="PHP_SERVICES_FOLDER">E:/xampplite/htdocs/LDChart2/services</item>
+      <item name="PHP_LOCATION">D:/ATemp/EclipseWorkSpace/LDGISWS/LDAMF/php/ThunderService.php</item>
+      <item name="LINKED_FILE">ThunderService.php</item>
+      <item name="PHP_SERVER_ROOT_URL">http://localhost</item>
+      <item name="ABSOLUTE_ENDPOINT">http://localhost/gateway.php</item>
+      <item name="PHP_CLASS_NAME">php_ThunderService</item>
+    </annotation>
+    <function name="getThunderForChartAll" return-type="StdClass[]">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="returnType">opaque</item>
+      </annotation>
+      <parameter name="dateQSStr" type="opaque"/>
+      <parameter name="dateZZStr" type="opaque"/>
+    </function>
+  </service>
+  <entity name="StdClass">
+    <annotation name="EntityProperties">
+      <item name="EntityOriginalName">StdClass</item>
+      <item name="location">D:/ATemp/EclipseWorkSpace/LDGISWS/.metadata/.plugins/org.eclipse.php.core/__language__/18185f1a/Core.php</item>
+    </annotation>
+    <annotation name="ServerProperties">
+      <item name="RemoteClass">StdClass</item>
+      <item name="IncludeRemoteClass">nonempty</item>
+    </annotation>
+    <annotation name="service Group">
+      <item name="service">ThunderService</item>
+    </annotation>
+    <annotation name="ActionScriptGeneration">
+      <item name="Package">valueObjects</item>
+    </annotation>
+  </entity>
+</model>

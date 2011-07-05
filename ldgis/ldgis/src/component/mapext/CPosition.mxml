@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="170" height="130">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import org.openscales.core.Map;
+			import org.openscales.geometry.basetypes.Location;
+			[Bindable]
+			public var map:Map;
+			
+			
+
+			protected function button1_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				var center:Location = Location.getLocationFromString(lot.text + ","+lat.text);
+					
+				//map.setCenter(center);
+				map.center = center;
+			}
+
+		]]>
+	</fx:Script>
+	<s:TextInput id="lot" x="49" y="10" width="103" text="116.37819"/>
+	<s:TextInput id="lat" x="49" y="41" width="103" text="39.92374"/>
+	<s:Label x="13" y="17" text="经度："/>
+	<s:Label x="13" y="48" text="纬度："/>
+	<s:Button x="107" y="81" label="中心定位" width="45" click="button1_clickHandler(event)"/>
+</s:Group>

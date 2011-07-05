@@ -1,0 +1,420 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="400" height="538" creationComplete="initComponent(event)" xmlns:areaservice="services.areaservice.*" xmlns:os="http://openscales.org" xmlns:mapext="component.mapext.*">
+	<s:layout>
+		<s:VerticalLayout />
+	</s:layout>
+	<fx:Style source="asset/LDChart.css"/>
+	<fx:Style>
+		@namespace s "library://ns.adobe.com/flex/spark";
+		@namespace mx "library://ns.adobe.com/flex/mx";
+		.accHeaderMain { 
+			fillColors: red, yellow; 
+			fillAlphas: 1.0, 0.5; 
+			selectedFillColors: black, black; 
+			chromeColor: #6ED0B9;
+			focusColor: #AFD6CD;
+		} 
+		.accHeaderSub { 
+			fillColors: red, yellow; 
+			fillAlphas: 1.0, 0.5; 
+			selectedFillColors: black, black; 
+			chromeColor: white;
+			focusColor: #AFD6CD;
+		} 
+		
+	</fx:Style>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+		<s:RemoteObject id="areaService" fault="areaService_faultHandler(event)" showBusyCursor="true" source="AreaService" destination="amfphp">
+			<s:method name="getAreaAll" result="getAreaAll_resultHandler(event)" />
+		</s:RemoteObject>
+		
+		<fx:XML id="qianduXML" xmlns="">
+			<rowdata>
+				<row phase="1" color="0x9ACD32" />
+				<row phase="5" color="0xFFFF00" />
+				<row phase="10" color="0xF5F5F5" />
+				<row phase="15" color="0xD8BFD8" />
+				<row phase="20" color="0xD8BFD8" />
+				<row phase="25" color="0xD8BFD8" />
+				<row phase="30" color="0xD8BFD8" />
+				<row phase="35" color="0xD8BFD8" />
+				<row phase="40" color="0xD8BFD8" />
+				<row phase="45" color="0xD8BFD8" />
+				<row phase="50" color="0xD8BFD8" />
+				<row phase="55" color="0xD8BFD8" />
+				<row phase="60" color="0xD8BFD8" />
+				<row phase="65" color="0xD8BFD8" />
+				<row phase="70" color="0xD8BFD8" />
+				<row phase="75" color="0xD8BFD8" />
+				<row phase="80" color="0xD8BFD8" />
+				<row phase="85" color="0xD8BFD8" />
+				<row phase="90" color="0xD8BFD8" />
+			</rowdata>
+		</fx:XML>
+		<fx:XML id="xianluXML" xmlns="">
+			<xianlu label="输电设施">
+				<quxian id="001" label="输电">
+					<dydj label="220kV">
+						<xialu label="线路一">
+							<ganta label="杆塔1"/>
+							<ganta label="杆塔2"/>
+						</xialu>
+					</dydj>
+				</quxian>
+				<quxian id="001" label="朝阳">
+					<dydj label="220kV">
+						<xialu label="线路一" />
+					</dydj>
+				</quxian>
+				<quxian id="002" label="顺义">
+					<dydj label="220kV">
+						<xialu label="线路一" />
+						<xialu label="线路二" />
+						<xialu label="线路三" />
+					</dydj>
+				</quxian>
+			</xianlu>
+		</fx:XML>
+		<s:RadioButtonGroup id="radiogroup1"/>
+		
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import component.chart.Navigator;
+			import component.mapext.ThunderMap;
+			
+			import mx.collections.ArrayList;
+			import mx.controls.Alert;
+			import mx.events.CalendarLayoutChangeEvent;
+			import mx.events.FlexEvent;
+			import mx.events.ListEvent;
+			import mx.managers.CursorManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import org.openscales.core.layer.FeatureLayer;
+			import org.openscales.geometry.basetypes.Location;
+			import org.openscales.proj4as.ProjProjection;
+			
+			[Bindable]
+			public var chart:Navigator;
+			[Bindable]
+			public var map:ThunderMap;
+			
+			private function showAllArea():void
+			{
+				var qsDate:Date = DateField.stringToDate(qsDateField.text, "YYYY-MMDD");
+				var zzDate:Date = DateField.stringToDate(zzDateField.text, "YYYY-MMDD");
+				//var zzDate:Date = new Date(qsDate.fullYear,qsDate.month,qsDate.date + 1);
+				
+				
+				chart.setQuery(DateField.dateToString(qsDate, "YYYY-MM-DD"), 	DateField.dateToString(zzDate, "YYYY-MM-DD"));
+			}					
+			
+			protected function initComponent(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				qsDateField.selectedDate = DateField.stringToDate("2009-06-13", "YYYY-MM-DD");
+				zzDateField.selectedDate = DateField.stringToDate("2009-06-13", "YYYY-MM-DD");
+				
+			}
+			
+			
+			protected function dataGrid_creationCompleteHandler(event:FlexEvent):void
+			{
+				areaService.getAreaAll();
+			}
+			
+
+			protected function qsDateField_changeHandler(event:CalendarLayoutChangeEvent):void
+			{
+				// TODO Auto-generated method stub
+				zzDateField.selectedDate = DateField.stringToDate(qsDateField.text, "YYYY-MMDD");
+			}
+
+
+			protected function dataGrid_itemClickHandler(event:ListEvent):void
+			{
+				// TODO Auto-generated method stub
+				this.chart.cubedp.filterFunction = ArrayCollectionFilterFunc;
+				filterStr = (event.target as DataGrid).selectedItem['aname'];
+				this.chart.cubedp.refresh();
+				map.addFeatureLayerThunder("");
+			}
+			
+			private var filterStr:String = "";
+			private function ArrayCollectionFilterFunc(item:Object):Boolean
+			{
+				
+				return item['xian'].toString() == filterStr; //YYYY-MM-DD"
+			}			
+
+			protected function areaService_faultHandler(fault:FaultEvent):void
+			{
+				// TODO Auto-generated method stub
+				
+				CursorManager.removeBusyCursor();
+				var errorMessage:String = "code:\n" + fault.fault.faultCode + "\n\nMessage:\n" 
+					+ fault.fault.faultString + "\n\nDetail:\n" + fault.fault.faultDetail;
+				trace(errorMessage);
+			}
+			
+			protected function getAreaAll_resultHandler(event:ResultEvent):void
+			{
+				// TODO Auto-generated method stub
+				dataGrid.dataProvider = new ArrayList(event.result as Array);
+			}
+			
+			protected function addFeatureCircle_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				map.addFeatureSamplae();
+			}
+			
+		]]>
+	</fx:Script>
+	<mx:Accordion width="100%" height="100%" headerStyleName="accHeaderMain"  fontFamily="中易黑体" fontSize="13" fontWeight="bold" creationPolicy="all">
+		<s:NavigatorContent label="雷电可视化监测" width="100%" height="100%" icon="@Embed(source='asset/images/grid.gif')">
+			<mx:Accordion id="accordion1" width="100%" height="100%" headerStyleName="accHeaderSub" >
+				<s:NavigatorContent label="北京市全区雷电监视" width="100%" height="100%" icon="@Embed(source='asset/images/thunder.gif')">
+					<mx:DateField id="qsDateField" x="52" y="3" width="98"
+								  change="qsDateField_changeHandler(event)" formatString="YYYY-MMDD"/>
+					<mx:DateField id="zzDateField" x="52" y="33" width="98" formatString="YYYY-MMDD"/>
+					<s:Label x="16" y="39" text="结束："/>
+					<s:Button x="78" y="64" label="确定" click="showAllArea()" focusColor="#5C8DBA"/>
+					<s:Label x="16" y="10" text="开始："/>
+				</s:NavigatorContent>
+				<s:NavigatorContent label="按行政区雷电监视" width="100%" height="100%" icon="@Embed(source='asset/images/thunder.gif')">
+					<mx:DataGrid x="4" y="4" height="90%" id="dataGrid" 
+								 creationComplete="dataGrid_creationCompleteHandler(event)" 
+								 width="142"   
+								 itemClick="dataGrid_itemClickHandler(event)">
+						<mx:columns>
+							<mx:DataGridColumn headerText="编码" dataField="aid" width="35"/>
+							<mx:DataGridColumn headerText="区县" dataField="aname" width="60"/>
+							<mx:DataGridColumn headerText="颜色" dataField="acolor" width="40" itemRenderer="component.menu.itemrenderer.AreaColorItemRenderer"/>
+						</mx:columns>
+					</mx:DataGrid>
+					<mx:DataGrid height="90%" id="dataGridQiandu" dataProvider="{this.qianduXML.row}" width="86" x="151" y="4">
+						<mx:columns>
+							<mx:DataGridColumn headerText="强度" dataField="@phase" width="35"/>
+							<mx:DataGridColumn headerText="颜色" dataField="@color" width="40" itemRenderer="component.menu.itemrenderer.PhaseColorItemRenderer"/>
+						</mx:columns>
+					</mx:DataGrid>
+				</s:NavigatorContent>
+				<s:NavigatorContent label="按线路雷电监视" width="100%" height="100%" icon="@Embed(source='asset/images/thunder.gif')">
+					
+					<mx:Tree dataProvider="{xianluXML}" showRoot="false" labelField="@label" width="100%" height="100%">
+					</mx:Tree>
+				</s:NavigatorContent>
+			</mx:Accordion>
+		</s:NavigatorContent>
+		<s:NavigatorContent label="线路事故雷击查询" width="100%" height="100%" icon="@Embed(source='asset/images/grid.gif')">
+			<mx:Accordion width="100%" height="100%">
+				<s:NavigatorContent width="100%" height="100%" label="按线路名杆塔号方式"
+									icon="@Embed(source='asset/images/thunder.gif')">
+					<s:Form width="100%">
+						<s:FormItem label="线路名称：" width="100%">
+							<s:TextInput />
+						</s:FormItem>
+						<s:FormItem label="杆塔号：" width="100%">
+							<s:TextInput />
+						</s:FormItem>
+						<s:FormItem label="跳闸时刻：" width="100%">
+							<s:TextInput />
+						</s:FormItem>
+						<s:HGroup width="100%" horizontalAlign="right">
+							<s:Button label="查询"/>
+							
+							<s:Button label="定位雷电"/>
+						</s:HGroup>
+					</s:Form>
+				</s:NavigatorContent>
+				<s:NavigatorContent width="100%" height="100%" label="从设备树查找方式">
+					<s:layout>
+						<s:VerticalLayout/>
+					</s:layout>
+					<mx:Tree id="shebeiXianluTree" dataProvider="{xianluXML}" showRoot="true" labelField="@label" width="100%" height="50%">
+					</mx:Tree>
+					<s:VGroup width="100%" height="50%">
+						<s:HGroup width="100%">
+							<s:Label text="线路名称：" width="50%" />
+							<s:TextInput width="50%" />
+						</s:HGroup>
+						<s:HGroup width="100%">
+							<s:Label text="缓冲区半径(米)：" width="50%" />
+							<s:TextInput width="50%" />
+						</s:HGroup>
+						<s:HGroup width="100%">
+							<s:Label text="杆塔号：" width="50%" />
+							<s:TextInput width="50%" />
+						</s:HGroup>
+						<s:HGroup width="100%">
+							<s:Label text="雷击时间：" width="50%" />
+							<s:TextInput width="50%" />
+						</s:HGroup>
+						<s:HGroup width="100%">
+							<s:Label text="时间范围(秒)：" width="50%" />
+							<s:TextInput width="50%" />
+						</s:HGroup>
+						<s:HGroup width="100%" horizontalAlign="right">
+							<s:Button label="查询"/>
+							<s:Button label="定位雷电"/>
+						</s:HGroup>
+					</s:VGroup>
+
+				</s:NavigatorContent>
+			</mx:Accordion>			
+		</s:NavigatorContent>
+		<s:NavigatorContent label="雷电趋势查询" width="100%" height="100%" icon="@Embed(source='asset/images/grid.gif')">
+			<mx:Accordion width="100%" height="100%">
+				<s:NavigatorContent width="100%" height="100%" label="雷电实时监视"
+									icon="@Embed(source='asset/images/thunder.gif')">
+					<s:layout>
+						<s:VerticalLayout/>
+					</s:layout>
+					<s:HGroup width="100%" height="30%" horizontalAlign="left" verticalAlign="middle">
+						<s:RadioButton label="1分钟" groupName="radiogroup1" selected="false"/>
+						<s:RadioButton label="2分钟" groupName="radiogroup1" selected="true"/>
+						<s:RadioButton label="10分钟" groupName="radiogroup1" selected="false"/>
+						<s:Spacer width="100%"/>
+						<s:Button label="开始" click="" focusColor="#5C8DBA"/>
+						<s:Button label="停止" click="" focusColor="#5C8DBA"/>
+					</s:HGroup>					
+					<s:TileGroup width="100%" height="70%">
+						<mx:ColorPicker selectedColor="#CD1717" editable="false" />
+						<mx:ColorPicker/>
+						<mx:ColorPicker selectedColor="#000000"/>
+						<mx:ColorPicker selectedColor="#2556D2"/>
+						<mx:ColorPicker/>
+						<mx:ColorPicker/>
+						<mx:ColorPicker selectedColor="#E5DE11"/>
+						<mx:ColorPicker/>
+					</s:TileGroup>
+				</s:NavigatorContent>
+				<s:NavigatorContent width="100%" height="100%" label="雷电历史回放"
+									icon="@Embed(source='asset/images/thunder.gif')">
+					<s:layout>
+						<s:VerticalLayout/>
+					</s:layout>
+					<s:HGroup width="100%">
+						<s:Label text="开始："/>
+						<mx:DateField id="qsDateField111" formatString="YYYY-MMDD"/>
+					</s:HGroup>
+					<s:HGroup width="100%">
+						<s:Label text="结束："/>
+						<mx:DateField id="zzDateField111" formatString="YYYY-MMDD"/>
+					</s:HGroup>
+					<s:HGroup width="100%" horizontalAlign="left">
+						<s:Label text="播放方式："/>
+						<s:RadioButton label="循环播放" selected="true">
+							
+						</s:RadioButton>
+						<s:RadioButton label="累加播放" selected="false">
+							
+						</s:RadioButton>
+					</s:HGroup>
+					<s:HGroup width="100%" horizontalAlign="right">
+						<s:Button label="开始播放" click="" focusColor="#5C8DBA"/>
+						<s:Button label="停止播放" click="" focusColor="#5C8DBA"/>
+					</s:HGroup>					
+				</s:NavigatorContent>
+				<s:NavigatorContent width="100%" height="100%" label="气象信息与雷电预警"
+									icon="@Embed(source='asset/images/thunder.gif')">
+					<s:VGroup width="100%" height="100%">
+						<mx:LinkButton label="气象信息展示" />
+						<mx:LinkButton label="雷电监测预警" />
+					</s:VGroup>
+				</s:NavigatorContent>
+			</mx:Accordion>
+		</s:NavigatorContent>
+		<s:NavigatorContent label="统计图表" width="100%" height="100%" icon="@Embed(source='asset/images/grid.gif')">
+			<mx:Accordion width="100%" height="100%">
+				<s:NavigatorContent width="100%" height="100%" label="雷电数据统计图表"
+									icon="@Embed(source='asset/images/thunder.gif')">
+					<s:VGroup width="100%" height="100%">
+						<mx:LinkButton label="按地区雷电属性统计" />
+						<mx:LinkButton label="按时间雷电属性统计" />
+						<mx:LinkButton label="按地区时间统计" />
+						<mx:LinkButton label="按时间分析统计" />
+						<mx:LinkButton label="按落雷日统计" />
+					</s:VGroup>
+				</s:NavigatorContent>
+				<s:NavigatorContent width="100%" height="100%" label="全区落雷密度"
+									icon="@Embed(source='asset/images/thunder.gif')">
+					<s:layout>
+						<s:VerticalLayout/>
+					</s:layout>
+					<s:HGroup width="100%">
+						<s:Label text="开始："/>
+						<mx:DateField id="qsDateField11" formatString="YYYY-MMDD"/>
+					</s:HGroup>
+					<s:HGroup width="100%">
+						<s:Label text="结束："/>
+						<mx:DateField id="zzDateField11" formatString="YYYY-MMDD"/>
+					</s:HGroup>
+					<s:HGroup width="100%" horizontalAlign="right">
+						<s:Button label="重绘全区落雷密度图" click="" focusColor="#5C8DBA"/>
+					</s:HGroup>
+					
+				</s:NavigatorContent>
+				<s:NavigatorContent width="100%" height="100%" label="线路走廊落雷密度"
+									icon="@Embed(source='asset/images/thunder.gif')">
+					<s:layout>
+						<s:VerticalLayout/>
+					</s:layout>
+					<s:HGroup width="100%">
+						<s:Label text="开始："/>
+						<mx:DateField id="qsDateField1" formatString="YYYY-MMDD"/>
+					</s:HGroup>
+					<s:HGroup width="100%">
+						<s:Label text="结束："/>
+						<mx:DateField id="zzDateField1" formatString="YYYY-MMDD"/>
+					</s:HGroup>
+					<s:HGroup width="100%" horizontalAlign="right">
+						<s:Button label="确定日期=〉开始框选缓冲区" click="" focusColor="#5C8DBA"/>
+					</s:HGroup>
+					
+				</s:NavigatorContent>
+				<s:NavigatorContent width="100%" height="100%" label="雷害图查看"
+									icon="@Embed(source='asset/images/thunder.gif')">
+					<s:VGroup width="100%" height="100%">
+						<mx:LinkButton label="地闪密度图" />
+						<mx:LinkButton label="220kV+绕击雷害风险分布图" />
+						<mx:LinkButton label="220kV+反击雷害风险分布图" />
+					</s:VGroup>					
+				</s:NavigatorContent>
+			</mx:Accordion>
+		</s:NavigatorContent>
+		<s:NavigatorContent label="系统帮助" width="100%" height="100%" icon="@Embed(source='asset/images/grid.gif')">
+			<s:VGroup width="100%" height="100%">
+				<mx:LinkButton label="雷电基础知识介绍" />
+				<mx:LinkButton label="探头分布图" />
+				<mx:LinkButton label="系统配置图" />
+				<mx:LinkButton label="GIS查询帮助" />
+				<mx:LinkButton label="统计报表帮助" />
+				<mx:LinkButton label="系统管理帮助" />
+				
+			</s:VGroup>
+		</s:NavigatorContent>
+		<s:NavigatorContent label="开发测试" width="100%" height="100%" icon="@Embed(source='asset/images/grid.gif')">
+			<s:VGroup>
+				<mapext:CPosition map="{this.map.map}" />
+				<s:Button label="添加编辑图层" id="addFeatureCircle" click="addFeatureCircle_clickHandler(event)" />
+				<os:FeatureDrawing map="{map.map}" width="100%" />
+				
+			</s:VGroup>
+		</s:NavigatorContent>
+	</mx:Accordion>	
+	<mx:TabNavigator width="100%" height="118" horizontalAlign="right">
+		<s:NavigatorContent width="100%" height="100%" label="图层">
+			<os:LayerManager id="mapLayerManager" width="100%" height="90%" map="{map.map}" >
+			</os:LayerManager>
+		</s:NavigatorContent>
+		<s:NavigatorContent width="100%" height="100%" label="属性">
+		</s:NavigatorContent>
+	</mx:TabNavigator>
+</s:Group>
